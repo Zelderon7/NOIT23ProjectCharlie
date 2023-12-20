@@ -15,9 +15,12 @@ public class OutputConnectionScript : MonoBehaviour
         if (forConnection == null)
             return false;
 
+        if (forConnection.Connected != null)
+            return false;
+
         Vector3 tPos = forConnection.gameObject.transform.position;
         Vector3 myPos = gameObject.transform.position;
-        myBlock.transform.position += new Vector3(tPos.x - myPos.x, tPos.y - myPos.y, 0);
+        myBlock.transform.parent.position += new Vector3(tPos.x - myPos.x, tPos.y - myPos.y, 0);
 
         connected = forConnection;
         forConnection = null;
@@ -25,7 +28,19 @@ public class OutputConnectionScript : MonoBehaviour
         connected.Connected = myBlock;
         GoNext += connected.CallMe;
 
+        RearrangeChildrenAfterTarget(connected.transform.parent);
+
         return true;
+    }
+
+    public void Disconnect()
+    {
+        if (connected == null) return;
+
+        forConnection = connected;
+        GoNext -= connected.CallMe;
+        connected.Connected = null;
+        connected = null;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -35,7 +50,7 @@ public class OutputConnectionScript : MonoBehaviour
 
         if(collision.tag == "inputConnector")
         {
-            myBlock.ConnectibleHere = true;
+            myBlock.ConnectableHere = true;
             forConnection = collision.GetComponent<InputConnector>();
         }
     }
@@ -44,8 +59,35 @@ public class OutputConnectionScript : MonoBehaviour
     {
         if (collision.tag == "inputConnector")
         {
-            myBlock.ConnectibleHere = false;
+            myBlock.ConnectableHere = false;
             forConnection = null;
         }
+    }
+
+    void RearrangeChildrenAfterTarget(Transform target)
+    {
+        Transform parentTransform = transform.parent.parent.parent;
+        int targetIndex = target.GetSiblingIndex();
+
+        // Store the reference of the object to be moved
+        Transform objectToMove = transform.parent.parent;
+
+        // If the object to move is already after the target, no need to rearrange
+        if (objectToMove.GetSiblingIndex() > targetIndex)
+        {
+            return;
+        }
+
+        // Detach the object to move from its parent temporarily
+        objectToMove.SetParent(null);
+
+        // Get the new index of the object to be moved after repositioning
+        int newIndex = targetIndex;
+
+        // Reposition the object to be moved after the target
+        objectToMove.SetSiblingIndex(newIndex);
+
+        // Reattach the object to move back to its parent
+        objectToMove.SetParent(parentTransform);
     }
 }

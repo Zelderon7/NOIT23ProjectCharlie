@@ -11,25 +11,21 @@ public class Block : MonoBehaviour
     Block connectedIn = null;
 
     [SerializeField]
-    private GameObject outConnectorsHolder = null;
-    private GameObject[] outConnectors = null;
-    public bool ConnectibleHere = false;
+    private GameObject outConnectorsHolder;
+    public bool ConnectableHere = false;
     OutputConnectionScript[] outConnectorsScripts = null;
 
     [SerializeField]
     private GameObject argsholder = null;
     private GameObject[] args = null;//GameObject => DataBlock
-
+    private Vector2 dragOffset = Vector2.zero;
     
 
-    private void Awake()
+    internal virtual void Awake()
     {
-        outConnectors = outConnectorsHolder.GetComponentsInChildren<GameObject>();
-        outConnectorsScripts = new OutputConnectionScript[outConnectors.Length];
-        for (int i = 0; i < outConnectors.Length; i++)
-            outConnectorsScripts[i] = outConnectors[i].GetComponent<OutputConnectionScript>();
+        outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
 
-        args = argsholder.GetComponentsInChildren<GameObject>();//GameObject => DataBlock
+        //args = argsholder.GetComponentsInChildren<GameObject>();//GameObject => DataBlock
     }
 
     public void StartBlock(Block caller)
@@ -42,5 +38,44 @@ public class Block : MonoBehaviour
     internal virtual void RunBlock()
     {
 
+    }
+
+    private void OnMouseDown()
+    {
+        Debug.Log("MD");
+        foreach(var t in outConnectorsScripts)
+        {
+            t.Disconnect();
+        }
+
+        InputConnector inputConnector = inpConnector?.GetComponent<InputConnector>();
+        if (inputConnector != null)
+        {
+            OutputConnectionScript outputConnection = inputConnector.Connected?.GetComponent<OutputConnectionScript>();
+            if (outputConnection != null)
+            {
+                outputConnection.Disconnect();
+            }
+        }
+
+        dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
+    }
+
+    private void OnMouseUp()
+    {
+        foreach (var item in outConnectorsScripts)
+        {
+            item.Connect();
+        }
+    }
+
+    private void OnMouseDrag()
+    {
+        transform.parent.transform.position = GetMousePos() - dragOffset;
+    }
+
+    Vector2 GetMousePos()
+    {
+        return Camera.main.ScreenToWorldPoint( Input.mousePosition );
     }
 }
