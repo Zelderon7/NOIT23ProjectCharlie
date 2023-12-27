@@ -90,6 +90,8 @@ public class OutputConnectionScript : MonoBehaviour
         // Store the reference of the object to be moved
         Transform objectToMove = transform.parent.parent;
 
+        target = target.parent.parent;
+
         // If the object to move is already after the target, no need to rearrange
         if (objectToMove.GetSiblingIndex() > targetIndex)
         {
@@ -102,10 +104,12 @@ public class OutputConnectionScript : MonoBehaviour
         // Get the new index of the object to be moved after repositioning
         int newIndex = targetIndex;
 
-        // Reposition the object to be moved after the target
-        objectToMove.SetSiblingIndex(newIndex);
+        
 
         // Reattach the object to move back to its parent
         objectToMove.SetParent(parentTransform);
+        
+        // Reposition the object to be moved after the target
+        objectToMove.SetSiblingIndex(newIndex);
     }
 }
