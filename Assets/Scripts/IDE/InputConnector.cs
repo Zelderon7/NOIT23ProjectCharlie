@@ -4,10 +4,21 @@ using UnityEngine;
 
 public class InputConnector : MonoBehaviour
 {
-    [SerializeField] Block myBlock;
-    public Block Connected = null;
+    public Block myBlock { get; private set; }
+    public OutputConnectionScript Connected = null;
+    public OutputConnectionScript forConnection = null;
+
+    private void Awake()
+    {
+        myBlock = transform.parent.gameObject.GetComponentInChildren<Block>();
+        if (myBlock == null)
+            Debug.LogError("BlockNotFound");
+    }
     public void CallMe()
     {
-        myBlock.StartBlock(Connected);
+        Block temp = Connected.transform.parent.GetComponentInChildren<Block>();
+        if (temp == null)
+            throw new System.Exception("Not Connected");
+        myBlock.StartBlock(temp);
     }
 }

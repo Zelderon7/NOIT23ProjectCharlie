@@ -25,12 +25,28 @@ public class OutputConnectionScript : MonoBehaviour
         connected = forConnection;
         forConnection = null;
 
-        connected.Connected = myBlock;
+        connected.Connected = this;
         GoNext += connected.CallMe;
 
         RearrangeChildrenAfterTarget(connected.transform.parent);
 
         return true;
+    }
+
+    public void FixPositionInStack()
+    {
+        if(connected == null)
+            return;
+
+        Vector3 tPos = connected.gameObject.transform.position;
+        Vector3 myPos = gameObject.transform.position;
+        myBlock.transform.parent.position += new Vector3(tPos.x - myPos.x, tPos.y - myPos.y, 0);
+
+        InputConnector myConnector = myBlock.transform.parent.gameObject.GetComponentInChildren<InputConnector>();
+        if (myConnector == null)
+            return;
+
+        myConnector.Connected?.FixPositionInStack();
     }
 
     public void Disconnect()
@@ -52,6 +68,7 @@ public class OutputConnectionScript : MonoBehaviour
         {
             myBlock.ConnectableHere = true;
             forConnection = collision.GetComponent<InputConnector>();
+            collision.GetComponent<InputConnector>().forConnection = this;
         }
     }
 
@@ -61,6 +78,7 @@ public class OutputConnectionScript : MonoBehaviour
         {
             myBlock.ConnectableHere = false;
             forConnection = null;
+            collision.GetComponent<InputConnector>().forConnection = null;
         }
     }
 
@@ -71,6 +89,8 @@ public class OutputConnectionScript : MonoBehaviour
 
         // Store the reference of the object to be moved
         Transform objectToMove = transform.parent.parent;
+
+        target = target.parent.parent;
 
         // If the object to move is already after the target, no need to rearrange
         if (objectToMove.GetSiblingIndex() > targetIndex)
@@ -84,10 +104,12 @@ public class OutputConnectionScript : MonoBehaviour
         // Get the new index of the object to be moved after repositioning
         int newIndex = targetIndex;
 
-        // Reposition the object to be moved after the target
-        objectToMove.SetSiblingIndex(newIndex);
+        
 
         // Reattach the object to move back to its parent
         objectToMove.SetParent(parentTransform);
+        
+        // Reposition the object to be moved after the target
+        objectToMove.SetSiblingIndex(newIndex);
     }
 }

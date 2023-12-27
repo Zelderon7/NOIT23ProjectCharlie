@@ -42,36 +42,93 @@ public class Block : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Debug.Log("MD");
-        foreach(var t in outConnectorsScripts)
-        {
-            t.Disconnect();
-        }
-
         InputConnector inputConnector = inpConnector?.GetComponent<InputConnector>();
         if (inputConnector != null)
         {
-            OutputConnectionScript outputConnection = inputConnector.Connected?.GetComponent<OutputConnectionScript>();
+            OutputConnectionScript outputConnection = inputConnector.Connected;
             if (outputConnection != null)
             {
                 outputConnection.Disconnect();
+                //Debug.Log("Disconnected sucsesfully");
             }
+        }
+
+        foreach (var outConnector in outConnectorsScripts)
+        {
+            outConnector?.connected?.myBlock.PrepDragAlong();
         }
 
         dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
     }
 
-    private void OnMouseUp()
+    public void PrepDragAlong()
+    {
+        dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
+
+        foreach (var outConnector in outConnectorsScripts)
+        {
+            outConnector?.connected?.myBlock.PrepDragAlong();
+        }
+    }
+
+    /// <summary>
+    /// Should only be called from the MouseUp() or on the MouseUp() on connected which is dragging the current
+    /// Checks for possible connection and connects to it.
+    /// </summary>
+    public void ConnectIfPossible()
     {
         foreach (var item in outConnectorsScripts)
         {
-            item.Connect();
+            if (item.Connect())
+                item.FixPositionInStack();
+        }
+
+        foreach (var outConnector in outConnectorsScripts)
+        {
+            outConnector?.connected?.myBlock.ConnectIfPossible();
+        }
+
+        if(inpConnector?.GetComponent<InputConnector>().forConnection != null)
+        {
+            if (inpConnector.GetComponent<InputConnector>().forConnection.Connect())
+            {
+                inpConnector.GetComponent<InputConnector>().Connected.FixPositionInStack();
+            }
+        }
+    }
+
+    private void OnMouseUp()
+    {
+        ConnectIfPossible();
+
+        foreach (var outConnector in outConnectorsScripts)
+        {
+            outConnector?.connected?.myBlock.ConnectIfPossible();
         }
     }
 
     private void OnMouseDrag()
     {
+        MoveWithMouse();
+
+        foreach (var outConnector in outConnectorsScripts)
+        {
+            outConnector?.connected?.myBlock.MoveWithMouse();
+        }
+    }
+
+    /// <summary>
+    /// Should only be called from the MouseDrag() or on the MouseDrag() on connected which is dragging the current
+    /// Moves the block based of the cursor's position and the <see cref="dragOffset"/>
+    /// </summary>
+    public void MoveWithMouse()
+    {
         transform.parent.transform.position = GetMousePos() - dragOffset;
+
+        foreach (var outConnector in outConnectorsScripts)
+        {
+            outConnector?.connected?.myBlock.MoveWithMouse();
+        }
     }
 
     Vector2 GetMousePos()
