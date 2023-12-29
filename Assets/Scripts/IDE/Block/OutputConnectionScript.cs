@@ -8,7 +8,14 @@ public class OutputConnectionScript : MonoBehaviour
     public InputConnector connected { get; private set; } = null;
     InputConnector forConnection = null;
     [SerializeField] Block myBlock;
-    public Action GoNext;
+    public bool GoNext()
+    {
+        if (connected == null)
+            return false;
+
+        connected.CallMe();
+        return true;
+    }
 
     public bool Connect()
     {
@@ -26,7 +33,6 @@ public class OutputConnectionScript : MonoBehaviour
         forConnection = null;
 
         connected.Connected = this;
-        GoNext += connected.CallMe;
 
         RearrangeChildrenAfterTarget(connected.transform.parent);
 
@@ -54,7 +60,6 @@ public class OutputConnectionScript : MonoBehaviour
         if (connected == null) return;
 
         forConnection = connected;
-        GoNext -= connected.CallMe;
         connected.Connected = null;
         connected = null;
     }

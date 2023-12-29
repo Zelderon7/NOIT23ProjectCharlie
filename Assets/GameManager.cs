@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     
     
     [SerializeField] private GameObject IDEScreen;
+    [SerializeField] private GameObject GameScreen;
     [SerializeField] AnimationCurve EaseInOutQuad = new AnimationCurve();
     
     
@@ -70,11 +71,13 @@ public class GameManager : MonoBehaviour
     private void OnIDEOpen()
     {
         StartCoroutine(MoveTransform(IDEScreen.transform, Vector3.zero, 1.5f));        
+        StartCoroutine(MoveTransform(GameScreen.transform, new Vector3(18, 0, 0), 1.5f));
     }
 
     private void OnIDEClose()
     {
         StartCoroutine(MoveTransform(IDEScreen.transform, new Vector3(-18f, 0, 0), 1.5f));
+        StartCoroutine(MoveTransform(GameScreen.transform, Vector3.zero, 1.5f));
     }
 
     public void SwitchGameIDE()

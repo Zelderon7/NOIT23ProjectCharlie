@@ -13,7 +13,7 @@ public class Block : MonoBehaviour
     [SerializeField]
     private GameObject outConnectorsHolder;
     public bool ConnectableHere = false;
-    OutputConnectionScript[] outConnectorsScripts = null;
+    internal OutputConnectionScript[] outConnectorsScripts = null;
 
     [SerializeField]
     private GameObject argsholder = null;
@@ -30,8 +30,8 @@ public class Block : MonoBehaviour
 
     public void StartBlock(Block caller)
     {
-        if (caller != connectedIn)
-            return;
+        //if (caller != connectedIn)
+            //throw new System.Exception("Block called from not connected block");
         RunBlock();
     }
 
