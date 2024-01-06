@@ -59,9 +59,10 @@ public class OutputConnectionScript : MonoBehaviour
     {
         if (connected == null) return;
 
-        forConnection = connected;
+        //forConnection = connected;
         connected.Connected = null;
         connected = null;
+        //myBlock.ConnectableHere = false;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

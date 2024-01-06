@@ -1,11 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class Block : MonoBehaviour
 {
+    public GameObject Owner;
+    static float scrollSpeed = 5f;
+    internal static GameObject IDEBackground;
+
     [SerializeField]
     private GameObject inpConnector = null;
     Block connectedIn = null;
@@ -19,13 +24,24 @@ public class Block : MonoBehaviour
     private GameObject argsholder = null;
     private GameObject[] args = null;//GameObject => DataBlock
     private Vector2 dragOffset = Vector2.zero;
+    private Vector2 lastPos = Vector2.zero;
     
 
     internal virtual void Awake()
     {
         outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
-
+        //IDEBackground = GameManager.Instance.IDEScreen;
         //args = argsholder.GetComponentsInChildren<GameObject>();//GameObject => DataBlock
+        lastPos = transform.parent.position;
+    }
+
+    private void Update()
+    {
+        // Get the scroll wheel delta
+        float scrollDelta = Input.mouseScrollDelta.y;
+
+        if(scrollDelta != 0)
+            MoveObjectWithScroll(scrollDelta);
     }
 
     public void StartBlock(Block caller)
@@ -40,7 +56,31 @@ public class Block : MonoBehaviour
 
     }
 
+    void MoveObjectWithScroll(float scrollDelta)
+    {
+        if (IDEBackground == null)
+            IDEBackground = GameManager.Instance.IDEScreen.GetComponentsInChildren<Transform>().First(x => (x.gameObject.name == "Background")).gameObject;
+
+        if (IDEBackground == null)
+            throw new System.Exception("Couldn't find the Background of IDEScreen");
+
+        IDEBackground.transform.Translate(Vector3.up * scrollDelta * scrollSpeed * Time.deltaTime);
+        Camera.main.transform.Translate(Vector3.up * scrollDelta * scrollSpeed * Time.deltaTime);
+    }
+
+    public static void PrepToClose()
+    {
+        if(IDEBackground != null)
+            IDEBackground.transform.position = Vector3.zero;
+        Camera.main.transform.position = Vector3.forward * -10;
+    }
+
     private void OnMouseDown()
+    {
+        PrepDragAlong();
+    }
+
+    private void DisconnectCur()
     {
         InputConnector inputConnector = inpConnector?.GetComponent<InputConnector>();
         if (inputConnector != null)
@@ -52,13 +92,6 @@ public class Block : MonoBehaviour
                 //Debug.Log("Disconnected sucsesfully");
             }
         }
-
-        foreach (var outConnector in outConnectorsScripts)
-        {
-            outConnector?.connected?.myBlock.PrepDragAlong();
-        }
-
-        dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
     }
 
     public void PrepDragAlong()
@@ -99,12 +132,22 @@ public class Block : MonoBehaviour
 
     private void OnMouseUp()
     {
+        if (CheckColliderOutOfScreenSpace(1.3f))
+        {
+            transform.parent.position = lastPos;
+            return;
+        }
+
+        DisconnectCur();
         ConnectIfPossible();
 
         foreach (var outConnector in outConnectorsScripts)
         {
             outConnector?.connected?.myBlock.ConnectIfPossible();
         }
+
+        lastPos = transform.parent.position;
+        
     }
 
     private void OnMouseDrag()
@@ -134,5 +177,39 @@ public class Block : MonoBehaviour
     Vector2 GetMousePos()
     {
         return Camera.main.ScreenToWorldPoint( Input.mousePosition );
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns>true if it's out of bounds</returns>
+    bool CheckColliderOutOfScreenSpace(float tollerance)
+    {
+        Collider2D collider = GetComponent<BoxCollider2D>();
+
+        if (collider != null)
+        {
+            // Calculate the screen bounds in world space
+            Vector3 screenBoundsMin = Camera.main.ScreenToWorldPoint(Vector3.zero);
+            Vector3 screenBoundsMax = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
+
+            // Calculate the bounds of the collider in world space
+            Bounds colliderBounds = collider.bounds;
+
+            // Check if the collider bounds are even slightly out of the screen
+            return !IsBoundsWithinScreen(colliderBounds, screenBoundsMin, screenBoundsMax, tollerance);
+        }
+        else
+        {
+            Debug.LogError("Collider component not found!");
+            return false;
+        }
+    }
+
+    bool IsBoundsWithinScreen(Bounds bounds, Vector3 screenBoundsMin, Vector3 screenBoundsMax, float tollerance)
+    {
+        // Check if the bounds are within the screen bounds
+        //Debug.Log($"Bounds: {bounds.max.x}X, {bounds.max.y}Y");
+        return bounds.min.x + tollerance >= screenBoundsMin.x && bounds.max.x - tollerance <= screenBoundsMax.x;
     }
 }
