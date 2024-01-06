@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    #region Singleton pattern
     private static GameManager instance;
 
-    // Getter for the instance of the GameManager
     public static GameManager Instance
     {
         get
@@ -29,6 +29,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Menus
 
     public enum Menus
     {
@@ -58,10 +61,39 @@ public class GameManager : MonoBehaviour
     }
     [SerializeField] AnimationCurve EaseInOutQuad = new AnimationCurve();
 
+
+    public Menus CurrentMenu
+    {
+        get { return _currentMenu; }
+        set
+        {
+            if (!_curMenuChangable)
+                return;
+            if (_currentMenu != value)
+            {
+                OnMenusClose[_currentMenu]?.Invoke();
+                _currentMenu = value;
+                OnMenusOpen[_currentMenu]?.Invoke();
+            }
+
+        }
+    }
+
+    public Dictionary<Menus, Action> OnMenusOpen { get; private set; } = new Dictionary<Menus, Action>();
+    public Dictionary<Menus, Action> OnMenusClose { get; private set; } = new Dictionary<Menus, Action>();
+    private bool _curMenuChangable = true;
+    private Menus _currentMenu = Menus.Game;
+
+
+    #endregion
+
     #region Grid Variables
 
     [SerializeField] private GameObject tilePrefab;
-
+    /// <summary>
+    /// The parent transform of every grid cell
+    /// </summary>
+    [SerializeField] public GameObject GridParent;
     
     public int GridWidth
     {
@@ -96,29 +128,6 @@ public class GameManager : MonoBehaviour
 
 #endregion
 
-
-    public Menus CurrentMenu 
-    { 
-        get { return _currentMenu; }
-        set
-        {
-            if (!_curMenuChangable)
-                return;
-            if(_currentMenu != value)
-            {
-                OnMenusClose[_currentMenu]?.Invoke();
-                _currentMenu = value;
-                OnMenusOpen[_currentMenu]?.Invoke();
-            }
-            
-        }
-    }
-
-    public  Dictionary<Menus, Action> OnMenusOpen { get; private set; } = new Dictionary<Menus, Action>();
-    public  Dictionary<Menus, Action> OnMenusClose { get; private set; } = new Dictionary<Menus, Action>();
-    private bool _curMenuChangable = true;
-    private Menus _currentMenu = Menus.Game;
-
     private void Awake()
     {
         #region Singleton pattern
@@ -128,13 +137,14 @@ public class GameManager : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (instance != this)
         {
             Destroy(gameObject);
         }
 
         #endregion
 
+        #region Menus
         OnMenusClose.Clear();
         OnMenusOpen.Clear();
         foreach(var item in Enum.GetValues(typeof(Menus)))
@@ -145,6 +155,8 @@ public class GameManager : MonoBehaviour
 
         OnMenusOpen[Menus.IDE] += OnIDEOpen;
         OnMenusClose[Menus.IDE] += OnIDEClose;
+
+        #endregion
 
         InstantiateGrid();
     }
@@ -176,7 +188,7 @@ public class GameManager : MonoBehaviour
 
                 Vector3 position = new Vector3(x, y, 0f);
 
-                GameObject cell = Instantiate(tilePrefab, position, Quaternion.identity);
+                GameObject cell = Instantiate(tilePrefab, position, Quaternion.identity, GridParent.transform);
                 cell.name = col + " " + row;
                 grid.Add(cell);
                 cell.transform.localScale = new Vector3(cellSize, cellSize, 1f);
@@ -200,6 +212,7 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    #region Menus
     private void OnIDEOpen()
     {
         StartCoroutine(MoveTransform(IDEScreen.transform, Vector3.zero, 1.5f));        
@@ -208,6 +221,7 @@ public class GameManager : MonoBehaviour
 
     private void OnIDEClose()
     {
+        IDEManager.Instance.PrepToClose();
         StartCoroutine(MoveTransform(IDEScreen.transform, new Vector3(-18f, 0, 0), 1.5f));
         //StartCoroutine(MoveTransform(GameScreen.transform, Vector3.zero, 1.5f));
     }
@@ -247,6 +261,6 @@ public class GameManager : MonoBehaviour
         targetTransform.position = targetPosition;
         _curMenuChangable = true;
     }
-    
 
+    #endregion
 }

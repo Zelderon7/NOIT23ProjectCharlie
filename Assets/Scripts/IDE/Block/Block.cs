@@ -8,8 +8,6 @@ using UnityEngine;
 public class Block : MonoBehaviour
 {
     public GameObject Owner;
-    static float scrollSpeed = 5f;
-    internal static GameObject IDEBackground;
 
     [SerializeField]
     private GameObject inpConnector = null;
@@ -30,18 +28,12 @@ public class Block : MonoBehaviour
     internal virtual void Awake()
     {
         outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
-        //IDEBackground = GameManager.Instance.IDEScreen;
-        //args = argsholder.GetComponentsInChildren<GameObject>();//GameObject => DataBlock
         lastPos = transform.parent.position;
     }
 
     private void Update()
     {
-        // Get the scroll wheel delta
-        float scrollDelta = Input.mouseScrollDelta.y;
-
-        if(scrollDelta != 0)
-            MoveObjectWithScroll(scrollDelta);
+        
     }
 
     public void StartBlock(Block caller)
@@ -54,25 +46,6 @@ public class Block : MonoBehaviour
     internal virtual void RunBlock()
     {
 
-    }
-
-    void MoveObjectWithScroll(float scrollDelta)
-    {
-        if (IDEBackground == null)
-            IDEBackground = GameManager.Instance.IDEScreen.GetComponentsInChildren<Transform>().First(x => (x.gameObject.name == "Background")).gameObject;
-
-        if (IDEBackground == null)
-            throw new System.Exception("Couldn't find the Background of IDEScreen");
-
-        IDEBackground.transform.Translate(Vector3.up * scrollDelta * scrollSpeed * Time.deltaTime);
-        Camera.main.transform.Translate(Vector3.up * scrollDelta * scrollSpeed * Time.deltaTime);
-    }
-
-    public static void PrepToClose()
-    {
-        if(IDEBackground != null)
-            IDEBackground.transform.position = Vector3.zero;
-        Camera.main.transform.position = Vector3.forward * -10;
     }
 
     private void OnMouseDown()
