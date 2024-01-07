@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 
-public class MooveBlock : Block
+public class MoveBlock : Block
 {
     internal override async void RunBlock()
     {
