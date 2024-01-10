@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private GameObject _IDEScreen;
-    public GameObject IDEScreen { 
+    public GameObject IDEScreen {
         get
         {
             return _IDEScreen;
@@ -94,7 +94,7 @@ public class GameManager : MonoBehaviour
     /// The parent transform of every grid cell
     /// </summary>
     [SerializeField] public GameObject GridParent;
-    
+
     public int GridWidth
     {
         get { return _gridWidth; }
@@ -125,6 +125,9 @@ public class GameManager : MonoBehaviour
     private int _gridWidth, _gridHeight;
     private float gridXRepos = 2.15f;
     private float gridYRepos = 1.2f;
+
+    [SerializeField]
+    private List<Sprite> GridTileSprites;
 
 #endregion
 
@@ -189,11 +192,32 @@ public class GameManager : MonoBehaviour
                 Vector3 position = new Vector3(x, y, 0f);
 
                 GameObject cell = Instantiate(tilePrefab, position, Quaternion.identity, GridParent.transform);
+                cell.GetComponent<SpriteRenderer>().sprite = GetTileSprite(col, row);
                 cell.name = col + " " + row;
                 grid.Add(cell);
                 cell.transform.localScale = new Vector3(cellSize, cellSize, 1f);
             }
         }
+    }
+
+    private Sprite GetTileSprite(int col, int row)
+    {
+        int x, y;
+        if (col == 0)
+            x = 0;
+        else if (col == _gridWidth - 1)
+            x = 2;
+        else
+            x = 1;
+
+        if (row == 0)
+            y = 0;
+        else if (row == _gridHeight - 1)
+            y = 2;
+        else
+            y = 1;
+
+        return GridTileSprites[y*3 + x];
     }
 
     float CalculateCellSize(Camera camera)
