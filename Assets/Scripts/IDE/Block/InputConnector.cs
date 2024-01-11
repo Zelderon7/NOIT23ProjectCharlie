@@ -17,8 +17,6 @@ public class InputConnector : MonoBehaviour
     public void CallMe()
     {
         Block temp = Connected.transform.parent.parent.GetComponentInChildren<Block>();
-        if (temp == null)
-            throw new System.Exception(Connected != null? "problem" : "Not Connected");
-        myBlock.StartBlock(temp);
+        myBlock.RunBlock();
     }
 }

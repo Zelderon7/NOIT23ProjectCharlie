@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    public GameObject Owner;
+    public ICodeable Owner;
 
     [SerializeField]
     private GameObject inpConnector = null;
@@ -20,7 +20,7 @@ public class Block : MonoBehaviour
 
     [SerializeField]
     private GameObject argsholder = null;
-    private GameObject[] args = null;//GameObject => DataBlock
+    private GameObject[] args = null;//TODO: GameObject => DataBlock
     private Vector2 dragOffset = Vector2.zero;
     private Vector2 lastPos = Vector2.zero;
     
@@ -35,15 +35,7 @@ public class Block : MonoBehaviour
     {
         
     }
-
-    public void StartBlock(Block caller)
-    {
-        //if (caller != connectedIn)
-            //throw new System.Exception("Block called from not connected block");
-        RunBlock();
-    }
-
-    internal virtual void RunBlock()
+    public virtual void RunBlock()
     {
 
     }

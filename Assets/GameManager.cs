@@ -119,12 +119,13 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private float gridPadding = 0;
     [SerializeField]
-    private float gridSpacing = 0.2f;
+    public float gridSpacing { get; private set; } = 0.2f;
 
     [SerializeField]
     private int _gridWidth, _gridHeight;
     private float gridXRepos = 2.15f;
     private float gridYRepos = 1.2f;
+    public float cellSize { get; private set; }
 
     [SerializeField]
     private List<Sprite> GridTileSprites;
@@ -174,7 +175,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        float cellSize = CalculateCellSize(mainCamera);
+        cellSize = CalculateCellSize(mainCamera);
 
         Vector3 offset = new Vector3(
             mainCamera.aspect * mainCamera.orthographicSize * -1 + gridPadding + (cellSize/2),
@@ -284,6 +285,20 @@ public class GameManager : MonoBehaviour
         // Ensure that the transform reaches the exact target position
         targetTransform.position = targetPosition;
         _curMenuChangable = true;
+    }
+
+    #endregion
+
+    #region Grid Methods
+
+    public bool IsCellWalkable(int x, int y)
+    {
+        if (grid[y * GridWidth + x] == null)
+            throw new Exception("Grid hasn't been instantiated properly");
+
+        Tile targetTile = grid[y * GridWidth + x].GetComponent<Tile>();
+
+        return targetTile.OccupyingObject == null || targetTile.OccupyingObject is ISteppableOver;//TODO: FIX THIS BULLSHIT
     }
 
     #endregion

@@ -12,8 +12,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Game Screen
+  - IDEScreen
   - 
   - 
   - 
@@ -39,9 +39,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: GameScreen
+    uniqueID: 45745665
+    locked: 0
+  - name: IDEScreen
+    uniqueID: 1381922233
+    locked: 0
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: New Layer 1
-    uniqueID: 41186991
     locked: 0
