@@ -56,6 +56,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8275506693153642467, guid: df2d7139ae32d7548b636b94418ff20b, type: 3}
+      propertyPath: m_text
+      value: Walk
+      objectReference: {fileID: 0}
+    - target: {fileID: 8275506693153642467, guid: df2d7139ae32d7548b636b94418ff20b, type: 3}
+      propertyPath: m_fontSize
+      value: 8.3
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7893865809484212931, guid: df2d7139ae32d7548b636b94418ff20b, type: 3}
     m_RemovedGameObjects: []

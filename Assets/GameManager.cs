@@ -116,10 +116,9 @@ public class GameManager : MonoBehaviour
     }
 
     private List<GameObject> grid = new List<GameObject>();
-    [SerializeField]
-    private float gridPadding = 0;
-    [SerializeField]
-    public float gridSpacing { get; private set; } = 0.2f;
+    [SerializeField] private float gridPadding = 0;
+
+    [SerializeField] public float gridSpacing = 0.2f;
 
     [SerializeField]
     private int _gridWidth, _gridHeight;
@@ -155,6 +154,7 @@ public class GameManager : MonoBehaviour
         {
             OnMenusClose.Add((Menus)item, new Action(() => { }));
             OnMenusOpen.Add((Menus)item, new Action(() => { }));
+            Debug.Log((Menus)item + "instantiated");
         }
 
         OnMenusOpen[Menus.IDE] += OnIDEOpen;
@@ -164,6 +164,7 @@ public class GameManager : MonoBehaviour
 
         InstantiateGrid();
     }
+
     #region Grid Instantiation
     void InstantiateGrid()
     {
