@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,13 @@ public class IDEManager : MonoBehaviour
     [SerializeField] GameObject IDEBackground;
     public ICodeable CurrentlyProgramed = null;
     public bool IsActive { get { return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE; } }
+
+    public Action OnCodeStart = () => { };
+
+    public void StartCode()
+    {
+        OnCodeStart?.Invoke();
+    }
 
 
     private void Awake()
