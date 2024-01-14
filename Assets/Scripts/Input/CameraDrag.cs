@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,9 +16,12 @@ public class CameraDrag : MonoBehaviour {
     private Bounds _cameraBounds;
     private Vector3 _targetPosition;
 
-    public float zoomSpeed = 2f;
-    public float minZoom = 2f;
-    public float maxZoom = 10f;
+
+
+    [SerializeField] float[] zoomLevels = { 5f, 3f, 1f };
+    private int currentZoomIndex = 0;
+
+    private float zoomSpeed = 2f;
 
     #endregion
 
@@ -38,7 +43,10 @@ public class CameraDrag : MonoBehaviour {
         );
     }
 
-    private void Awake() => _mainCamera = Camera.main;
+    private void Awake()
+    {
+        _mainCamera = Camera.main;
+    }
 
     private void Start()
     {
@@ -51,7 +59,7 @@ public class CameraDrag : MonoBehaviour {
         if (ctx.started)
         {
             Debug.Log("DRAGGING");
-            _origin = GetMousePosition;
+            _origin = GetMousePosition();
             _isDragging = true;
         } else if (ctx.canceled)
         {
@@ -69,28 +77,110 @@ public class CameraDrag : MonoBehaviour {
             // Get the scroll value from the callback context
             float scrollValue = ctx.ReadValue<Vector2>().y;
 
-            // Log the scroll value to the console
-            Debug.Log("Scroll Value: " + scrollValue);
+            // Log the current zoom level to the console
+            Debug.Log("Current Zoom Level: " + currentZoomIndex);
 
-            // Handle zooming using Unity's new Input System
-            float newSize = _mainCamera.orthographicSize - scrollValue * zoomSpeed;
-            newSize = Mathf.Clamp(newSize, minZoom, maxZoom);
-            _mainCamera.orthographicSize = newSize;
+            // Calculate the new zoom index
+            int newZoomIndex = currentZoomIndex;
+
+            if (scrollValue > 0 && currentZoomIndex < zoomLevels.Length - 1)
+            {
+                // If scrolling up and not at the max zoom level
+                newZoomIndex++;
+            } else if (scrollValue < 0 && currentZoomIndex > 0)
+            {
+                // If scrolling down and not at the min zoom level
+                newZoomIndex--;
+            }
+
+            Debug.Log("New Zoom Index: " + newZoomIndex);
+
+            // Check if the new zoom level goes outside bounds
+            if (IsOutOfBounds(zoomLevels[newZoomIndex]))
+            {
+                // Move the camera to stay within bounds
+                MoveCameraWithinBounds(zoomLevels[newZoomIndex]);
+                Debug.Log("Move camera within bounds");
+
+                // Set the new zoom index
+                currentZoomIndex = newZoomIndex;
+
+                // Set the new zoom level
+                _mainCamera.orthographicSize = zoomLevels[currentZoomIndex];
+
+                // Recalculate the camera bounds with the new size
+                RecalculateCameraBounds();
+            } else
+            {
+                Debug.Log("DIDN'T Move camera within bounds");
+
+                // Set the new zoom index
+                currentZoomIndex = newZoomIndex;
+
+                // Set the new zoom level
+                _mainCamera.orthographicSize = zoomLevels[currentZoomIndex];
+
+                // Recalculate the camera bounds with the new size
+                RecalculateCameraBounds();
+            }
         }
     }
+
+
+
+    private bool IsOutOfBounds(float newZoomLevel)
+    {
+        var height = newZoomLevel;
+        var width = newZoomLevel * _mainCamera.aspect;
+
+        var minX = Globals.WorldBounds.min.x + width;
+        var maxX = Globals.WorldBounds.extents.x - width;
+
+        var minY = Globals.WorldBounds.min.y + height;
+        var maxY = Globals.WorldBounds.extents.y - height;
+
+        return _targetPosition.x < minX || _targetPosition.x > maxX || _targetPosition.y < minY || _targetPosition.y > maxY;
+    }
+
+    private void MoveCameraWithinBounds(float newZoomLevel)
+    {
+        // Calculate the allowed range for the camera
+        float minX = Globals.WorldBounds.min.x + newZoomLevel * _mainCamera.aspect;
+        float maxX = Globals.WorldBounds.max.x - newZoomLevel * _mainCamera.aspect;
+
+        float minY = Globals.WorldBounds.min.y + newZoomLevel;
+        float maxY = Globals.WorldBounds.max.y - newZoomLevel;
+
+        // Calculate the new position within bounds
+        float clampedX = Mathf.Clamp(transform.position.x, minX, maxX);
+        float clampedY = Mathf.Clamp(transform.position.y, minY, maxY);
+
+        // Calculate the delta movement to smoothly adjust the camera position
+        float deltaX = clampedX - transform.position.x;
+        float deltaY = clampedY - transform.position.y;
+
+        // Update the camera position smoothly
+        transform.position += new Vector3(deltaX, deltaY, 0f);
+
+        // Update the _targetPosition
+        _targetPosition = GetMousePosition();
+    }
+
+
+
+
+
 
     private void RecalculateCameraBounds()
     {
         InitializeCameraBounds(); // Recalculate and set camera bounds
     }
 
-   
-
     private void LateUpdate()
     {
         if (!_isDragging)
             return;
-        _difference = GetMousePosition - transform.position;
+        _difference = GetMousePosition() - transform.position;
 
         _targetPosition = _origin - _difference;
         _targetPosition = GetCameraBounds();
@@ -107,5 +197,9 @@ public class CameraDrag : MonoBehaviour {
         );
     }
 
-    private Vector3 GetMousePosition => _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+    private Vector3 GetMousePosition()
+    {
+        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        return _mainCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, _mainCamera.nearClipPlane));
+    }
 }
