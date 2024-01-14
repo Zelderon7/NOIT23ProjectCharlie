@@ -30,6 +30,7 @@ public class IDEManager : MonoBehaviour
 
     [SerializeField] float scrollSpeed = 20f;
     [SerializeField] GameObject IDEBackground;
+    public ICodeable CurrentlyProgramed = null;
     public bool IsActive { get { return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE; } }
 
 
