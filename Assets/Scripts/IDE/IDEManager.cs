@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,11 +34,19 @@ public class IDEManager : MonoBehaviour
     public ICodeable CurrentlyProgramed = null;
     public bool IsActive { get { return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE; } }
 
+    public Action OnCodeStart = () => { };
+
+    public void RunCode()
+    {
+        OnCodeStart?.Invoke();
+    }
+
 
     private void Awake()
     {
 
         #region Singleton pattern
+
         if (_instance != null && _instance != this)
             Destroy(gameObject);
         else

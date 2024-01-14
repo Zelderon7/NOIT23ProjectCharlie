@@ -47,6 +47,9 @@ public class Block : MonoBehaviour
 
     private void DisconnectCur()
     {
+        if(inpConnector == null)
+            return;
+
         InputConnector inputConnector = inpConnector?.GetComponent<InputConnector>();
         if (inputConnector != null)
         {
@@ -86,7 +89,10 @@ public class Block : MonoBehaviour
             outConnector?.connected?.myBlock.ConnectIfPossible();
         }
 
-        if(inpConnector?.GetComponent<InputConnector>().forConnection != null)
+        if (inpConnector == null)
+            return;
+
+        if(inpConnector.GetComponent<InputConnector>().forConnection != null)
         {
             if (inpConnector.GetComponent<InputConnector>().forConnection.Connect())
             {
