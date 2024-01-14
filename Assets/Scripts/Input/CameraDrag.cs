@@ -18,7 +18,7 @@ public class CameraDrag : MonoBehaviour {
 
 
 
-    [SerializeField] float[] zoomLevels = { 5f, 3f, 1f };
+    [SerializeField] float[] zoomLevels;
     private int currentZoomIndex = 0;
 
     private float zoomSpeed = 2f;
@@ -46,6 +46,15 @@ public class CameraDrag : MonoBehaviour {
     private void Awake()
     {
         _mainCamera = Camera.main;
+        float j = 5f;
+        zoomLevels = new float[20];
+        for (int i = 0; i < 20; i++)
+        {
+            zoomLevels[i] = j;
+
+            j -= 0.2f;
+           
+        }
     }
 
     private void Start()
