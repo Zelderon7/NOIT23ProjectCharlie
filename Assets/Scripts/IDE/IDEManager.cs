@@ -14,16 +14,7 @@ public class IDEManager : MonoBehaviour
     {
         get
         {
-            if (_instance != null)
-                return _instance;
-            else
-            {
-                GameObject obj = new GameObject("IDEManager");
-                obj.AddComponent<IDEManager>();
-                _instance = obj.GetComponent<IDEManager>();
-                DontDestroyOnLoad(obj);
-                return _instance;
-            }
+            return _instance;
         }
     }
 

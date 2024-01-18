@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour
     {
         Game,
         IDE,
+        IDEDrawer,
         Pause,
         Settings,
     }
@@ -71,9 +72,7 @@ public class GameManager : MonoBehaviour
                 return;
             if (_currentMenu != value)
             {
-                OnMenusClose[_currentMenu]?.Invoke();
-                _currentMenu = value;
-                OnMenusOpen[_currentMenu]?.Invoke();
+                ChangeMenu(value);
             }
 
         }
@@ -239,9 +238,31 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Menus
+
+    private bool OnMenuChangeSkipConditions(Menus value, Menus previous)
+    {
+        if (value == Menus.IDEDrawer && previous == Menus.IDE && _currentMenu == Menus.IDE)
+            return true;
+        if(previous == Menus.IDEDrawer && value == Menus.IDE && _currentMenu == Menus.IDE)
+            return true;
+
+        return false;
+    }
+
+    private void ChangeMenu(Menus value)
+    {
+        Menus prevValue = _currentMenu;
+        if (!OnMenuChangeSkipConditions(value, prevValue))
+            OnMenusClose[_currentMenu]?.Invoke();
+        _currentMenu = value;
+        if (!OnMenuChangeSkipConditions(value, prevValue))
+            OnMenusOpen[value]?.Invoke();
+        
+    }
+
     private void OnIDEOpen()
     {
-        StartCoroutine(MoveTransform(IDEScreen.transform, Vector3.zero, 1.5f));        
+        StartCoroutine(MoveTransform(IDEScreen.transform, Vector3.zero, 1.5f));
         //StartCoroutine(MoveTransform(GameScreen.transform, new Vector3(18, 0, 0), 1.5f));
     }
 
@@ -257,8 +278,11 @@ public class GameManager : MonoBehaviour
         CurrentMenu = CurrentMenu == Menus.Game ? Menus.IDE : Menus.Game;
     }
 
-    IEnumerator MoveTransform(Transform targetTransform, Vector3 targetPosition, float duration)
+    public IEnumerator MoveTransform(Transform targetTransform, Vector3 targetPosition, float duration)
     {
+        if (_curMenuChangable == false)//TODO: Test and Refactore if needed
+            StopCoroutine("MoveTransform");
+
         _curMenuChangable = false;
         // Store the initial position of the transform
         Vector3 startPosition = targetTransform.position;

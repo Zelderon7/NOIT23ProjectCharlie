@@ -29,7 +29,10 @@ public class Block : MonoBehaviour
     {
         outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
         lastPos = transform.parent.position;
-        while (IDEManager.Instance == null) ;
+    }
+
+    private void Start()
+    {
         IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
     }
 

@@ -6,7 +6,6 @@ public class StartBlock : Block
 {
     private void Start()
     {
-        while (IDEManager.Instance == null) ;
         IDEManager.Instance.OnCodeStart += RunBlock;
     }
 
