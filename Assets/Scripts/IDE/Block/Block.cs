@@ -29,12 +29,10 @@ public class Block : MonoBehaviour
     {
         outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
         lastPos = transform.parent.position;
+        while (IDEManager.Instance == null) ;
+        IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
     }
 
-    private void Update()
-    {
-        
-    }
     public virtual void RunBlock()
     {
 
