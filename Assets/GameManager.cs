@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -9,6 +8,10 @@ public class GameManager : MonoBehaviour
     #region Singleton pattern
     private static GameManager instance;
 
+    string seed;
+    string levelName;
+    string authorName;
+    
     public static GameManager Instance
     {
         get
@@ -163,6 +166,49 @@ public class GameManager : MonoBehaviour
         #endregion
 
         InstantiateGrid();
+    }
+
+    public void FetchData(string data)
+    {
+        // Split the data using the "//" delimiter
+        string[] dataParts = data.Split(new string[] { "//" }, System.StringSplitOptions.RemoveEmptyEntries);
+
+        // Process the data
+        foreach (string part in dataParts)
+        {
+            // Split each part using ":" delimiter
+            string[] keyValue = part.Split(':');
+
+            // Ensure the part has at least two elements (key and value)
+            if (keyValue.Length >= 2)
+            {
+                string key = keyValue[0].Trim();
+                string value = keyValue[1].Trim();
+
+                // Assign values based on the key
+                switch (key)
+                {
+                    case "LEVEL_NAME":
+                        levelName = value;
+                        break;
+                    case "AUTHOR_NAME":
+                        authorName = value;
+                        break;
+                    case "SEED":
+                        seed = value;
+                        break;
+                    // Add more cases for additional keys if needed
+                    default:
+                        // Handle unknown key or ignore
+                        break;
+                }
+            }
+        }
+
+        // Now, you have the values in the levelName, authorName, and seed variables
+        Debug.Log("Level Name: " + levelName);
+        Debug.Log("Author Name: " + authorName);
+        Debug.Log("Seed: " + seed);
     }
 
     #region Grid Instantiation
