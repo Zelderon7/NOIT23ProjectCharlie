@@ -31,10 +31,11 @@ public class Block : MonoBehaviour
         lastPos = transform.parent.position;
     }
 
-    private void Update()
+    private void Start()
     {
-        
+        IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
     }
+
     public virtual void RunBlock()
     {
 

@@ -14,16 +14,7 @@ public class IDEManager : MonoBehaviour
     {
         get
         {
-            if (_instance != null)
-                return _instance;
-            else
-            {
-                GameObject obj = new GameObject("IDEManager");
-                obj.AddComponent<IDEManager>();
-                _instance = obj.GetComponent<IDEManager>();
-                DontDestroyOnLoad(obj);
-                return _instance;
-            }
+            return _instance;
         }
     }
 
@@ -31,16 +22,49 @@ public class IDEManager : MonoBehaviour
 
     [SerializeField] float scrollSpeed = 20f;
     [SerializeField] GameObject IDEBackground;
-    public ICodeable CurrentlyProgramed = null;
+    public ICodeable CurrentlyProgramed { get => currentlyProgramed;
+        set
+        {
+            SaveProgram(currentlyProgramed);
+            currentlyProgramed = value;
+            LoadProgram(currentlyProgramed);
+        }
+    }
+
+    Dictionary<ICodeable, List<GameObject>> SavedPrograms = new Dictionary<ICodeable, List<GameObject>>();
     public bool IsActive { get { return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE; } }
 
     public Action OnCodeStart = () => { };
+    private ICodeable currentlyProgramed = null;
+
+    public void OnBlockCreation(GameObject a)
+    {
+        if(!SavedPrograms.ContainsKey(currentlyProgramed))
+            SavedPrograms.Add(currentlyProgramed, new List<GameObject>());
+
+        SavedPrograms[currentlyProgramed].Add(a);
+    }
 
     public void StartCode()
     {
         OnCodeStart?.Invoke();
     }
 
+    void SaveProgram(ICodeable program)
+    {
+        foreach (var item in SavedPrograms[program])
+        {
+            transform.position -= Vector3.right * 50;
+        }
+    }
+
+    void LoadProgram(ICodeable program)
+    {
+        foreach (var item in SavedPrograms[program])
+        {
+            transform.position += Vector3.right * 50;
+        }
+    }
 
     private void Awake()
     {

@@ -8,10 +8,10 @@ public class MoveBlock : Block
     public override void RunBlock()
     {
         if (!(Owner is IWalkable))
-        throw new System.Exception("Owner is not Walkable");
+            throw new System.Exception("Owner is not Walkable");
 
         if (!GameManager.Instance.IsCellWalkable((int)Owner.GridPos.x, (int)Owner.GridPos.y))
-        throw new System.Exception("TODO: Replace this Exception");
+            throw new System.Exception("TODO: Replace this Exception");
 
         (Owner as IWalkable).MoveMe();
 
