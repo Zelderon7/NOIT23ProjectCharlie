@@ -13,12 +13,12 @@ public class DrawerScript : MonoBehaviour
 
     private void OnOpen()
     {
-        StopCoroutine(GameManager.Instance.MoveTransform(transform.parent, new Vector3(-7, 0, 0), 1f));
+        StartCoroutine(GameManager.Instance.MoveTransform(transform.parent, new Vector3(-7, 0, 0), 1f));
     }
 
     private void OnClose()
     {
-        StopCoroutine(GameManager.Instance.MoveTransform(transform.parent, new Vector3(-11, 0, 0), 1f));
+        StartCoroutine(GameManager.Instance.MoveTransform(transform.parent, new Vector3(-11, 0, 0), 1f));
     }
 
     private void OnMouseDown()
