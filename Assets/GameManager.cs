@@ -3,12 +3,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
+public class GridObject {
+    public int id;
+    public string objectName;
+    public Sprite sprite; // The prefab to instantiate
+    // Add other properties specific to your game object
+
+    public GridObject(int id, string objectName, Sprite sprite)
+    {
+        this.id = id;
+        this.objectName = objectName;
+        this.sprite = sprite;
+    }
+}
+
 public class GameManager : MonoBehaviour
 {
+
+    [SerializeField]
+     List<GridObject> gridObjects = new List<GridObject> ();
+
+
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed;
+    string seed = "2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2";
     string levelName;
     string authorName;
     
@@ -103,7 +123,6 @@ public class GameManager : MonoBehaviour
         set
         {
             _gridWidth = value;
-            InstantiateGrid();
         }
     }
 
@@ -113,7 +132,6 @@ public class GameManager : MonoBehaviour
         set
         {
             _gridHeight = value;
-            InstantiateGrid();
         }
     }
 
@@ -133,7 +151,7 @@ public class GameManager : MonoBehaviour
 
 #endregion
 
-    private void Awake()
+     void Awake()
     {
         #region Singleton pattern
 
@@ -156,15 +174,13 @@ public class GameManager : MonoBehaviour
         {
             OnMenusClose.Add((Menus)item, new Action(() => { }));
             OnMenusOpen.Add((Menus)item, new Action(() => { }));
-            Debug.Log((Menus)item + "instantiated");
         }
 
         OnMenusOpen[Menus.IDE] += OnIDEOpen;
         OnMenusClose[Menus.IDE] += OnIDEClose;
 
         #endregion
-
-        InstantiateGrid();
+        ProcessSeedString(seed);
     }
 
     public void FetchData(string data)
@@ -179,7 +195,7 @@ public class GameManager : MonoBehaviour
             string[] keyValue = part.Split(':');
 
             // Ensure the part has at least two elements (key and value)
-            if (keyValue.Length >= 2)
+            if (keyValue.Length == 2)
             {
                 string key = keyValue[0].Trim();
                 string value = keyValue[1].Trim();
@@ -196,13 +212,17 @@ public class GameManager : MonoBehaviour
                     case "SEED":
                         seed = value;
                         break;
-                    // Add more cases for additional keys if needed
                     default:
                         // Handle unknown key or ignore
                         break;
                 }
+            } else
+            {
+                throw new ArgumentException("Invalid Data");
             }
         }
+
+        ProcessSeedString(seed);
 
         // Now, you have the values in the levelName, authorName, and seed variables
         Debug.Log("Level Name: " + levelName);
@@ -210,42 +230,101 @@ public class GameManager : MonoBehaviour
         Debug.Log("Seed: " + seed);
     }
 
-    #region Grid Instantiation
-    void InstantiateGrid()
+    void ProcessSeedString(string seed)
     {
-        Camera mainCamera = Camera.main;
+        // Split the seed string by the row delimiter '/'
+        string[] rows = seed.Split('/');
 
-        if (mainCamera == null)
+        // Set grid width and height based on seed
+        _gridWidth = rows[0].Split(',').Length;
+        _gridHeight = rows.Length;
+
+        // Create a 2D array to store the grid data
+        int[,] gridData = new int[_gridHeight, _gridWidth];
+
+        // Iterate over each row
+        for (int rowIndex = 0; rowIndex < _gridHeight; rowIndex++)
         {
-            Debug.LogError("Main camera not found!");
-            return;
+            // Split the row string by commas to get individual column values
+            string[] columns = rows[rowIndex].Split(',');
+
+            // Iterate over each column
+            for (int colIndex = 0; colIndex < _gridWidth; colIndex++)
+            {
+                // Parse the string value to an integer and assign it to the 2D array
+                if (int.TryParse(columns[colIndex], out int cellValue))
+                {
+                    gridData[rowIndex, colIndex] = cellValue;
+                } else
+                {
+                    Debug.LogError("Failed to parse grid data at row " + rowIndex + ", column " + colIndex);
+                }
+            }
         }
 
-        cellSize = CalculateCellSize(mainCamera);
+        // Now you have the grid data in the 'gridData' array, and you can use it to instantiate the grid
+        InstantiateGridFromData(gridData);
+    }
 
-        Vector3 offset = new Vector3(
-            mainCamera.aspect * mainCamera.orthographicSize * -1 + gridPadding + (cellSize/2),
-            mainCamera.orthographicSize - gridPadding - (cellSize/2),
-            0f
-        );
-
+    void InstantiateGridFromData(int[,] gridData)
+    {
+        // Your existing grid instantiation code can be modified to use the provided grid data
         for (int row = 0; row < _gridHeight; row++)
         {
             for (int col = 0; col < _gridWidth; col++)
             {
-                float x = offset.x + col * (cellSize + gridSpacing);
-                float y = offset.y - row * (cellSize + gridSpacing);
+                // Access gridData[row, col] to get the value for the current cell
+                int objectId = gridData[row, col];
 
-                Vector3 position = new Vector3(x, y, 0f);
+                // Use objectId to find the corresponding GridObject
+                GridObject gridObject = GetGridObjectById(objectId);
 
-                GameObject cell = Instantiate(tilePrefab, position, Quaternion.identity, GridParent.transform);
-                cell.GetComponent<SpriteRenderer>().sprite = GetTileSprite(col, row);
-                cell.name = col + " " + row;
-                grid.Add(cell);
-                cell.transform.localScale = new Vector3(cellSize, cellSize, 1f);
+                if (gridObject != null)
+                {
+                    // Instantiate an empty GameObject as the grid cell
+                    GameObject gridCell = new GameObject("GridCell-" + col + "," + row);
+                    gridCell.transform.parent = GridParent.transform;
+                    gridCell.transform.position = new Vector3(col, row, 0f);
+
+                    GameObject background = new GameObject("Background");
+                    background.transform.parent = gridCell.transform;
+                    background.transform.localPosition = Vector3.zero;
+                    SpriteRenderer backgroundRenderer = background.AddComponent<SpriteRenderer>();
+                    backgroundRenderer.sprite = GetTileSprite(col, row);
+                    backgroundRenderer.sortingLayerName = "GameScreen";
+
+
+                    GameObject cell = new GameObject("Cell");
+                    cell.transform.parent = gridCell.transform;
+                    cell.transform.localPosition = Vector3.zero;
+                    SpriteRenderer cellRenderer = cell.AddComponent<SpriteRenderer>();
+                    cellRenderer.sprite = gridObject.sprite;
+                    cellRenderer.sortingLayerName = "GameScreen";
+
+
+                }
             }
         }
     }
+
+
+
+
+
+
+    private GridObject GetGridObjectById(int objectId)
+    {
+        return gridObjects.Find(obj => obj.id == objectId);
+    }
+
+
+    
+
+
+    
+
+    #region Grid Instantiation
+    
 
     private Sprite GetTileSprite(int col, int row)
     {
