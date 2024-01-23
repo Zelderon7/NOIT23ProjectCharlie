@@ -10,7 +10,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     private Vector2 gridPos;
     private Block starterBlock;
     private float moveSpeed = 5f;
-    public Vector2 FacingDirection { get; private set; }
+    public Vector2 FacingDirection { get; private set; } = Vector2.right;
 
     Block ICodeable.StarterBlock { get => starterBlock; set => starterBlock = value; }
     Vector2 ICodeable.GridPos { get => gridPos; set => MoveMeTo(value); }//TODO: Change the set to move method
@@ -25,9 +25,15 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         animator = GetComponent<Animator>();
     }
 
+    private void Start()
+    {
+        IDEManager.Instance.CurrentlyProgramed = this;
+    }
+
     public void MoveMeTo(Vector2 direction)
     {
         animator.SetBool("IsMoving", true);
+        isMovementCompleated.Reset();
         StartCoroutine(MoveCoroutine(direction, GameManager.Instance.cellSize + GameManager.Instance.gridSpacing));
         isMovementCompleated.WaitOne();
         animator.SetBool("IsMoving", false);
@@ -61,6 +67,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
         // Ensure the object reaches the exact target position
         transform.position = startPosition + direction * distance;
+        Debug.Log("Movement Over" + distance);
         isMovementCompleated.Set();
     }
 

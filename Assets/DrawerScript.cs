@@ -5,34 +5,30 @@ using UnityEngine;
 
 public class DrawerScript : MonoBehaviour
 {
+    bool Opened = false;
     private void Start()
     {
-        GameManager.Instance.OnMenusClose[GameManager.Menus.IDEDrawer] += OnClose;
-        GameManager.Instance.OnMenusOpen[GameManager.Menus.IDEDrawer] += OnOpen;
+        
     }
 
     private void OnOpen()
     {
-        StopCoroutine(GameManager.Instance.MoveTransform(transform.parent, new Vector3(-7, 0, 0), 1f));
+        StartCoroutine(GameManager.Instance.MoveTransform(transform.parent, new Vector3(-7, 0, 0), 1f));
+        Opened = true;
     }
 
     private void OnClose()
     {
-        StopCoroutine(GameManager.Instance.MoveTransform(transform.parent, new Vector3(-11, 0, 0), 1f));
+        StartCoroutine(GameManager.Instance.MoveTransform(transform.parent, new Vector3(-11, 0, 0), 1f));
+        Opened = false;
     }
 
     private void OnMouseDown()
     {
-        Debug.Log("Drawer MouseDown");
-
-        if(GameManager.Instance.CurrentMenu == GameManager.Menus.IDEDrawer)
-        {
-            GameManager.Instance.CurrentMenu = GameManager.Menus.IDE;
-        }
-        else if(GameManager.Instance.CurrentMenu == GameManager.Menus.IDE)
-        {
-            Debug.Log("Moving to Drawer");
-            GameManager.Instance.CurrentMenu = GameManager.Menus.IDEDrawer;
-        }
+        //Debug.Log("Drawer MouseDown");
+        if(Opened)
+            OnClose();
+        else
+            OnOpen();
     }
 }

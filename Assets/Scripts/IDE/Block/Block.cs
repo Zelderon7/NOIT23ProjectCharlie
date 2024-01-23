@@ -29,6 +29,7 @@ public class Block : MonoBehaviour
     {
         outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
         lastPos = transform.parent.position;
+        Owner = IDEManager.Instance.CurrentlyProgramed;
     }
 
     private void Start()

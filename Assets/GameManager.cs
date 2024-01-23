@@ -60,7 +60,6 @@ public class GameManager : MonoBehaviour
     {
         Game,
         IDE,
-        IDEDrawer,
         Pause,
         Settings,
     }
@@ -308,21 +307,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-
-
-
-
     private GridObject GetGridObjectById(int objectId)
     {
         return gridObjects.Find(obj => obj.id == objectId);
     }
-
-
-    
-
-
-    
 
     #region Grid Instantiation
     
@@ -365,25 +353,12 @@ public class GameManager : MonoBehaviour
 
     #region Menus
 
-    private bool OnMenuChangeSkipConditions(Menus value, Menus previous)
-    {
-        if (value == Menus.IDEDrawer && previous == Menus.IDE && _currentMenu == Menus.IDE)
-            return true;
-        if(previous == Menus.IDEDrawer && value == Menus.IDE && _currentMenu == Menus.IDE)
-            return true;
-
-        return false;
-    }
 
     private void ChangeMenu(Menus value)
     {
-        Menus prevValue = _currentMenu;
-        if (!OnMenuChangeSkipConditions(value, prevValue))
-            OnMenusClose[_currentMenu]?.Invoke();
+        OnMenusClose[_currentMenu]?.Invoke();
         _currentMenu = value;
-        if (!OnMenuChangeSkipConditions(value, prevValue))
-            OnMenusOpen[value]?.Invoke();
-        
+        OnMenusOpen[value]?.Invoke();
     }
 
     private void OnIDEOpen()
@@ -444,12 +419,7 @@ public class GameManager : MonoBehaviour
 
     public bool IsCellWalkable(int x, int y)
     {
-        if (grid[y * GridWidth + x] == null)
-            throw new Exception("Grid hasn't been instantiated properly");
-
-        Tile targetTile = grid[y * GridWidth + x].GetComponent<Tile>();
-
-        return targetTile.OccupyingObject == null || targetTile.OccupyingObject is ISteppableOver;//TODO: FIX THIS BULLSHIT
+        return true;
     }
 
     #endregion

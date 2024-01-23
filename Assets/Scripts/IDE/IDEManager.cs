@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class IDEManager : MonoBehaviour
@@ -20,13 +22,24 @@ public class IDEManager : MonoBehaviour
 
     #endregion
 
+    [SerializeField]
+    GameObject[] BlockTypesPrefs;
+
     [SerializeField] float scrollSpeed = 20f;
     [SerializeField] GameObject IDEBackground;
+
+    [SerializeField]
+    GameObject Drawer;
     public ICodeable CurrentlyProgramed { get => currentlyProgramed;
         set
         {
-            SaveProgram(currentlyProgramed);
+            if (value == null)
+                return;
+            if (currentlyProgramed != null)
+                SaveProgram(currentlyProgramed);
             currentlyProgramed = value;
+            if (!SavedPrograms.ContainsKey(currentlyProgramed))
+                SavedPrograms.Add(currentlyProgramed, new List<GameObject>());
             LoadProgram(currentlyProgramed);
         }
     }
@@ -35,13 +48,11 @@ public class IDEManager : MonoBehaviour
     public bool IsActive { get { return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE; } }
 
     public Action OnCodeStart = () => { };
+
     private ICodeable currentlyProgramed = null;
 
     public void OnBlockCreation(GameObject a)
     {
-        if(!SavedPrograms.ContainsKey(currentlyProgramed))
-            SavedPrograms.Add(currentlyProgramed, new List<GameObject>());
-
         SavedPrograms[currentlyProgramed].Add(a);
     }
 
@@ -84,6 +95,11 @@ public class IDEManager : MonoBehaviour
 
     }
 
+    private void Start()
+    {
+        RefreshCodeDrawer(new BlockTypes[] { new BlockTypes(0, 2), new BlockTypes(1, -1), new BlockTypes(0, 0), new BlockTypes(1, 2) });
+    }
+
     private void Update()
     {
         if (IsActive)
@@ -97,9 +113,29 @@ public class IDEManager : MonoBehaviour
         
     }
 
-    public void CodeDrawer()
+    public void RefreshCodeDrawer(BlockTypes[] blocks)
     {
-        
+
+        for(int i = 0; i < blocks.Length; i++)
+        {
+            GameObject temp = Instantiate(BlockTypesPrefs[blocks[i].id], parent: Drawer.transform);
+            temp.transform.localScale = Vector3.one * .5f;
+            temp.transform.localPosition = new Vector3(-.4f, 5 - i*(temp.transform.localScale.y*1.8f) - temp.transform.localScale.y, 0);
+            GameObject targetParent = temp.GetComponentInChildren<Block>().gameObject;
+            Destroy(targetParent.GetComponent<Block>());
+            DrawerBlock scriptRef = targetParent.AddComponent<DrawerBlock>();
+            GameObject TextObject = Instantiate(new GameObject("TextHolder"),parent: temp.transform);
+            scriptRef.text = TextObject.AddComponent<TextMeshPro>();
+            scriptRef.text.rectTransform.localPosition = Vector3.right * 3.8f;
+            scriptRef.text.rectTransform.sizeDelta = Vector2.one;
+            scriptRef.text.enableAutoSizing = true;
+            scriptRef.text.fontSizeMin = 0;
+            scriptRef.text.color = Color.black;
+            scriptRef.text.fontStyle = FontStyles.Bold;
+            scriptRef.count = blocks[i].count;
+            scriptRef.RefreshText();
+            scriptRef.MePrefab = BlockTypesPrefs[blocks[i].id];
+        }
     }
 
     /// <summary>
@@ -129,4 +165,16 @@ public class IDEManager : MonoBehaviour
         Camera.main.transform.position = Vector3.forward * -10;
     }
 
+}
+
+public struct BlockTypes
+{
+    public int id;
+    public int count;
+
+    public BlockTypes(int id, int count)
+    {
+        this.id = id;
+        this.count = count;
+    }
 }
