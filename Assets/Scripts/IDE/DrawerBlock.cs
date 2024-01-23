@@ -14,7 +14,8 @@ public class DrawerBlock : MonoBehaviour
         if (count != 0)
         {
             count--;
-            Instantiate(MePrefab, parent: IDEManager.Instance.gameObject.transform);
+            GameObject temp = Instantiate(MePrefab, parent: IDEManager.Instance.gameObject.transform);
+            temp.transform.position = new Vector3(0, transform.parent.parent.position.y, 0);
         }
         RefreshText();
     }

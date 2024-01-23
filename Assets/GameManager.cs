@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviour
             return _GameScreen;
         }
     }
-    [SerializeField] AnimationCurve EaseInOutQuad = new AnimationCurve();
+    [SerializeField] public AnimationCurve EaseInOutQuad = new AnimationCurve();
 
 
     public Menus CurrentMenu

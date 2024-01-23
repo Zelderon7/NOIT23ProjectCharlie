@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1787915904905449635, guid: df2d7139ae32d7548b636b94418ff20b, type: 3}
       propertyPath: m_Name
-      value: Walk Variant
+      value: Walk
       objectReference: {fileID: 0}
     - target: {fileID: 2250875098973937568, guid: df2d7139ae32d7548b636b94418ff20b, type: 3}
       propertyPath: myBlock
@@ -22,7 +22,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5875164064074182942, guid: df2d7139ae32d7548b636b94418ff20b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.07
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5875164064074182942, guid: df2d7139ae32d7548b636b94418ff20b, type: 3}
       propertyPath: m_LocalPosition.z
