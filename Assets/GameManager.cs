@@ -449,7 +449,7 @@ public class GameManager : MonoBehaviour
 
         Tile targetTile = grid[y * GridWidth + x].GetComponent<Tile>();
 
-        return targetTile.OccupyingObject == null || targetTile.OccupyingObject.GetComponentInChildren<ISteppableOver>() != null;
+        return targetTile.OccupyingObject == null || targetTile.OccupyingObject is ISteppableOver;//TODO: FIX THIS BULLSHIT
     }
 
     #endregion
