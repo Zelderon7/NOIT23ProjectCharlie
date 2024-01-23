@@ -151,7 +151,7 @@ public class GameManager : MonoBehaviour
 
 #endregion
 
-     void Awake()
+    void Awake()
     {
         #region Singleton pattern
 
@@ -216,7 +216,8 @@ public class GameManager : MonoBehaviour
                         // Handle unknown key or ignore
                         break;
                 }
-            } else
+            } 
+            else
             {
                 throw new ArgumentException("Invalid Data");
             }
