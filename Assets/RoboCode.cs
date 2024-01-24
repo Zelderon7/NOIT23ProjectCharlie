@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -5,15 +6,15 @@ using UnityEngine;
 
 public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 {
-    private AutoResetEvent isMovementCompleated = new AutoResetEvent(false);
+    bool isMovementCompleated = false;
     Animator animator;
     private Vector2 gridPos;
     private Block starterBlock;
-    private float moveSpeed = 5f;
+    private float moveSpeed = .3f;
     public Vector2 FacingDirection { get; private set; } = Vector2.right;
 
     Block ICodeable.StarterBlock { get => starterBlock; set => starterBlock = value; }
-    Vector2 ICodeable.GridPos { get => gridPos; set => MoveMeTo(value); }//TODO: Change the set to move method
+    Vector2 ICodeable.GridPos { get => gridPos; set => MoveMeTo(value, null); }//TODO: Change the set to move method
 
     public void Face(Vector2 direction)
     {
@@ -30,21 +31,33 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         IDEManager.Instance.CurrentlyProgramed = this;
     }
 
-    public void MoveMeTo(Vector2 direction)
+    public void MoveMeTo(Vector2 direction) => MoveMeTo(direction, null);
+    public void MoveMeTo(Vector2 direction, Action callback)
     {
+        if(callback != null)
+        {
+            callback += () =>
+            {
+                animator.SetBool("IsMoving", false);
+            };
+        }
+        Debug.Log("Started moving");
         animator.SetBool("IsMoving", true);
-        isMovementCompleated.Reset();
-        StartCoroutine(MoveCoroutine(direction, GameManager.Instance.cellSize + GameManager.Instance.gridSpacing));
-        isMovementCompleated.WaitOne();
-        animator.SetBool("IsMoving", false);
+        StartCoroutine(MoveCoroutine(direction, 5f, callback));
+        Debug.Log("Finished movement");
     }
 
     public void MoveMe()
     {
-        MoveMeTo(FacingDirection);
+        MoveMeTo(FacingDirection, null);
     }
 
-    private IEnumerator MoveCoroutine(Vector3 direction, float distance)
+    public void MoveMe(Action callback)
+    {
+        MoveMeTo(FacingDirection, callback);
+    }
+
+    private IEnumerator MoveCoroutine(Vector3 direction, float distance, Action callback)
     {
         float elapsedTime = 0f;
         
@@ -68,7 +81,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         // Ensure the object reaches the exact target position
         transform.position = startPosition + direction * distance;
         Debug.Log("Movement Over" + distance);
-        isMovementCompleated.Set();
+        callback?.Invoke();
     }
 
 

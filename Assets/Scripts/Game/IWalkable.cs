@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,11 @@ public interface IWalkable : ICodeable
     /// Moves the object by 1 cell in the direction it faces if possible; otherwise, does nothing.
     /// </summary>
     void MoveMe();
+
+    /// <summary>
+    /// Moves the object by 1 cell in the direction it faces if possible; otherwise, does nothing.
+    /// </summary>
+    void MoveMe(Action callback);
 
     /// <summary>
     /// Makes sure that the object is facing the given direction.

@@ -1583,6 +1583,10 @@ MonoBehaviour:
   - id: 2
     objectName: Wall
     sprite: {fileID: -271696927, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
+  GridObjectsPrefs:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 7554923224101955970, guid: 7d91ca2e5ee8cc54e9d28d049bb69619, type: 3}
   _IDEScreen: {fileID: 1547482288}
   _GameScreen: {fileID: 2099311896}
   EaseInOutQuad:
@@ -1996,7 +2000,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1579294802
 SpriteRenderer:
   m_ObjectHideFlags: 0

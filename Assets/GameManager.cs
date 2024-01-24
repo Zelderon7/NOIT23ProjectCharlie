@@ -24,6 +24,9 @@ public class GameManager : MonoBehaviour
     [SerializeField]
      List<GridObject> gridObjects = new List<GridObject> ();
 
+    [SerializeField]
+     List<GameObject> GridObjectsPrefs = new List<GameObject> ();
+
 
     #region Singleton pattern
     private static GameManager instance;
@@ -127,7 +130,7 @@ public class GameManager : MonoBehaviour
 
     public int GridHeight
     {
-        get { return _gridWidth; }
+        get { return _gridHeight; }
         set
         {
             _gridHeight = value;
@@ -179,9 +182,87 @@ public class GameManager : MonoBehaviour
         OnMenusClose[Menus.IDE] += OnIDEClose;
 
         #endregion
+
+        
+
         ProcessSeedString(seed);
+
+        
+    }
+    #region Grid Instantiation
+    void InstantiateGrid()
+    {
+        Camera mainCamera = Camera.main;
+
+        if (mainCamera == null)
+        {
+            Debug.LogError("Main camera not found!");
+            return;
+        }
+
+        cellSize = CalculateCellSize(mainCamera);
+
+        Vector3 offset = new Vector3(
+            mainCamera.aspect * mainCamera.orthographicSize * -1 + gridPadding + (cellSize / 2),
+            mainCamera.orthographicSize - gridPadding - (cellSize / 2),
+            0f
+        );
+
+        for (int row = 0; row < _gridHeight; row++)
+        {
+            for (int col = 0; col < _gridWidth; col++)
+            {
+                float x = offset.x + col * (cellSize + gridSpacing);
+                float y = offset.y - row * (cellSize + gridSpacing);
+
+                Vector3 position = new Vector3(x, y, 0f);
+
+                GameObject cell = Instantiate(tilePrefab, position, Quaternion.identity, GridParent.transform);
+                cell.GetComponent<SpriteRenderer>().sprite = GetTileSprite(col, row);
+                cell.name = col + " " + row;
+                grid.Add(cell);
+                cell.transform.localScale = new Vector3(cellSize, cellSize, 1f);
+            }
+        }
     }
 
+    private Sprite GetTileSprite(int col, int row)
+    {
+        int x, y;
+        if (col == 0)
+            x = 0;
+        else if (col == _gridWidth - 1)
+            x = 2;
+        else
+            x = 1;
+
+        if (row == 0)
+            y = 0;
+        else if (row == _gridHeight - 1)
+            y = 2;
+        else
+            y = 1;
+
+        return GridTileSprites[y * 3 + x];
+    }
+
+    float CalculateCellSize(Camera camera)
+    {
+        float cameraHeight = 2f * camera.orthographicSize;
+        float cameraWidth = cameraHeight * camera.aspect;
+
+        cameraWidth -= gridXRepos;
+        cameraHeight -= gridYRepos;
+
+        float cellSizeY = (cameraHeight - (2 * gridPadding) - (gridSpacing * (_gridHeight - 1))) / _gridHeight;
+        float cellSizeX = (cameraWidth - (2 * gridPadding) - (gridSpacing * (_gridWidth - 1))) / _gridWidth;
+
+        return Mathf.Min(cellSizeX, cellSizeY);
+    }
+
+    #endregion
+
+    #region SeedFetching
     public void FetchData(string data)
     {
         // Split the data using the "//" delimiter
@@ -263,6 +344,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Now you have the grid data in the 'gridData' array, and you can use it to instantiate the grid
+        InstantiateGrid();
         InstantiateGridFromData(gridData);
     }
 
@@ -277,12 +359,12 @@ public class GameManager : MonoBehaviour
                 int objectId = gridData[row, col];
 
                 // Use objectId to find the corresponding GridObject
-                GridObject gridObject = GetGridObjectById(objectId);
+                GameObject gridObject = GridObjectsPrefs[objectId];//TODO: Add exception handling
 
                 if (gridObject != null)
                 {
                     // Instantiate an empty GameObject as the grid cell
-                    GameObject gridCell = new GameObject("GridCell-" + col + "," + row);
+                    /*GameObject gridCell = new GameObject("GridCell-" + col + "," + row);
                     gridCell.transform.parent = GridParent.transform;
                     gridCell.transform.position = new Vector3(col, row, 0f);
 
@@ -299,7 +381,9 @@ public class GameManager : MonoBehaviour
                     cell.transform.localPosition = Vector3.zero;
                     SpriteRenderer cellRenderer = cell.AddComponent<SpriteRenderer>();
                     cellRenderer.sprite = gridObject.sprite;
-                    cellRenderer.sortingLayerName = "GameScreen";
+                    cellRenderer.sortingLayerName = "GameScreen";*/
+
+                    grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(gridObject, grid[row * _gridWidth + col].transform);
 
 
                 }
@@ -310,43 +394,6 @@ public class GameManager : MonoBehaviour
     private GridObject GetGridObjectById(int objectId)
     {
         return gridObjects.Find(obj => obj.id == objectId);
-    }
-
-    #region Grid Instantiation
-    
-
-    private Sprite GetTileSprite(int col, int row)
-    {
-        int x, y;
-        if (col == 0)
-            x = 0;
-        else if (col == _gridWidth - 1)
-            x = 2;
-        else
-            x = 1;
-
-        if (row == 0)
-            y = 0;
-        else if (row == _gridHeight - 1)
-            y = 2;
-        else
-            y = 1;
-
-        return GridTileSprites[y*3 + x];
-    }
-
-    float CalculateCellSize(Camera camera)
-    {
-        float cameraHeight = 2f * camera.orthographicSize;
-        float cameraWidth = cameraHeight * camera.aspect;
-
-        cameraWidth -= gridXRepos;
-        cameraHeight -= gridYRepos;
-
-        float cellSizeY = (cameraHeight - (2 * gridPadding) - (gridSpacing * (_gridHeight - 1))) / _gridHeight;
-        float cellSizeX = (cameraWidth - (2 * gridPadding) - (gridSpacing * (_gridWidth - 1))) / _gridWidth;
-
-        return Mathf.Min(cellSizeX, cellSizeY);
     }
 
     #endregion
