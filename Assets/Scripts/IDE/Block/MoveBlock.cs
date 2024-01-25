@@ -10,8 +10,10 @@ public class MoveBlock : Block
         if (!(Owner is IWalkable))
             throw new System.Exception("Owner is not Walkable");
 
-        if (!GameManager.Instance.IsCellWalkable((int)Owner.GridPos.x, (int)Owner.GridPos.y))
-            throw new System.Exception("TODO: Replace this Exception");
+        Vector2 targetLocation = new Vector2((int)Owner.GridPos.x + (Owner as IWalkable).FacingDirection.x, (int)Owner.GridPos.y - (Owner as IWalkable).FacingDirection.y);
+
+        if (!GameManager.Instance.IsCellWalkable((int)targetLocation.x, (int)targetLocation.y))
+            throw new System.Exception($"Can't go to {new Vector2((int)targetLocation.x, (int)targetLocation.y)}");
 
         (Owner as IWalkable).MoveMe(() =>
         {

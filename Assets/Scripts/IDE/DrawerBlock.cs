@@ -8,16 +8,29 @@ public class DrawerBlock : MonoBehaviour
     public TextMeshPro text;
     public int count;
     public GameObject MePrefab;
+    private Block curBlock;
 
-    private void OnMouseUpAsButton()
+    private void OnMouseDown()
     {
         if (count != 0)
         {
             count--;
             GameObject temp = Instantiate(MePrefab, parent: IDEManager.Instance.gameObject.transform);
-            temp.transform.position = new Vector3(0, transform.parent.parent.position.y, 0);
+            temp.transform.position = new Vector3(GetMousePos().x, GetMousePos().y, 0);
+            curBlock = temp.GetComponentInChildren<Block>();
+            curBlock?.PrepDragAlong();
         }
         RefreshText();
+    }
+
+    private void OnMouseDrag()
+    {
+        curBlock?.MoveWithMouse();
+    }
+
+    private void OnMouseUp()
+    {
+        curBlock?.PutDownBlock();
     }
 
     public void RefreshText()
@@ -30,5 +43,9 @@ public class DrawerBlock : MonoBehaviour
         {
             text.text = "x" + count;
         }
+    }
+    Vector2 GetMousePos()
+    {
+        return Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 }

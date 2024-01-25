@@ -464,8 +464,15 @@ public class GameManager : MonoBehaviour
 
     #region Grid Methods
 
+    public Vector2 GetCellPos(int x, int y)
+    {
+        return grid[y*_gridWidth + x].transform.position;
+    }
+
     public bool IsCellWalkable(int x, int y)
     {
+        if(x < 0 || y < 0 || x >= _gridWidth || y >= _gridHeight)
+            return false;
         return true;
     }
 

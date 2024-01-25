@@ -58,7 +58,10 @@ public class IDEManager : MonoBehaviour
 
     public void StartCode()
     {
-        OnCodeStart?.Invoke();
+        if(GameManager.Instance.CurrentMenu != GameManager.Menus.Game)
+            GameManager.Instance.CurrentMenu = GameManager.Menus.Game;
+        else
+            OnCodeStart?.Invoke();
     }
 
     void SaveProgram(ICodeable program)
@@ -97,7 +100,7 @@ public class IDEManager : MonoBehaviour
 
     private void Start()
     {
-        RefreshCodeDrawer(new BlockTypes[] { new BlockTypes(0, 2), new BlockTypes(1, -1), new BlockTypes(0, 0), new BlockTypes(1, 2) });
+        RefreshCodeDrawer(new BlockTypes[] { new BlockTypes(0, 1), new BlockTypes(1, -1), new BlockTypes(2, -1), new BlockTypes(3, -1) });
     }
 
     private void Update()
@@ -116,9 +119,11 @@ public class IDEManager : MonoBehaviour
     public void RefreshCodeDrawer(BlockTypes[] blocks)
     {
 
-        for(int i = 0; i < blocks.Length; i++)
+        for (int i = 0; i < blocks.Length; i++)
         {
             GameObject temp = Instantiate(BlockTypesPrefs[blocks[i].id], parent: Drawer.transform);
+            temp.GetComponentsInChildren<SpriteRenderer>().ToList().ForEach(x => { x.sortingLayerName = "IDEScreen"; x.sortingOrder = 11; });
+
             temp.transform.localScale = Vector3.one * .5f;
             temp.transform.localPosition = new Vector3(-.4f, 5 - i*(temp.transform.localScale.y*1.8f) - temp.transform.localScale.y, 0);
             GameObject targetParent = temp.GetComponentInChildren<Block>().gameObject;

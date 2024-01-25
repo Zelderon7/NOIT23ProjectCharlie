@@ -105,6 +105,11 @@ public class Block : MonoBehaviour
 
     private void OnMouseUp()
     {
+        PutDownBlock();
+    }
+
+    public void PutDownBlock()
+    {
         if (CheckColliderOutOfScreenSpace(1.3f))
         {
             transform.parent.position = lastPos;
@@ -120,17 +125,11 @@ public class Block : MonoBehaviour
         }
 
         lastPos = transform.parent.position;
-        
     }
 
     private void OnMouseDrag()
     {
         MoveWithMouse();
-
-        foreach (var outConnector in outConnectorsScripts)
-        {
-            outConnector?.connected?.myBlock.MoveWithMouse();
-        }
     }
 
     /// <summary>
