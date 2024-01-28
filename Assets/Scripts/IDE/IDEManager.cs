@@ -91,7 +91,7 @@ public class IDEManager : MonoBehaviour
             if(_instance == null)
                 _instance = this;
 
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
 
         #endregion

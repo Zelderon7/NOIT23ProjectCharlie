@@ -9,7 +9,6 @@ using UnityEngine;
 
 public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 {
-    bool isMovementCompleated = false;
     Animator animator;
     private Vector2 gridPos = Vector2.zero;
     private Block starterBlock;
@@ -44,11 +43,18 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         if (curDirI < 0)
             curDirI = 3;
         curDirI %= 4;
-        if (_directions[prevDir].x != FacingDirection.x && _directions[prevDir].x * FacingDirection.x != 0)
-            transform.localScale *= new Vector2(-1, 0);
+            
+        if(FacingDirection.x != 0)
+            transform.localScale *= new Vector2(FacingDirection.x, 1);
 
         Debug.Log($"Turned to {FacingDirection}");
 
+        StartCoroutine(WaitSeconds(.5f, callback));
+    }
+
+    IEnumerator WaitSeconds(float seconds, Action callback)
+    {
+        yield return new WaitForSeconds(seconds);
         callback?.Invoke();
     }
 
@@ -57,25 +63,30 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         animator = GetComponent<Animator>();
     }
 
-    private void Start()
+    public void Start()
     {
         IDEManager.Instance.CurrentlyProgramed = this;
         transform.position = GameManager.Instance.GetCellPos((int)gridPos.x, (int)gridPos.y);
-        transform.localScale = new Vector2(GameManager.Instance.cellSize * FacingDirection.x, GameManager.Instance.cellSize);
+        if(FacingDirection.x != 0)
+            transform.localScale = new Vector2(GameManager.Instance.cellSize * FacingDirection.x * -1, GameManager.Instance.cellSize);
     }
 
     public void MoveMeTo(Vector2 direction, Action callback = null)
     {
-        if(callback != null)
-        {
-            callback += () =>
+        GameManager.Instance.Interact((int)(gridPos.x + direction.x), (int)(gridPos.y - direction.y), () => {
+
+            if (callback != null)
             {
-                animator.SetBool("IsMoving", false);
-            };
-        }
-        animator.SetBool("IsMoving", true);
-        StartCoroutine(MoveCoroutine(direction, GameManager.Instance.cellSize + GameManager.Instance.gridSpacing, callback));
-        gridPos = new Vector2 (gridPos.x + direction.x, gridPos.y - direction.y);
+                callback += () =>
+                {
+                    animator.SetBool("IsMoving", false);
+                };
+            }
+            animator.SetBool("IsMoving", true);
+            StartCoroutine(MoveCoroutine(direction, GameManager.Instance.cellSize + GameManager.Instance.gridSpacing, callback));
+            gridPos = new Vector2(gridPos.x + direction.x, gridPos.y - direction.y);
+        });
+
     }
 
     public void MoveMe(Action callback)
@@ -109,6 +120,4 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         Debug.Log("Movement Over" + distance);
         callback?.Invoke();
     }
-
-
 }

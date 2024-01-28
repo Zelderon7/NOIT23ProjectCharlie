@@ -855,7 +855,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 45745665
   m_SortingLayer: -2
-  m_SortingOrder: 3
+  m_SortingOrder: 20
   m_Sprite: {fileID: 552538365, guid: 023a09d8f49d1fd4e8740f2da0d7a107, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -866,7 +866,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!61 &900983508
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -921,9 +921,9 @@ Transform:
   m_GameObject: {fileID: 900983505}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: -0.329, y: -0.328, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1081044358}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1193,7 +1193,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.662, y: 1.106, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 900983509}
@@ -1576,17 +1576,13 @@ MonoBehaviour:
   gridObjects:
   - id: 0
     objectName: Empty
-    sprite: {fileID: 0}
+    prefab: {fileID: 0}
   - id: 1
     objectName: Path
-    sprite: {fileID: -1122312844, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
+    prefab: {fileID: 4707468532797146543, guid: a135bf6e1196bfa488237690f9d2f815, type: 3}
   - id: 2
     objectName: Wall
-    sprite: {fileID: -271696927, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
-  GridObjectsPrefs:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 7554923224101955970, guid: 7d91ca2e5ee8cc54e9d28d049bb69619, type: 3}
+    prefab: {fileID: 7554923224101955970, guid: 7d91ca2e5ee8cc54e9d28d049bb69619, type: 3}
   _IDEScreen: {fileID: 1547482288}
   _GameScreen: {fileID: 2099311896}
   EaseInOutQuad:

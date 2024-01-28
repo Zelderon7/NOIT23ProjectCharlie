@@ -1,20 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [Serializable]
-public class GridObject {
+public struct GridObject {
     public int id;
     public string objectName;
-    public Sprite sprite; // The prefab to instantiate
-    // Add other properties specific to your game object
+    public GameObject prefab;
 
-    public GridObject(int id, string objectName, Sprite sprite)
+    public GridObject(int id, string objectName, GameObject prefab)
     {
         this.id = id;
         this.objectName = objectName;
-        this.sprite = sprite;
+        this.prefab = prefab;
     }
 }
 
@@ -24,14 +24,11 @@ public class GameManager : MonoBehaviour
     [SerializeField]
      List<GridObject> gridObjects = new List<GridObject> ();
 
-    [SerializeField]
-     List<GameObject> GridObjectsPrefs = new List<GameObject> ();
-
 
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2";
+    string seed = "0,0,1,0,2/2,0,2,0,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2";
     string levelName;
     string authorName;
     
@@ -47,7 +44,7 @@ public class GameManager : MonoBehaviour
                 {
                     GameObject obj = new GameObject("GameManager");
                     instance = obj.AddComponent<GameManager>();
-                    DontDestroyOnLoad(instance);
+                    //DontDestroyOnLoad(instance);
                 }
             }
 
@@ -56,6 +53,7 @@ public class GameManager : MonoBehaviour
     }
 
     #endregion
+
 
     #region Menus
 
@@ -160,7 +158,7 @@ public class GameManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+           // DontDestroyOnLoad(gameObject);
         }
         else if (instance != this)
         {
@@ -190,7 +188,7 @@ public class GameManager : MonoBehaviour
         
     }
     #region Grid Instantiation
-    void InstantiateGrid()
+    public void InstantiateGrid()
     {
         Camera mainCamera = Camera.main;
 
@@ -311,8 +309,11 @@ public class GameManager : MonoBehaviour
         Debug.Log("Seed: " + seed);
     }
 
-    void ProcessSeedString(string seed)
+    public void ProcessSeedString(string seed)
     {
+        if (seed == null)
+            seed = this.seed;
+
         // Split the seed string by the row delimiter '/'
         string[] rows = seed.Split('/');
 
@@ -359,33 +360,11 @@ public class GameManager : MonoBehaviour
                 int objectId = gridData[row, col];
 
                 // Use objectId to find the corresponding GridObject
-                GameObject gridObject = GridObjectsPrefs[objectId];//TODO: Add exception handling
+                GameObject gridObject = gridObjects.First(x => x.id == objectId).prefab;//TODO: Add exception handling
 
                 if (gridObject != null)
                 {
-                    // Instantiate an empty GameObject as the grid cell
-                    /*GameObject gridCell = new GameObject("GridCell-" + col + "," + row);
-                    gridCell.transform.parent = GridParent.transform;
-                    gridCell.transform.position = new Vector3(col, row, 0f);
-
-                    GameObject background = new GameObject("Background");
-                    background.transform.parent = gridCell.transform;
-                    background.transform.localPosition = Vector3.zero;
-                    SpriteRenderer backgroundRenderer = background.AddComponent<SpriteRenderer>();
-                    backgroundRenderer.sprite = GetTileSprite(col, row);
-                    backgroundRenderer.sortingLayerName = "GameScreen";
-
-
-                    GameObject cell = new GameObject("Cell");
-                    cell.transform.parent = gridCell.transform;
-                    cell.transform.localPosition = Vector3.zero;
-                    SpriteRenderer cellRenderer = cell.AddComponent<SpriteRenderer>();
-                    cellRenderer.sprite = gridObject.sprite;
-                    cellRenderer.sortingLayerName = "GameScreen";*/
-
                     grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(gridObject, grid[row * _gridWidth + col].transform);
-
-
                 }
             }
         }
@@ -473,7 +452,35 @@ public class GameManager : MonoBehaviour
     {
         if(x < 0 || y < 0 || x >= _gridWidth || y >= _gridHeight)
             return false;
-        return true;
+        Tile _targetTile;
+        if (!grid[y * _gridWidth + x].TryGetComponent<Tile>(out _targetTile))
+            throw new Exception($"grid {new Vector2(x, y)} has no Tile.cs");
+        if (_targetTile.OccupyingObject == null)
+            return true;
+        GridObjectDataSheet _targetSheet;
+        if (!_targetTile.OccupyingObject.TryGetComponent<GridObjectDataSheet>(out _targetSheet))
+            throw new Exception($"Grid Object {_targetTile.OccupyingObject}, at {new Vector2(x, y)} does not contains a GridObjectDataSheet");
+        if (_targetSheet.CanWalkOver)
+            return true;
+        return false;
+    }
+
+    public void Interact(int x, int y, Action callback)
+    {
+        if (grid[y * _gridWidth + x].GetComponent<Tile>().OccupyingObject == null)
+        {
+            callback?.Invoke();
+            return;
+        }
+            
+        GridObjectDataSheet _temp = grid[y * _gridWidth + x].GetComponent<Tile>().OccupyingObject.GetComponent<GridObjectDataSheet>();
+        if (_temp.IsAutoInteractable == false)
+        {
+            callback?.Invoke();
+            return;
+        }
+
+        _temp.AutoInteract.Interact(callback);
     }
 
     #endregion
