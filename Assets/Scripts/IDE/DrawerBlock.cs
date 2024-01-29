@@ -31,6 +31,12 @@ public class DrawerBlock : MonoBehaviour
             SpriteRenderer[] _spRs = temp.GetComponentsInChildren<SpriteRenderer>();
             _spRs.ToList().ForEach(x => x.sortingLayerName = "IDEScreen");
             _spRs.ToList().ForEach(x => x.sortingOrder += 100);
+            var _tempTextRef = temp.GetComponentInChildren<TextMeshPro>();
+            if( _tempTextRef != null )
+            {
+                _tempTextRef.sortingLayerID = 7;
+                _tempTextRef.sortingOrder += 100;
+            }
             temp.transform.position = new Vector3(GetMousePos().x, GetMousePos().y, 0);
             curBlock = temp.GetComponentInChildren<Block>();
             curBlock?.PrepDragAlong();
@@ -49,8 +55,13 @@ public class DrawerBlock : MonoBehaviour
             return;
 
         curBlock.PutDownBlock();
-        SpriteRenderer[] _spRs = curBlock.GetComponentsInChildren<SpriteRenderer>();
+        SpriteRenderer[] _spRs = curBlock.transform.parent.GetComponentsInChildren<SpriteRenderer>();
         _spRs.ToList().ForEach(x => x.sortingOrder -= 100);
+        var _tempTextRef = curBlock.transform.parent.GetComponentInChildren<TextMeshPro>();
+        if (_tempTextRef != null)
+        {
+            _tempTextRef.sortingOrder -= 100;
+        }
         curBlock = null;
     }
 

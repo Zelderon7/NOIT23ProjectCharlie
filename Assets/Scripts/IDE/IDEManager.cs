@@ -122,7 +122,13 @@ public class IDEManager : MonoBehaviour
         for (int i = 0; i < blocks.Length; i++)
         {
             GameObject temp = Instantiate(BlockTypesPrefs[blocks[i].id], parent: Drawer.transform);
-            temp.GetComponentsInChildren<SpriteRenderer>().ToList().ForEach(x => { x.sortingLayerName = "IDEScreen"; x.sortingOrder = 11; });
+            temp.GetComponentsInChildren<SpriteRenderer>().ToList().ForEach(x => { x.sortingLayerName = "IDEScreen"; x.sortingOrder += 11; });
+            var _tempTextRef = temp.GetComponentInChildren<TextMeshPro>();
+            if( _tempTextRef != null)
+            {
+                _tempTextRef.sortingOrder += 11;
+            }
+                
 
             temp.transform.localScale = new Vector3(.5f, .5f, 1);
             temp.transform.localPosition = new Vector3(-.4f, 5 - i*(temp.transform.localScale.y*1.8f) - temp.transform.localScale.y, 2);
