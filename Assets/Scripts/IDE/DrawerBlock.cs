@@ -22,6 +22,7 @@ public class DrawerBlock : MonoBehaviour
 
     private void OnMouseDown()
     {
+        Debug.Log("Spawn Block");
         if (count != 0)
         {
             count--;
@@ -44,7 +45,10 @@ public class DrawerBlock : MonoBehaviour
 
     private void OnMouseUp()
     {
-        curBlock?.PutDownBlock();
+        if (curBlock == null)
+            return;
+
+        curBlock.PutDownBlock();
         SpriteRenderer[] _spRs = curBlock.GetComponentsInChildren<SpriteRenderer>();
         _spRs.ToList().ForEach(x => x.sortingOrder -= 100);
         curBlock = null;

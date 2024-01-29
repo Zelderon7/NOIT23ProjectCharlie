@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5091937930678280592}
   - component: {fileID: 9020784541784901233}
   - component: {fileID: 3982596419342976782}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 45745665
-  m_SortingLayer: 1
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: -5177388603050735206, guid: 71ebafeef3c03457483266a33ab2b270, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -143,3 +143,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 189f4b5273323a44abc1e2675fb71b59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OccupyingObject: {fileID: 0}
