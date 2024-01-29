@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
@@ -23,8 +24,10 @@ public class Block : MonoBehaviour
     private GameObject[] args = null;//TODO: GameObject => DataBlock
     private Vector2 dragOffset = Vector2.zero;
     private Vector2 lastPos = Vector2.zero;
-    
 
+    private Action ForDestroy = null;
+    public DrawerBlock Papa;
+    
     internal virtual void Awake()
     {
         outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
@@ -105,7 +108,14 @@ public class Block : MonoBehaviour
 
     private void OnMouseUp()
     {
+        ForDestroy?.Invoke();
         PutDownBlock();
+    }
+
+    private void TrashMe()
+    {
+        Papa.Count++;
+        Destroy(transform.parent.gameObject);
     }
 
     public void PutDownBlock()
@@ -183,5 +193,17 @@ public class Block : MonoBehaviour
         // Check if the bounds are within the screen bounds
         //Debug.Log($"Bounds: {bounds.max.x}X, {bounds.max.y}Y");
         return bounds.min.x + tollerance >= screenBoundsMin.x && bounds.max.x - tollerance <= screenBoundsMax.x;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "DrawerBlockTrasher")
+            ForDestroy = TrashMe;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "DrawerBlockTrasher")
+            ForDestroy = null;
     }
 }

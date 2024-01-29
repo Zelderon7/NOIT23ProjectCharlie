@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 884794714810783692}
   - component: {fileID: 5212092424860179092}
   - component: {fileID: 2871892742812872443}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -180,7 +180,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2036651478115106695}
-  m_Layer: 5
+  m_Layer: 7
   m_Name: StartBlock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -218,7 +218,7 @@ GameObject:
   - component: {fileID: 1502575734324175518}
   - component: {fileID: 8011344399228461120}
   - component: {fileID: 4938653982464623356}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -360,7 +360,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2211774616057582585}
   - component: {fileID: 6170163339630968658}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Outputs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -419,7 +419,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6746941332149573049}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Args
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -454,7 +454,7 @@ GameObject:
   - component: {fileID: 3918601517247974135}
   - component: {fileID: 140278346948644428}
   - component: {fileID: 8398527001308490587}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -505,7 +505,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -589,6 +589,7 @@ MonoBehaviour:
   outConnectorsHolder: {fileID: 6844983913154684270}
   ConnectableHere: 0
   argsholder: {fileID: 7392362559162740708}
+  Papa: {fileID: 0}
 --- !u!50 &8398527001308490587
 Rigidbody2D:
   serializedVersion: 4
@@ -599,7 +600,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 7492982448493785356}
   m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
@@ -611,8 +612,8 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0

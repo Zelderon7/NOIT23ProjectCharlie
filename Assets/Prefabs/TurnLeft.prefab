@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6678009379475151390}
-  m_Layer: 5
+  m_Layer: 7
   m_Name: TurnLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,7 +48,7 @@ GameObject:
   - component: {fileID: 3117097133774710985}
   - component: {fileID: 2726567110755469475}
   - component: {fileID: 7391819679059454254}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: InputPos
   m_TagString: inputConnector
   m_Icon: {fileID: 0}
@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 806390218841918719}
   - component: {fileID: 4179578956503254921}
   - component: {fileID: 2905676483790435164}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -362,7 +362,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1128773044778747005}
   - component: {fileID: 6237914362643458641}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Outputs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -421,7 +421,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1940372976729002331}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Args
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -455,7 +455,7 @@ GameObject:
   - component: {fileID: 4135206678382301043}
   - component: {fileID: 4503032331290331665}
   - component: {fileID: 3913553175194328333}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -600,7 +600,7 @@ GameObject:
   - component: {fileID: 5263674655113505348}
   - component: {fileID: 2053854715907226808}
   - component: {fileID: 5976103309607773215}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -651,7 +651,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -735,6 +735,7 @@ MonoBehaviour:
   outConnectorsHolder: {fileID: 3016902296241340101}
   ConnectableHere: 0
   argsholder: {fileID: 3954397648786592538}
+  Papa: {fileID: 0}
   RightOrLeft: 0
 --- !u!50 &5976103309607773215
 Rigidbody2D:
@@ -746,7 +747,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 7158882576987445432}
   m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
@@ -758,8 +759,8 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0

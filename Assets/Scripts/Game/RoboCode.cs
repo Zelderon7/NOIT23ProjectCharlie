@@ -35,6 +35,15 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     Block ICodeable.StarterBlock { get => starterBlock; set => starterBlock = value; }
     Vector2 ICodeable.GridPos { get => gridPos; set => MoveMeTo(value, null); }//TODO: Change the set to move method
 
+    #region Audio
+
+    AudioSource myAudioSource;
+
+    [SerializeField]
+    AudioClip RotateClip;
+
+    #endregion
+
     public void Turn(bool RightOrLeft, Action callback = null)
     {
         Debug.Log($"Turning {(RightOrLeft? "Right" : "Left")}, curDir = {FacingDirection}");
@@ -49,7 +58,14 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
         Debug.Log($"Turned to {FacingDirection}");
 
-        StartCoroutine(WaitSeconds(.5f, callback));
+        if(RotateClip != null)
+        {
+            myAudioSource.clip = RotateClip;
+            myAudioSource.Play();
+            StartCoroutine(WaitSeconds(RotateClip.length, callback));
+        }
+        else
+            callback?.Invoke();
     }
 
     IEnumerator WaitSeconds(float seconds, Action callback)
@@ -61,6 +77,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        myAudioSource = GetComponent<AudioSource>();
     }
 
     public void Start()
@@ -77,10 +94,20 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
             if (callback != null)
             {
+                Delegate[] _invList = null;
+                if (callback.GetInvocationList().Length > 0)
+                {
+                    _invList = callback.GetInvocationList();
+                    callback = null;
+                }
+                    
                 callback += () =>
                 {
                     animator.SetBool("IsMoving", false);
                 };
+
+                if (_invList != null)
+                    _invList.ToList().ForEach(x => callback += (System.Action)x) ;
             }
             animator.SetBool("IsMoving", true);
             StartCoroutine(MoveCoroutine(direction, GameManager.Instance.cellSize + GameManager.Instance.gridSpacing, callback));

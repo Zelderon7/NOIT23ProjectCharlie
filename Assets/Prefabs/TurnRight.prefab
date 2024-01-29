@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5192545157596289945}
   - component: {fileID: 1398495688286427870}
   - component: {fileID: 8467479019951990068}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 5579734289716421610}
   - component: {fileID: 406324808750369899}
   - component: {fileID: 8409187733264634047}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -327,7 +327,7 @@ GameObject:
   - component: {fileID: 5305066760620132371}
   - component: {fileID: 528781058630209719}
   - component: {fileID: 659454477676229949}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: InputPos
   m_TagString: inputConnector
   m_Icon: {fileID: 0}
@@ -469,7 +469,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3446973049807292231}
-  m_Layer: 5
+  m_Layer: 7
   m_Name: TurnRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -505,7 +505,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1614451926142433237}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Args
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -540,7 +540,7 @@ GameObject:
   - component: {fileID: 1784181124057065759}
   - component: {fileID: 4149032559390127974}
   - component: {fileID: 6507510463815901198}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -591,7 +591,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -675,6 +675,7 @@ MonoBehaviour:
   outConnectorsHolder: {fileID: 7589350947979362296}
   ConnectableHere: 0
   argsholder: {fileID: 5500930655274161180}
+  Papa: {fileID: 0}
   RightOrLeft: 1
 --- !u!50 &6507510463815901198
 Rigidbody2D:
@@ -686,7 +687,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 5781767837494448141}
   m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
@@ -698,10 +699,10 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!1 &7589350947979362296
 GameObject:
@@ -713,7 +714,7 @@ GameObject:
   m_Component:
   - component: {fileID: 658089201073097418}
   - component: {fileID: 4289002605187095314}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Outputs
   m_TagString: Untagged
   m_Icon: {fileID: 0}

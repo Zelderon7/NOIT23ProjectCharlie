@@ -137,7 +137,7 @@ public class IDEManager : MonoBehaviour
             scriptRef.text.fontSizeMin = 0;
             scriptRef.text.color = Color.black;
             scriptRef.text.fontStyle = FontStyles.Bold;
-            scriptRef.count = blocks[i].count;
+            scriptRef.Count = blocks[i].count;
             scriptRef.RefreshText();
             scriptRef.MePrefab = BlockTypesPrefs[blocks[i].id];
         }

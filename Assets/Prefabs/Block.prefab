@@ -185,7 +185,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1381922233
-  m_SortingLayer: 2
+  m_SortingLayer: -1
   m_SortingOrder: 5
   m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
   m_Color: {r: 0.5754717, g: 0.14875397, b: 0.14875397, a: 1}
@@ -560,7 +560,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1381922233
-  m_SortingLayer: 2
+  m_SortingLayer: -1
   m_SortingOrder: 4
   m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
   m_Color: {r: 0.8679245, g: 0.7320043, b: 0.7320043, a: 1}
@@ -600,7 +600,7 @@ GameObject:
   - component: {fileID: 4386809193597215887}
   - component: {fileID: 7893865809484212931}
   - component: {fileID: 7106908315528985714}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -651,7 +651,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -706,7 +706,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1381922233
-  m_SortingLayer: 2
+  m_SortingLayer: -1
   m_SortingOrder: 3
   m_Sprite: {fileID: 7482667652216324306, guid: db750325989564987a34393247d883b4, type: 3}
   m_Color: {r: 0.9245283, g: 0.3087575, b: 0.3087575, a: 1}
@@ -731,11 +731,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0cab4bfd1db2cc499375686bc5e08d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Owner: {fileID: 0}
   inpConnector: {fileID: 8535160452695009610}
   outConnectorsHolder: {fileID: 8008088698760733983}
   ConnectableHere: 0
   argsholder: {fileID: 2233590687080787997}
+  Papa: {fileID: 0}
 --- !u!50 &7106908315528985714
 Rigidbody2D:
   serializedVersion: 4
@@ -758,8 +758,8 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
