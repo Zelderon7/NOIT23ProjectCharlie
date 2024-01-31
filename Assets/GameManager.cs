@@ -6,12 +6,12 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 [Serializable]
-public struct GridObject {
+public struct Object {
     public int id;
     public string objectName;
     public GameObject prefab;
 
-    public GridObject(int id, string objectName, GameObject prefab)
+    public Object(int id, string objectName, GameObject prefab)
     {
         this.id = id;
         this.objectName = objectName;
@@ -23,15 +23,17 @@ public class GameManager : MonoBehaviour
 {
 
     [SerializeField]
-    List<GridObject> gridObjects = new List<GridObject>();
+    List<Object> gridObjects = new List<Object>();
 
     [SerializeField]
-    List<GridObject> scriptableObjects = new List<GridObject>();
+    List<Object> scriptableObjects = new List<Object>();
+
+   
 
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2/;1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;";
+    string seed = "2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2/;1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;[0,1],[1,-1],[2,-1],[3,-1]";
     string levelName;
     string authorName;
 
@@ -329,12 +331,35 @@ public class GameManager : MonoBehaviour
 
         string gridObjectSeed = subseeds[0];
         string scriptableObjectSeed = subseeds[1];
+        string codeBlocksSeed = subseeds[2];
+
 
 
         // Split the seed string by the row delimiter '/'
         string[] gridObjectRows = gridObjectSeed.Split('/', options: StringSplitOptions.RemoveEmptyEntries);
         string[] scriptableObjectRows = scriptableObjectSeed.Split('/', options: StringSplitOptions.RemoveEmptyEntries);
 
+        string[] codeBlocks = codeBlocksSeed.Replace("[", "").Replace("]", "").Split(',');
+
+        List<BlockTypes> blockTypesList = new List<BlockTypes>();
+
+        // Iterate through entries, incrementing by 2 (assuming each entry has 2 values)
+        for (int i = 0; i < codeBlocks.Length; i += 2)
+        {
+            // Parse ID and count
+            if (int.TryParse(codeBlocks[i], out int id) && int.TryParse(codeBlocks[i + 1], out int count))
+            {
+                // Add to the list
+                blockTypesList.Add(new BlockTypes(id, count));
+            } else
+            {
+                Debug.LogError($"Failed to parse ID or count from entry: {codeBlocks[i]}, {codeBlocks[i + 1]}");
+            }
+        }
+
+        // Convert the list to an array
+        BlockTypes[] blockTypesArray = blockTypesList.ToArray();
+        
 
         // Set grid width and height based on seed
         _gridWidth = gridObjectRows[0].Split(',', options: StringSplitOptions.RemoveEmptyEntries).Length;
@@ -408,7 +433,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private GridObject GetGridObjectById(int objectId)
+    private Object GetGridObjectById(int objectId)
     {
         return gridObjects.Find(obj => obj.id == objectId);
     }
