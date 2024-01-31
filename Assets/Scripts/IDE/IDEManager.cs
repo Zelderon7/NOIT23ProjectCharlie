@@ -136,7 +136,10 @@ public class IDEManager : MonoBehaviour
 
             temp.transform.localScale = new Vector3(.5f, .5f, 1);
             temp.transform.localPosition = new Vector3(-.4f, 5 - i*(temp.transform.localScale.y*1.8f) - temp.transform.localScale.y, -2);
-            
+            temp.tag = "DrawerBlock";
+            temp.GetComponentsInChildren<Transform>().ToList().ForEach(x => x.gameObject.tag = "DrawerBlock");
+            temp.GetComponentsInChildren<OutputConnectionScript>().ToList().ForEach(x => Destroy(x));
+            temp.GetComponentsInChildren<InputConnector>().ToList().ForEach(x => Destroy(x));
             GameObject targetParent = temp.GetComponentInChildren<Block>().gameObject;
             Destroy(targetParent.GetComponent<Block>());
             DrawerBlock scriptRef = targetParent.AddComponent<DrawerBlock>();
