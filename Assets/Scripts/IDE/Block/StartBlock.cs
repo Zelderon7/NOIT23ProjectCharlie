@@ -13,5 +13,7 @@ public class StartBlock : Block
     {
         if (outConnectorsScripts?[0] != null)
             outConnectorsScripts[0].GoNext();
+        else
+            GameManager.Instance.GameOver();
     }
 }

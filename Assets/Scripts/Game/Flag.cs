@@ -14,9 +14,7 @@ public class Flag : MonoBehaviour, IInteractableGridObject
 
     IEnumerator PickMeUp()
     {
-        yield return new WaitForSeconds(1);
-        GetComponent<AudioSource>().Play();
-        Debug.Log("You win");
-        Destroy(gameObject);
+        yield return null;
+        GameManager.Instance.Victory();
     }
 }

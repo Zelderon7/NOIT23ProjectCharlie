@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
 {
 
     [SerializeField]
-     List<GridObject> gridObjects = new List<GridObject> ();
+    List<GridObject> gridObjects = new List<GridObject>();
 
     [SerializeField]
     List<GridObject> scriptableObjects = new List<GridObject>();
@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour
     string seed = "2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2/;1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;";
     string levelName;
     string authorName;
-    
+
     public static GameManager Instance
     {
         get
@@ -152,7 +152,15 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private List<Sprite> GridTileSprites;
 
-#endregion
+    #endregion
+
+    #region UIManagment
+
+    public GameOverWindow GameOverWindowScreen;
+    public VictoryWindow VictoryWindowScreen;
+    public bool IsGameOver { get; private set; } = false;
+
+    #endregion
 
     void Awake()
     {
@@ -408,6 +416,38 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Menus
+
+    public void GameOver()
+    {
+        if (IsGameOver)
+            return;
+        IsGameOver = true;
+        GameOverWindowScreen.gameObject.SetActive(true);
+        Time.timeScale = 0;
+        GameOverWindowScreen.TryAgain.onClick.AddListener(OnTryAgain);
+    }
+
+    private void OnTryAgain()
+    {
+        GameOverWindowScreen.gameObject.SetActive(false);
+        Time.timeScale = 1;
+        IsGameOver = false;
+    }
+
+    public void Victory()
+    {
+        if(IsGameOver) return;
+        IsGameOver = true;
+        VictoryWindowScreen.gameObject.SetActive(true);
+        VictoryWindowScreen.NextLevel.onClick.AddListener(OnNextLevel);
+    }
+
+    private void OnNextLevel()
+    {
+        VictoryWindowScreen.gameObject.SetActive(false);
+        Time.timeScale = 1;
+        IsGameOver = false;
+    }
 
 
     private void ChangeMenu(Menus value)
