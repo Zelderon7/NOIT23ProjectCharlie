@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [Serializable]
@@ -24,11 +25,13 @@ public class GameManager : MonoBehaviour
     [SerializeField]
      List<GridObject> gridObjects = new List<GridObject> ();
 
+    [SerializeField]
+    List<GridObject> scriptableObjects = new List<GridObject>();
 
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "0,0,1,0,2/2,3,2,0,2/2,2,2,1,2/2,2,1,1,2/2,0,2,4,2";
+    string seed = "GRID:2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2/;SCRIPTABLE:1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;";
     string levelName;
     string authorName;
     
@@ -314,57 +317,84 @@ public class GameManager : MonoBehaviour
         if (seed == null)
             seed = this.seed;
 
+        string[] subseeds = seed.Split(';');
+
+        string gridObjectSeed = subseeds[0];
+        string scriptableObjectSeed = subseeds[1];
+
+
         // Split the seed string by the row delimiter '/'
-        string[] rows = seed.Split('/');
+        string[] gridObjectRows = gridObjectSeed.Split('/');
+        string[] scriptableObjectRows = scriptableObjectSeed.Split('/');
+
 
         // Set grid width and height based on seed
-        _gridWidth = rows[0].Split(',').Length;
-        _gridHeight = rows.Length;
+        _gridWidth = gridObjectRows[0].Split(',').Length;
+        _gridHeight = gridObjectRows.Length;
 
         // Create a 2D array to store the grid data
-        int[,] gridData = new int[_gridHeight, _gridWidth];
+        int[,] gridObjectData = new int[_gridHeight, _gridWidth];
+        string[,] scriptableObjectData = new string[_gridHeight, _gridWidth];
+
 
         // Iterate over each row
         for (int rowIndex = 0; rowIndex < _gridHeight; rowIndex++)
         {
             // Split the row string by commas to get individual column values
-            string[] columns = rows[rowIndex].Split(',');
+            string[] gridObjectColumns = gridObjectRows[rowIndex].Split(',');
+            string[] scriptableObjectColumns = scriptableObjectRows[rowIndex].Split(',');
+
 
             // Iterate over each column
-            for (int colIndex = 0; colIndex < _gridWidth; colIndex++)
+           for (int colIndex = 0; colIndex < _gridWidth; colIndex++)
             {
                 // Parse the string value to an integer and assign it to the 2D array
-                if (int.TryParse(columns[colIndex], out int cellValue))
+                if (int.TryParse(gridObjectColumns[colIndex], out int cellValue))
                 {
-                    gridData[rowIndex, colIndex] = cellValue;
+                    gridObjectData[rowIndex, colIndex] = cellValue;
                 } else
                 {
                     Debug.LogError("Failed to parse grid data at row " + rowIndex + ", column " + colIndex);
                 }
+
+                    scriptableObjectData[rowIndex, colIndex] = scriptableObjectColumns[colIndex];
             }
         }
 
         // Now you have the grid data in the 'gridData' array, and you can use it to instantiate the grid
         InstantiateGrid();
-        InstantiateGridFromData(gridData);
+        InstantiateGridFromData(gridObjectData, scriptableObjectData );
     }
 
-    void InstantiateGridFromData(int[,] gridData)
+    void InstantiateGridFromData(int[,] gridObjectData, string[,] scriptableObjectData)
     {
+
         // Your existing grid instantiation code can be modified to use the provided grid data
         for (int row = 0; row < _gridHeight; row++)
         {
             for (int col = 0; col < _gridWidth; col++)
             {
                 // Access gridData[row, col] to get the value for the current cell
-                int objectId = gridData[row, col];
+
+                int gridobjectId = gridObjectData[row, col];
 
                 // Use objectId to find the corresponding GridObject
-                GameObject gridObject = gridObjects.First(x => x.id == objectId).prefab;//TODO: Add exception handling
+                GameObject gridObject = gridObjects.First(x => x.id == gridobjectId).prefab;//TODO: Add exception handling
 
                 if (gridObject != null)
                 {
+
                     grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(gridObject, grid[row * _gridWidth + col].transform);
+
+                    if (scriptableObjectData[row, col] != "0")
+                    {
+                        int scriptableobjectId = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[0]);
+                        int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
+
+                        GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableobjectId).prefab;//TODO: Add exception handling
+                        grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, grid[row * _gridWidth + col].transform);
+
+                    }
                 }
             }
         }

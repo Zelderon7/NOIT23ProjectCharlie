@@ -33,8 +33,12 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     private int curDirI = 1;
 
     Block ICodeable.StarterBlock { get => starterBlock; set => starterBlock = value; }
-    Vector2 ICodeable.GridPos { get => gridPos; set => MoveMeTo(value, null); }//TODO: Change the set to move method
-
+    Vector2 ICodeable.GridPosition { get => gridPos; set => MoveMeTo(value, null); }//TODO: Change the set to move method
+    Vector2 ICodeable.GridRotation
+    {
+        get => FacingDirection;
+        set => FacingDirection = value;
+    }
     #region Audio
 
     AudioSource myAudioSource;
