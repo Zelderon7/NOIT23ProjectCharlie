@@ -61,7 +61,11 @@ public class IDEManager : MonoBehaviour
         if(GameManager.Instance.CurrentMenu != GameManager.Menus.Game)
             GameManager.Instance.CurrentMenu = GameManager.Menus.Game;
         else
+        {
             OnCodeStart?.Invoke();
+            CodeablePort.OnGameStart?.Invoke();
+        }
+            
     }
 
     void SaveProgram(ICodeable program)

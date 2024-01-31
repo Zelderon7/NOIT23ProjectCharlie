@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "GRID:2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2/;SCRIPTABLE:1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;";
+    string seed = "2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2/;1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;";
     string levelName;
     string authorName;
     
@@ -317,19 +317,19 @@ public class GameManager : MonoBehaviour
         if (seed == null)
             seed = this.seed;
 
-        string[] subseeds = seed.Split(';');
+        string[] subseeds = seed.Split(';', options: StringSplitOptions.RemoveEmptyEntries);
 
         string gridObjectSeed = subseeds[0];
         string scriptableObjectSeed = subseeds[1];
 
 
         // Split the seed string by the row delimiter '/'
-        string[] gridObjectRows = gridObjectSeed.Split('/');
-        string[] scriptableObjectRows = scriptableObjectSeed.Split('/');
+        string[] gridObjectRows = gridObjectSeed.Split('/', options: StringSplitOptions.RemoveEmptyEntries);
+        string[] scriptableObjectRows = scriptableObjectSeed.Split('/', options: StringSplitOptions.RemoveEmptyEntries);
 
 
         // Set grid width and height based on seed
-        _gridWidth = gridObjectRows[0].Split(',').Length;
+        _gridWidth = gridObjectRows[0].Split(',', options: StringSplitOptions.RemoveEmptyEntries).Length;
         _gridHeight = gridObjectRows.Length;
 
         // Create a 2D array to store the grid data
@@ -341,8 +341,8 @@ public class GameManager : MonoBehaviour
         for (int rowIndex = 0; rowIndex < _gridHeight; rowIndex++)
         {
             // Split the row string by commas to get individual column values
-            string[] gridObjectColumns = gridObjectRows[rowIndex].Split(',');
-            string[] scriptableObjectColumns = scriptableObjectRows[rowIndex].Split(',');
+            string[] gridObjectColumns = gridObjectRows[rowIndex].Split(',', options: StringSplitOptions.RemoveEmptyEntries);
+            string[] scriptableObjectColumns = scriptableObjectRows[rowIndex].Split(',', options: StringSplitOptions.RemoveEmptyEntries);
 
 
             // Iterate over each column
@@ -388,11 +388,11 @@ public class GameManager : MonoBehaviour
 
                     if (scriptableObjectData[row, col] != "0")
                     {
-                        int scriptableobjectId = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[0]);
+                        int scriptableObjectId = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[0]);
                         int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
 
-                        GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableobjectId).prefab;//TODO: Add exception handling
-                        grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, grid[row * _gridWidth + col].transform);
+                        GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableObjectId).prefab;//TODO: Add exception handling
+                        grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, (scriptableObjectId == 1? GridParent.transform.parent : grid[row * _gridWidth + col].transform));
 
                     }
                 }

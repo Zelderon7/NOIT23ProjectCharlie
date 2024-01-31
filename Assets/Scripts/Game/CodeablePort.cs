@@ -24,7 +24,7 @@ public class CodeablePort : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Debug.Log("Hello, I've been clicked");
+        //Debug.Log("Hello, I've been clicked");
         IDEManager.Instance.CurrentlyProgramed = MyParent;
         GameManager.Instance.CurrentMenu = GameManager.Menus.IDE;
     }
