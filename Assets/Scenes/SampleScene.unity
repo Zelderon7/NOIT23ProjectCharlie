@@ -2556,10 +2556,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BlockTypesPrefs:
-  - {fileID: 4452601916555427395, guid: 71fa2ae561035d848a9bad8ae5b71e4f, type: 3}
-  - {fileID: 7987566804181896519, guid: 4a7eb2c05530d884a928de3a0f1fe26b, type: 3}
-  - {fileID: 164645760845261873, guid: 1d8c0fe30dbdc71418e58789e524b6cb, type: 3}
-  - {fileID: 5280537596641223825, guid: d15eb575e6cad8741a706e158e5fd82b, type: 3}
+  - id: 0
+    Name: Start
+    Prefab: {fileID: 4452601916555427395, guid: 71fa2ae561035d848a9bad8ae5b71e4f, type: 3}
+  - id: 1
+    Name: Move
+    Prefab: {fileID: 7987566804181896519, guid: 4a7eb2c05530d884a928de3a0f1fe26b, type: 3}
+  - id: 2
+    Name: Turn Right
+    Prefab: {fileID: 5280537596641223825, guid: d15eb575e6cad8741a706e158e5fd82b, type: 3}
+  - id: 3
+    Name: Turn Left
+    Prefab: {fileID: 164645760845261873, guid: 1d8c0fe30dbdc71418e58789e524b6cb, type: 3}
   scrollSpeed: 300
   IDEBackground: {fileID: 1489801062}
   Drawer: {fileID: 563753952}

@@ -6,6 +6,33 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public struct BlockTypes
+{
+    public int id;
+    public int count;
+
+    public BlockTypes(int id, int count)
+    {
+        this.id = id;
+        this.count = count;
+    }
+}
+
+[Serializable]
+public struct CodeBlocksPrefabs
+{
+    public int id;
+    public string Name;
+    public GameObject Prefab;
+
+    public CodeBlocksPrefabs(int id, string name, GameObject prefab)
+    {
+        this.id = id;
+        Name = name;
+        Prefab = prefab;
+    }
+}
+
 public class IDEManager : MonoBehaviour
 {
 
@@ -23,7 +50,7 @@ public class IDEManager : MonoBehaviour
     #endregion
 
     [SerializeField]
-    GameObject[] BlockTypesPrefs;
+    List<CodeBlocksPrefabs> BlockTypesPrefs = new List<CodeBlocksPrefabs>();
 
     [SerializeField] float scrollSpeed = 20f;
     [SerializeField] GameObject IDEBackground;
@@ -104,7 +131,7 @@ public class IDEManager : MonoBehaviour
 
     private void Start()
     {
-        RefreshCodeDrawer(new BlockTypes[] { new BlockTypes(0, 1), new BlockTypes(1, -1), new BlockTypes(2, -1), new BlockTypes(3, -1) });
+        RefreshCodeDrawer(CurrentlyProgramed.MyBlockTypes);
     }
 
     private void Update()
@@ -122,10 +149,9 @@ public class IDEManager : MonoBehaviour
 
     public void RefreshCodeDrawer(BlockTypes[] blocks)
     {
-
         for (int i = 0; i < blocks.Length; i++)
         {
-            GameObject temp = Instantiate(BlockTypesPrefs[blocks[i].id], parent: Drawer.transform);
+            GameObject temp = Instantiate(BlockTypesPrefs[blocks[i].id].Prefab, parent: Drawer.transform);
             temp.GetComponentsInChildren<SpriteRenderer>().ToList().ForEach(x => { x.sortingLayerName = "IDEScreen"; x.sortingOrder += 11; });
             var _tempTextRef = temp.GetComponentInChildren<TextMeshPro>();
             if( _tempTextRef != null)
@@ -153,7 +179,7 @@ public class IDEManager : MonoBehaviour
             scriptRef.text.fontStyle = FontStyles.Bold;
             scriptRef.Count = blocks[i].count;
             scriptRef.RefreshText();
-            scriptRef.MePrefab = BlockTypesPrefs[blocks[i].id];
+            scriptRef.MePrefab = BlockTypesPrefs[blocks[i].id].Prefab;
         }
     }
 
@@ -186,14 +212,4 @@ public class IDEManager : MonoBehaviour
 
 }
 
-public struct BlockTypes
-{
-    public int id;
-    public int count;
 
-    public BlockTypes(int id, int count)
-    {
-        this.id = id;
-        this.count = count;
-    }
-}

@@ -39,6 +39,8 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         get => FacingDirection;
         set => FacingDirection = value;
     }
+    BlockTypes[] ICodeable.MyBlockTypes { get => new BlockTypes[] { new BlockTypes(0, 1), new BlockTypes(1, -1), new BlockTypes(2, -1), new BlockTypes(3, -1) }; }
+
     #region Audio
 
     AudioSource myAudioSource;

@@ -7,8 +7,7 @@ public interface ICodeable
     //TODO: Add variables for this object and blocks it can be programed with...
     Block StarterBlock { get; set; }
     Vector2 GridPosition { get; set; }
-    Vector2 GridRotation
-    {
-    get; set; }
+    Vector2 GridRotation{ get; set; }
+    BlockTypes[] MyBlockTypes { get; }
     void OnRestart();
 }
