@@ -22,7 +22,6 @@ public class DrawerBlock : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Debug.Log("Spawn Block");
         if (count != 0)
         {
             count--;
@@ -34,7 +33,6 @@ public class DrawerBlock : MonoBehaviour
             var _tempTextRef = temp.GetComponentInChildren<TextMeshPro>();
             if( _tempTextRef != null )
             {
-                _tempTextRef.sortingLayerID = 7;
                 _tempTextRef.sortingOrder += 100;
             }
             temp.transform.position = new Vector3(GetMousePos().x, GetMousePos().y, 0);
@@ -55,6 +53,7 @@ public class DrawerBlock : MonoBehaviour
             return;
 
         curBlock.PutDownBlock();
+        curBlock.transform.parent.localPosition -= Vector3.forward;
         SpriteRenderer[] _spRs = curBlock.transform.parent.GetComponentsInChildren<SpriteRenderer>();
         _spRs.ToList().ForEach(x => x.sortingOrder -= 100);
         var _tempTextRef = curBlock.transform.parent.GetComponentInChildren<TextMeshPro>();

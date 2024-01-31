@@ -115,6 +115,13 @@ public class Block : MonoBehaviour
     private void TrashMe()
     {
         Papa.Count++;
+        foreach (var item in outConnectorsScripts)
+        {
+            if(item.connected != null)
+            {
+                item.connected.myBlock.TrashMe();
+            }
+        }
         Destroy(transform.parent.gameObject);
     }
 

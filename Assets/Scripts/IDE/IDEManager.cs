@@ -131,7 +131,7 @@ public class IDEManager : MonoBehaviour
                 
 
             temp.transform.localScale = new Vector3(.5f, .5f, 1);
-            temp.transform.localPosition = new Vector3(-.4f, 5 - i*(temp.transform.localScale.y*1.8f) - temp.transform.localScale.y, 2);
+            temp.transform.localPosition = new Vector3(-.4f, 5 - i*(temp.transform.localScale.y*1.8f) - temp.transform.localScale.y, -2);
             
             GameObject targetParent = temp.GetComponentInChildren<Block>().gameObject;
             Destroy(targetParent.GetComponent<Block>());

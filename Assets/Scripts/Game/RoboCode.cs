@@ -16,10 +16,10 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
     Vector2[] _directions =
         {
+            Vector2.up,
             Vector2.right,
             Vector2.down,
-            Vector2.left,
-            Vector2.up
+            Vector2.left
         };
     
     public Vector2 FacingDirection { get => _directions[curDirI]; private set
@@ -30,7 +30,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
             curDirI = temp;
         } }
 
-    private int curDirI = 0;
+    private int curDirI = 1;
 
     Block ICodeable.StarterBlock { get => starterBlock; set => starterBlock = value; }
     Vector2 ICodeable.GridPos { get => gridPos; set => MoveMeTo(value, null); }//TODO: Change the set to move method
@@ -146,5 +146,10 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         transform.position = startPosition + direction * distance;
         Debug.Log("Movement Over" + distance);
         callback?.Invoke();
+    }
+
+    void ICodeable.OnRestart()
+    {
+        
     }
 }
