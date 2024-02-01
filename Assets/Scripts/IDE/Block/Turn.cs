@@ -8,10 +8,10 @@ public class Turn : Block
     bool RightOrLeft = true;
     public override void RunBlock()
     {
-        if (!(Owner is IWalkable))
+        if (!(IDEManager.Instance.GetICodeableById(Owner) is IWalkable))
             throw new System.Exception("Owner is not Walkable");
 
-        (Owner as IWalkable).Turn(RightOrLeft, () =>
+        (IDEManager.Instance.GetICodeableById(Owner) as IWalkable).Turn(RightOrLeft, () =>
         {
             if (outConnectorsScripts?[0] != null)
                 outConnectorsScripts[0].GoNext();

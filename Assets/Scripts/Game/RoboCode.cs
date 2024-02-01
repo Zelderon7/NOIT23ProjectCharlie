@@ -39,7 +39,10 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         get => FacingDirection;
         set => FacingDirection = value;
     }
-    BlockTypes[] ICodeable.MyBlockTypes { get => new BlockTypes[] { new BlockTypes(0, 1), new BlockTypes(1, -1), new BlockTypes(2, -1), new BlockTypes(3, -1) }; }
+    BlockTypes[] ICodeable.MyBlockTypes { get => myBlocks; set => myBlocks = value; }
+    public int Id { get => 0; set => throw new NotImplementedException(); }
+
+    BlockTypes[] myBlocks;
 
     #region Audio
 

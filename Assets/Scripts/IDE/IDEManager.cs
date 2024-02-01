@@ -57,30 +57,43 @@ public class IDEManager : MonoBehaviour
 
     [SerializeField]
     GameObject Drawer;
-    public ICodeable CurrentlyProgramed { get => currentlyProgramed;
+    public ICodeable CurrentlyProgramed 
+    {
+        get 
+        {
+            if(CodeableObjectsDictionary.ContainsKey(CurrentlyProgramedId))
+                return CodeableObjectsDictionary[CurrentlyProgramedId];
+            Debug.LogWarning($"CodeableObject[{CurrentlyProgramedId}] does not exists");
+            return null;
+        }
         set
         {
             if (value == null)
                 return;
-            if (currentlyProgramed != null)
-                SaveProgram(currentlyProgramed);
-            currentlyProgramed = value;
-            if (!SavedPrograms.ContainsKey(currentlyProgramed))
-                SavedPrograms.Add(currentlyProgramed, new List<GameObject>());
-            LoadProgram(currentlyProgramed);
+            if (CurrentlyProgramed != null)
+                SaveProgram(CurrentlyProgramed);
+            if(!CodeableObjectsDictionary.ContainsKey(value.Id))
+                CodeableObjectsDictionary.Add(value.Id, value);
+            CurrentlyProgramedId = value.Id;
+            if (!SavedPrograms.ContainsKey(CurrentlyProgramed))
+                SavedPrograms.Add(CurrentlyProgramed, new List<GameObject>());
+            LoadProgram(CurrentlyProgramed);
         }
     }
 
     Dictionary<ICodeable, List<GameObject>> SavedPrograms = new Dictionary<ICodeable, List<GameObject>>();
+    Dictionary<int, ICodeable> CodeableObjectsDictionary = new Dictionary<int, ICodeable>();
     public bool IsActive { get { return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE; } }
 
     public Action OnCodeStart = () => { };
 
-    private ICodeable currentlyProgramed = null;
+    public int CurrentlyProgramedId { get; private set; }
+
+    public ICodeable GetICodeableById(int id) => CodeableObjectsDictionary[id];
 
     public void OnBlockCreation(GameObject a)
     {
-        SavedPrograms[currentlyProgramed].Add(a);
+        SavedPrograms[CurrentlyProgramed].Add(a);
     }
 
     public void StartCode()
@@ -131,7 +144,7 @@ public class IDEManager : MonoBehaviour
 
     private void Start()
     {
-        RefreshCodeDrawer(CurrentlyProgramed.MyBlockTypes);
+        GameManager.Instance.OnMenusOpen[GameManager.Menus.IDE] += OnOpen;
     }
 
     private void Update()
@@ -208,6 +221,11 @@ public class IDEManager : MonoBehaviour
             Debug.LogError("IDEBackground is not assigned in IDEManager");
             
         Camera.main.transform.position = Vector3.forward * -10;
+    }
+
+    private void OnOpen()
+    {
+        RefreshCodeDrawer(CurrentlyProgramed.MyBlockTypes);
     }
 
 }

@@ -45,6 +45,8 @@ public class Door : MonoBehaviour, IInteractableGridObject
 
     public void Interact(Action callback)
     {
+        if (IsLocked)
+            return;
         StartCoroutine(OpenDoor(callback));
     }
 

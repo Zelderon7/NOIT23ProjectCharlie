@@ -224,11 +224,7 @@ public class GameManager : MonoBehaviour
 
         #endregion
 
-        
-
         ProcessSeedString(seed);
-
-        
     }
     #region Grid Instantiation
     public void InstantiateGrid()

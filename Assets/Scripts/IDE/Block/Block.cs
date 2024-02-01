@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    public ICodeable Owner;
+    public int Owner;
 
     [SerializeField]
     private GameObject inpConnector = null;
@@ -32,7 +32,7 @@ public class Block : MonoBehaviour
     {
         outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
         lastPos = transform.parent.position;
-        Owner = IDEManager.Instance.CurrentlyProgramed;
+        Owner = IDEManager.Instance.CurrentlyProgramedId;
     }
 
     private void Start()
