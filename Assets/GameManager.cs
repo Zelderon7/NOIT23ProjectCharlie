@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -19,6 +20,33 @@ public struct Object {
     }
 }
 
+public class ScriptableObjectData {
+    public int ID
+    {
+        get;
+    }
+    public int FacingDirection
+    {
+        get;
+    }
+    public int ReferenceID
+    {
+        get;
+    }
+    public BlockTypes[] CodeBlocks
+    {
+        get;
+    }
+
+    public ScriptableObjectData(int id, int facingDirection, int referenceID, BlockTypes[] codeBlocks)
+    {
+        ID = id;
+        FacingDirection = facingDirection;
+        ReferenceID = referenceID;
+        CodeBlocks = codeBlocks;
+    }
+}
+
 public class GameManager : MonoBehaviour
 {
 
@@ -33,7 +61,7 @@ public class GameManager : MonoBehaviour
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "0,0,0,1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;[0,1],[1,-1],[2,-1],[3,-1]";
+    string seed = "0,0,0,1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-3-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
 
 
     string levelName;
@@ -329,61 +357,114 @@ public class GameManager : MonoBehaviour
         if (seed == null)
             seed = this.seed;
 
-        string[] subseeds = seed.Split(';', options: StringSplitOptions.RemoveEmptyEntries);
+        string[] subseeds = seed.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
+        // Grid objects seed
         string gridObjectSeed = subseeds[0];
-        string scriptableObjectSeed = subseeds[1];
-        string codeBlocksSeed = subseeds[2];
+        string[] gridObjectRows = gridObjectSeed.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+        // Scriptable objects with code blocks seed
+        string scriptableObjectSeedWithCodeBlocks = subseeds[1];
+        string[] scriptableObjectRows = scriptableObjectSeedWithCodeBlocks.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+        // Process code blocks and scriptable objects
+        List<ScriptableObjectData> scriptableObjectDataList = new List<ScriptableObjectData>();
+        string[,] scriptableObjectData = new string[_gridHeight, _gridWidth];
 
-        // Split the seed string by the row delimiter '/'
-        string[] gridObjectRows = gridObjectSeed.Split('/', options: StringSplitOptions.RemoveEmptyEntries);
-        string[] scriptableObjectRows = scriptableObjectSeed.Split('/', options: StringSplitOptions.RemoveEmptyEntries);
-
-        string[] codeBlocks = codeBlocksSeed.Replace("[", "").Replace("]", "").Split(',');
-
-        List<BlockTypes> blockTypesList = new List<BlockTypes>();
-
-        // Iterate through entries, incrementing by 2 (assuming each entry has 2 values)
-        for (int i = 0; i < codeBlocks.Length; i += 2)
+        foreach (string scriptableObjectRow in scriptableObjectRows)
         {
-            // Parse ID and count
-            if (int.TryParse(codeBlocks[i], out int id) && int.TryParse(codeBlocks[i + 1], out int count))
+            // Split the row string into individual elements using commas
+            string[] scriptableObjectElements = Regex.Split(scriptableObjectRow, @",(?!.*\])");
+
+
+            foreach (string element in scriptableObjectElements)
             {
-                // Add to the list
-                blockTypesList.Add(new BlockTypes(id, count));
-            } else
-            {
-                Debug.LogError($"Failed to parse ID or count from entry: {codeBlocks[i]}, {codeBlocks[i + 1]}");
+                if (element != "0")
+                {
+                    // Use regular expressions to extract scriptableObject and codeBlocks
+                    Match match = Regex.Match(element, @"^{(.+)}(?:,(\d+))*$");
+
+                    if (match.Success)
+                    {
+                        string scriptableObject = match.Groups[1].Value.Split(':')[0].Trim();
+
+                        string codeBlocks = match.Groups[1].Value.Split(':')[1].Trim();
+
+                        // Split scriptableObject into its components: ID, facing direction, reference ID
+                        string[] scriptableObjectComponents = scriptableObject.Split('-');
+
+                        if (scriptableObjectComponents.Length >= 3)
+                        {
+                            int scriptableObjectID = int.Parse(scriptableObjectComponents[0]);
+                            int facingDirection = int.Parse(scriptableObjectComponents[1]);
+                            int referenceID = int.Parse(scriptableObjectComponents[2]);
+
+                            // Extract code blocks for the scriptable object using regular expressions
+                            MatchCollection codeBlockMatches = Regex.Matches(codeBlocks, @"\[(-?\d+),(-?\d+)\]");
+
+                            List<BlockTypes> codeBlocksList = new List<BlockTypes>();
+
+                            foreach (Match codeBlockMatch in codeBlockMatches)
+                            {
+                                if (codeBlockMatch.Groups.Count == 3 &&
+                                    int.TryParse(codeBlockMatch.Groups[1].Value, out int codeBlockID) &&
+                                    int.TryParse(codeBlockMatch.Groups[2].Value, out int count))
+                                {
+                                    codeBlocksList.Add(new BlockTypes(codeBlockID, count));
+                                } else
+                                {
+                                    Debug.LogError($"Failed to parse code block ID or count from entry: {codeBlockMatch.Value}");
+                                }
+                            }
+
+                            BlockTypes[] codeBlocksArray = codeBlocksList.ToArray();
+
+                            // Add the scriptable object data along with code blocks to the list
+                            scriptableObjectDataList.Add(new ScriptableObjectData(scriptableObjectID, facingDirection, referenceID, codeBlocksArray));
+                        } else
+                        {
+                            Debug.LogError("Invalid format for scriptable object components: " + scriptableObject);
+                        }
+                    } else
+                    {
+                        Debug.LogError("Invalid format for scriptable object element: " + element);
+                    }
+                } else
+                {
+                    // No scriptable object in this element, add null to the list
+                    scriptableObjectDataList.Add(null);
+                }
             }
         }
 
+
         // Convert the list to an array
-        BlockTypes[] blockTypesArray = blockTypesList.ToArray();
-        
+        ScriptableObjectData[] scriptableObjectDataArray = scriptableObjectDataList.ToArray();
 
         // Set grid width and height based on seed
-        _gridWidth = gridObjectRows[0].Split(',', options: StringSplitOptions.RemoveEmptyEntries).Length;
+        _gridWidth = gridObjectRows[0].Split(',', StringSplitOptions.RemoveEmptyEntries).Length;
         _gridHeight = gridObjectRows.Length;
 
         // Create a 2D array to store the grid data
         int[,] gridObjectData = new int[_gridHeight, _gridWidth];
-        string[,] scriptableObjectData = new string[_gridHeight, _gridWidth];
-
 
         // Iterate over each row
         for (int rowIndex = 0; rowIndex < _gridHeight; rowIndex++)
         {
-            // Split the row string by commas to get individual column values
-            string[] gridObjectColumns = gridObjectRows[rowIndex].Split(',', options: StringSplitOptions.RemoveEmptyEntries);
-            string[] scriptableObjectColumns = scriptableObjectRows[rowIndex].Split(',', options: StringSplitOptions.RemoveEmptyEntries);
+            // Split the row string by commas to get individual column values for gridObjectData
+            string[] gridObjectColumns = gridObjectRows[rowIndex].Split(',', StringSplitOptions.RemoveEmptyEntries);
 
+            // Split the row string into scriptableObjectColumns using the modified Regex.Split
+            string[] scriptableObjectColumns = Regex.Split(scriptableObjectRows[rowIndex], @",(?![^{}]*\})");
+
+
+            // Remove any empty entries
+            scriptableObjectColumns = scriptableObjectColumns.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
             // Iterate over each column
-           for (int colIndex = 0; colIndex < _gridWidth; colIndex++)
+            for (int colIndex = 0; colIndex < _gridWidth; colIndex++)
             {
-                // Parse the string value to an integer and assign it to the 2D array
+                // Parse the string value to an integer and assign it to the 2D array for gridObjectData
                 if (int.TryParse(gridObjectColumns[colIndex], out int cellValue))
                 {
                     gridObjectData[rowIndex, colIndex] = cellValue;
@@ -392,14 +473,25 @@ public class GameManager : MonoBehaviour
                     Debug.LogError("Failed to parse grid data at row " + rowIndex + ", column " + colIndex);
                 }
 
-                    scriptableObjectData[rowIndex, colIndex] = scriptableObjectColumns[colIndex];
+                // Set scriptableObjectData[rowIndex, colIndex] to only the first 3 characters of scriptableObjectColumns[colIndex]
+                if (scriptableObjectColumns[colIndex] != "0")
+                {
+                    scriptableObjectData[rowIndex, colIndex] = scriptableObjectColumns[colIndex].Substring(1, 3);
+
+                } else
+                {
+                    scriptableObjectData[rowIndex, colIndex] = "0";
+                }
+                    
             }
         }
 
         // Now you have the grid data in the 'gridData' array, and you can use it to instantiate the grid
         InstantiateGrid();
-        InstantiateGridFromData(gridObjectData, scriptableObjectData );
+        InstantiateGridFromData(gridObjectData, scriptableObjectData);
     }
+
+
 
     void InstantiateGridFromData(int[,] gridObjectData, string[,] scriptableObjectData)
     {
