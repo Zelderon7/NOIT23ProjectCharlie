@@ -8,16 +8,16 @@ public class MoveBlock : Block
 {
     public override void RunBlock()
     {
-        if (!(Owner is IWalkable))
+        if (!((IDEManager.Instance.GetICodeableById(Owner)) is IWalkable))
             throw new System.Exception("Owner is not Walkable");
 
-        Vector2 targetLocation = new Vector2((int)Owner.GridPosition.x + (Owner as IWalkable).FacingDirection.x, (int)Owner.GridPosition.y - (Owner as IWalkable).FacingDirection.y);
+        Vector2 targetLocation = new Vector2((int)(IDEManager.Instance.GetICodeableById(Owner)).GridPosition.x + ((IDEManager.Instance.GetICodeableById(Owner)) as IWalkable).FacingDirection.x, (int)(IDEManager.Instance.GetICodeableById(Owner)).GridPosition.y - ((IDEManager.Instance.GetICodeableById(Owner)) as IWalkable).FacingDirection.y);
 
         if (!GameManager.Instance.IsCellWalkable((int)targetLocation.x, (int)targetLocation.y))
             //throw new System.Exception($"Can't go to {new Vector2((int)targetLocation.x, (int)targetLocation.y)}");
             GameManager.Instance.GameOver();
 
-        (Owner as IWalkable).MoveMe(() =>
+        ((IDEManager.Instance.GetICodeableById(Owner)) as IWalkable).MoveMe(() =>
         {
             if (outConnectorsScripts?[0] != null)
                 outConnectorsScripts[0].GoNext();
