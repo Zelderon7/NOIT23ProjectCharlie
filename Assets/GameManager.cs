@@ -33,7 +33,9 @@ public class GameManager : MonoBehaviour
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "2,2,2,1,2/2,2,2,1,2/2,2,2,1,2/2,2,1,1,2/2,0,2,0,2/;1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;[0,1],[1,-1],[2,-1],[3,-1]";
+    string seed = "0,0,0,1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;1-3,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/;[0,1],[1,-1],[2,-1],[3,-1]";
+
+
     string levelName;
     string authorName;
 
@@ -409,12 +411,12 @@ public class GameManager : MonoBehaviour
             {
                 // Access gridData[row, col] to get the value for the current cell
 
-                int gridobjectId = gridObjectData[row, col];
+                int gridObjectId = gridObjectData[row, col];
 
                 // Use objectId to find the corresponding GridObject
-                GameObject gridObject = gridObjects.First(x => x.id == gridobjectId).prefab;//TODO: Add exception handling
+                GameObject gridObject = gridObjects.First(x => x.id == gridObjectId).prefab;//TODO: Add exception handling
 
-                if (gridObject != null)
+                if (gridObject != null && gridObjectId != 0)
                 {
 
                     grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(gridObject, grid[row * _gridWidth + col].transform);
@@ -425,9 +427,18 @@ public class GameManager : MonoBehaviour
                         int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
 
                         GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableObjectId).prefab;//TODO: Add exception handling
-                        grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, (scriptableObjectId == 1? GridParent.transform.parent : grid[row * _gridWidth + col].transform));
+                        grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, (scriptableObjectId == 1 ? GridParent.transform.parent : grid[row * _gridWidth + col].transform));
 
                     }
+                }
+                if (scriptableObjectData[row, col] != "0")
+                {
+                    int scriptableObjectId = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[0]);
+                    int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
+
+                    GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableObjectId).prefab;//TODO: Add exception handling
+                    grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, (scriptableObjectId == 1 ? GridParent.transform.parent : grid[row * _gridWidth + col].transform));
+
                 }
             }
         }
