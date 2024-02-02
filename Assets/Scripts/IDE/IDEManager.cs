@@ -73,6 +73,8 @@ public class IDEManager : MonoBehaviour
                 SaveProgram(CurrentlyProgramed.Id);
             if(!CodeableObjectsDictionary.ContainsKey(value.Id))
                 CodeableObjectsDictionary.Add(value.Id, value);
+            if (CodeableObjectsDictionary[value.Id] != value)
+                CodeableObjectsDictionary[value.Id] = value;
             CurrentlyProgramedId = value.Id;
             if (!SavedPrograms.ContainsKey(CurrentlyProgramed))
                 SavedPrograms.Add(CurrentlyProgramed, new List<GameObject>());

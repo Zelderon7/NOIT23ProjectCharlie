@@ -16,7 +16,7 @@ public class InputConnector : MonoBehaviour
     }
     public void CallMe()
     {
-        Block temp = Connected.transform.parent.parent.GetComponentInChildren<Block>();
+        //Block temp = Connected.transform.parent.parent.GetComponentInChildren<Block>();
         myBlock.RunBlock();
     }
 }

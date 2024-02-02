@@ -130,7 +130,14 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     {
         animator = GetComponent<Animator>();
         myAudioSource = GetComponent<AudioSource>();
-        Debug.Log($"Robot is Awake{animator != null}{myAudioSource != null}");
+        
+        if(IDEManager.Instance != null)
+        {
+            IDEManager.Instance.CurrentlyProgramed = this;
+            transform.position = GameManager.Instance.GetCellPos((int)gridPos.x, (int)gridPos.y);
+            if (FacingDirection.x != 0)
+                transform.localScale = new Vector2(GameManager.Instance.cellSize * FacingDirection.x * -1, GameManager.Instance.cellSize);
+        }
     }
 
     public void Start()

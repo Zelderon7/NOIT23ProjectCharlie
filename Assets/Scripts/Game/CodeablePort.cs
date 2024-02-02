@@ -28,4 +28,9 @@ public class CodeablePort : MonoBehaviour
         IDEManager.Instance.CurrentlyProgramed = MyParent;
         GameManager.Instance.CurrentMenu = GameManager.Menus.IDE;
     }
+
+    ~CodeablePort()
+    {
+        OnGameStart -= MyOnGameStart;
+    }
 }

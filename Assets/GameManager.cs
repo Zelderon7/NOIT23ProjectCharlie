@@ -79,11 +79,7 @@ public class GameManager : MonoBehaviour
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "0,0,{3-[3,0]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
-    ScriptableObjectData[] scriptableObjectDataArray;
-
-    string levelName;
-    string authorName;
+    
 
     public static GameManager Instance
     {
@@ -166,6 +162,12 @@ public class GameManager : MonoBehaviour
 
     #region Grid Variables
 
+    string seed = "0,0,{3-[3,0]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
+    ScriptableObjectData[] scriptableObjectDataArray;
+
+    string levelName;
+    string authorName;
+
     [SerializeField] private GameObject tilePrefab;
     /// <summary>
     /// The parent transform of every grid cell
@@ -235,6 +237,7 @@ public class GameManager : MonoBehaviour
         #endregion
 
         #region Menus
+
         OnMenusClose.Clear();
         OnMenusOpen.Clear();
         foreach(var item in Enum.GetValues(typeof(Menus)))
@@ -415,7 +418,7 @@ public class GameManager : MonoBehaviour
                 {
                     // Use regular expressions to extract scriptableObject and codeBlocks
                     Match match = Regex.Match(element, @"^{(.+)}(?:,(\d+))*$");
-
+                    
                     if (match.Success)
                     {
                         string scriptableObject = match.Groups[1].Value.Split(':')[0].Trim();
@@ -614,14 +617,18 @@ public class GameManager : MonoBehaviour
 
                     GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableObjectId).prefab;//TODO: Add exception handling
                     GameObject temp;
+
                     if (scriptableObjectId == 1) 
                     { 
                         temp = Instantiate(scriptableObject, (GridParent.transform.parent));
                         Robot = temp;
                     }
                     else
+                    {
                         temp = Instantiate(scriptableObject, grid[row * GridWidth + col].transform);
-                    grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = temp;
+                        grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = temp;
+                    }
+                        
                     if (scriptableObjectDataArray[row * GridWidth+col] != null)
                     {
                         temp.GetComponent<ICodeable>().Id = scriptableObjectDataArray[row * GridWidth + col].ReferenceID;
