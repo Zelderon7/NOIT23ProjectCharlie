@@ -61,8 +61,8 @@ public class GameManager : MonoBehaviour
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "0,0,0,1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-3-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
-
+    string seed = "0,0,0,1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
+    ScriptableObjectData[] scriptableObjectDataArray;
 
     string levelName;
     string authorName;
@@ -435,7 +435,7 @@ public class GameManager : MonoBehaviour
 
 
         // Convert the list to an array
-        ScriptableObjectData[] scriptableObjectDataArray = scriptableObjectDataList.ToArray();
+        scriptableObjectDataArray = scriptableObjectDataList.ToArray();
 
         // Set grid width and height based on seed
         _gridWidth = gridObjectRows[0].Split(',', StringSplitOptions.RemoveEmptyEntries).Length;
@@ -525,8 +525,16 @@ public class GameManager : MonoBehaviour
                     int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
 
                     GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableObjectId).prefab;//TODO: Add exception handling
-                    grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, (scriptableObjectId == 1 ? GridParent.transform.parent : grid[row * _gridWidth + col].transform));
-
+                    var temp = Instantiate(scriptableObject, (scriptableObjectId == 1 ? GridParent.transform.parent : grid[row * _gridWidth + col].transform));
+                    grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = temp;
+                    if (scriptableObjectDataArray[row * GridWidth+col] != null)
+                    {
+                        temp.GetComponent<ICodeable>().Id = scriptableObjectDataArray[row * GridWidth + col].ReferenceID;
+                        temp.GetComponent<ICodeable>().GridPosition = new Vector2(col, row);
+                        temp.GetComponent<ICodeable>().GridRotation = scriptableObjectDataArray[row * GridWidth + col].FacingDirection;
+                        temp.GetComponent<ICodeable>().MyBlockTypes = scriptableObjectDataArray[row * GridWidth + col].CodeBlocks;
+                        
+                    }
                 }
             }
         }

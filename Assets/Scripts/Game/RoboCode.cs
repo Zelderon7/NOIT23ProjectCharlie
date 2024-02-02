@@ -33,14 +33,31 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     private int curDirI = 1;
 
     Block ICodeable.StarterBlock { get => starterBlock; set => starterBlock = value; }
-    Vector2 ICodeable.GridPosition { get => gridPos; set => MoveMeTo(value, null); }//TODO: Change the set to move method
-    Vector2 ICodeable.GridRotation
+    Vector2 ICodeable.GridPosition
     {
-        get => FacingDirection;
-        set => FacingDirection = value;
+        get => gridPos;
+        set
+        {
+            gridPos = value;
+            transform.position = GameManager.Instance.GetCellPos((int)value.x, (int)value.y);
+        }
+    }
+    int ICodeable.GridRotation
+    {
+        get => curDirI;
+        set => FacingDirection = _directions[value];
     }
     BlockTypes[] ICodeable.MyBlockTypes { get => myBlocks; set => myBlocks = value; }
-    public int Id { get => 0; set => throw new NotImplementedException(); }
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            _id = value;
+        }
+    }
+
+    private int _id;
 
     BlockTypes[] myBlocks;
 

@@ -149,7 +149,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   Locked: {fileID: 1781338099, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
   UnLocked: {fileID: 352697812, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
-  isLocked: 1
+  isLocked: 0
 --- !u!82 &1786197774657015025
 AudioSource:
   m_ObjectHideFlags: 0

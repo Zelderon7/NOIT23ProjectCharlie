@@ -14,7 +14,7 @@ public class Flag : MonoBehaviour, IInteractableGridObject
 
     IEnumerator PickMeUp()
     {
-        yield return null;
+        yield return new WaitForSeconds(1f);
         GameManager.Instance.Victory();
     }
 }

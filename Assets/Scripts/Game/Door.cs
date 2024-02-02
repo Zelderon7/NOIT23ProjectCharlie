@@ -1,11 +1,8 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class Door : MonoBehaviour, IInteractableGridObject
-{
+public class Door : MonoBehaviour, IInteractableGridObject {
     float openAnimationDuration;
 
     [SerializeField]
@@ -24,8 +21,10 @@ public class Door : MonoBehaviour, IInteractableGridObject
     [SerializeField]
     private bool isLocked;
 
-    public bool IsLocked { get => isLocked;
-        private set 
+    public bool IsLocked
+    {
+        get => isLocked;
+        set
         {
             isLocked = value;
             mySpriteRenderer.sprite = IsLocked ? Locked : UnLocked;
