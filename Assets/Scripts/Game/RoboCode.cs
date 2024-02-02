@@ -75,24 +75,28 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
     private void RefreshArrow()
     {
-        Debug.Log($"Facing Dir I = {curDirI}");
+        Arrow.transform.rotation = Quaternion.identity;
+
         switch (curDirI)
         {
-            case 0: Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
+            case 0: Arrow.transform.Rotate(0f, 0f, 180f);
                 break;
 
             case 1:
-                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
+                Arrow.transform.Rotate(0f, 0f, -90f);
                 break;
 
             case 2:
-                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+                Arrow.transform.Rotate(0f, 0f, 0f);
                 break;
 
             case 3:
-                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+                Arrow.transform.Rotate(0f, 0f, -90f);
                 break;
         }
+
+        if (transform.localScale.x > 0)
+            Arrow.transform.Rotate(0, 180, 0);
     }
 
     public void Turn(bool RightOrLeft, Action callback = null)
@@ -105,7 +109,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         curDirI %= 4;
             
         if(FacingDirection.x != 0)
-            transform.localScale *= new Vector2(FacingDirection.x, 1);
+            transform.localScale *= new Vector2(transform.localScale.x < 0? FacingDirection.x : FacingDirection.x * -1, 1);
 
         //Debug.Log($"Turned to {FacingDirection}");
         RefreshArrow();
