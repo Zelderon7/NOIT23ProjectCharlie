@@ -9,12 +9,13 @@ public class Flag : MonoBehaviour, IInteractableGridObject
     {
         StartCoroutine(PickMeUp());
         callback?.Invoke();
-
     }
 
     IEnumerator PickMeUp()
     {
-        yield return new WaitForSeconds(1f);
+        GetComponent<AudioSource>().Play(); 
+        yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
+        Destroy(gameObject);
         GameManager.Instance.Victory();
     }
 }

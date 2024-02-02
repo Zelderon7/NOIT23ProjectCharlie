@@ -13,6 +13,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     private Vector2 gridPos = Vector2.zero;
     private Block starterBlock;
     private float moveSpeed = 1f;
+    [SerializeField] Transform Arrow;
 
     Vector2[] _directions =
         {
@@ -22,12 +23,14 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
             Vector2.left
         };
     
-    public Vector2 FacingDirection { get => _directions[curDirI]; private set
+    public Vector2 FacingDirection { get => _directions[curDirI]; 
+        private set
         {
             int temp = _directions.ToList().IndexOf(value);
             if (temp == -1)
                 throw new ArgumentException($"Invalid direction: {value}");
             curDirI = temp;
+            RefreshArrow();
         } }
 
     private int curDirI = 1;
@@ -70,9 +73,31 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
     #endregion
 
+    private void RefreshArrow()
+    {
+        Debug.Log($"Facing Dir I = {curDirI}");
+        switch (curDirI)
+        {
+            case 0: Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
+                break;
+
+            case 1:
+                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
+                break;
+
+            case 2:
+                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+                break;
+
+            case 3:
+                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+                break;
+        }
+    }
+
     public void Turn(bool RightOrLeft, Action callback = null)
     {
-        Debug.Log($"Turning {(RightOrLeft? "Right" : "Left")}, curDir = {FacingDirection}");
+        //Debug.Log($"Turning {(RightOrLeft? "Right" : "Left")}, curDir = {FacingDirection}");
         int prevDir = curDirI;
         curDirI += RightOrLeft ? 1 : -1;
         if (curDirI < 0)
@@ -82,7 +107,8 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         if(FacingDirection.x != 0)
             transform.localScale *= new Vector2(FacingDirection.x, 1);
 
-        Debug.Log($"Turned to {FacingDirection}");
+        //Debug.Log($"Turned to {FacingDirection}");
+        RefreshArrow();
 
         if(RotateClip != null)
         {

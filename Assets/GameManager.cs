@@ -574,8 +574,9 @@ public class GameManager : MonoBehaviour
         VictoryWindowScreen.NextLevel.onClick.AddListener(OnNextLevel);
     }
 
-    private void OnNextLevel()
+    public void OnNextLevel()
     {
+        Debug.Log("OnNextLevel");
         VictoryWindowScreen.gameObject.SetActive(false);
         Time.timeScale = 1;
         IsGameOver = false;

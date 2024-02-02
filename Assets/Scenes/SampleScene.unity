@@ -2087,7 +2087,7 @@ MonoBehaviour:
   scriptableObjects:
   - id: 1
     objectName: Robot
-    prefab: {fileID: 7556573876044617456, guid: b9f478c72d8c04849b4f9cb387ea63fc, type: 3}
+    prefab: {fileID: 7021549350433633468, guid: b9f478c72d8c04849b4f9cb387ea63fc, type: 3}
   _IDEScreen: {fileID: 1547482288}
   _GameScreen: {fileID: 2099311896}
   EaseInOutQuad:
@@ -3217,8 +3217,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d32140aad05091409e92b16928d5ba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NextLevel: {fileID: 0}
-  Text: {fileID: 0}
+  NextLevel: {fileID: 721050887}
+  Text: {fileID: 1765080270}
 --- !u!114 &1995321865
 MonoBehaviour:
   m_ObjectHideFlags: 0
