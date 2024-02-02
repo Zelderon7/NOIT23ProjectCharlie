@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "0,0,0,1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
+    string seed = "0,0,{3-[0,4]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
     ScriptableObjectData[] scriptableObjectDataArray;
 
     string levelName;
@@ -223,8 +223,10 @@ public class GameManager : MonoBehaviour
         OnMenusClose[Menus.IDE] += OnIDEClose;
 
         #endregion
+        InstantiateGrid();
 
         ProcessSeedString(seed);
+
     }
     #region Grid Instantiation
     public void InstantiateGrid()
@@ -350,6 +352,7 @@ public class GameManager : MonoBehaviour
 
     public void ProcessSeedString(string seed)
     {
+
         if (seed == null)
             seed = this.seed;
 
@@ -438,7 +441,7 @@ public class GameManager : MonoBehaviour
         scriptableObjectDataArray = scriptableObjectDataList.ToArray();
 
         // Set grid width and height based on seed
-        _gridWidth = gridObjectRows[0].Split(',', StringSplitOptions.RemoveEmptyEntries).Length;
+        _gridWidth = Regex.Split(gridObjectRows[0], @",(?![^{]*\})").Length;
         _gridHeight = gridObjectRows.Length;
 
         // Create a 2D array to store the grid data
@@ -448,8 +451,7 @@ public class GameManager : MonoBehaviour
         for (int rowIndex = 0; rowIndex < _gridHeight; rowIndex++)
         {
             // Split the row string by commas to get individual column values for gridObjectData
-            string[] gridObjectColumns = gridObjectRows[rowIndex].Split(',', StringSplitOptions.RemoveEmptyEntries);
-
+            string[] gridObjectColumns = Regex.Split(gridObjectRows[rowIndex], @",(?![^{]*\})");
             // Split the row string into scriptableObjectColumns using the modified Regex.Split
             string[] scriptableObjectColumns = Regex.Split(scriptableObjectRows[rowIndex], @",(?![^{}]*\})");
 
@@ -460,14 +462,38 @@ public class GameManager : MonoBehaviour
             // Iterate over each column
             for (int colIndex = 0; colIndex < _gridWidth; colIndex++)
             {
-                // Parse the string value to an integer and assign it to the 2D array for gridObjectData
-                if (int.TryParse(gridObjectColumns[colIndex], out int cellValue))
+                if (gridObjectColumns[colIndex] != null & Regex.IsMatch(gridObjectColumns[colIndex], @"^{3-\[\d+,\d+\]}$")) //check if matches format
                 {
-                    gridObjectData[rowIndex, colIndex] = cellValue;
+                    Match coordMatch = Regex.Match(gridObjectColumns[colIndex], @"{3-\[(\d+),(\d+)\]}");
+                    if (coordMatch.Success)
+                    {
+                        int doorCoordX = int.Parse(coordMatch.Groups[1].Value);
+                        int doorCoordY = int.Parse(coordMatch.Groups[2].Value);
+                        Vector2[,] doorCoords = new Vector2[_gridHeight, _gridWidth];
+                        doorCoords[rowIndex, colIndex] = new Vector2(doorCoordX, doorCoordY);
+
+                       
+
+
+                        // Now you have doorCoordX and doorCoordY as variables
+                        // Add your logic here to use these coordinates as needed
+
+                        // Set gridObjectData[rowIndex, colIndex] to 3
+                        gridObjectData[rowIndex, colIndex] = 3;
+                    }
+
                 } else
                 {
-                    Debug.LogError("Failed to parse grid data at row " + rowIndex + ", column " + colIndex);
+                    if (int.TryParse(gridObjectColumns[colIndex], out int cellValue))
+                    {
+                        gridObjectData[rowIndex, colIndex] = cellValue;
+                    } else
+                    {
+                        Debug.LogError("Failed to parse grid data at row " + rowIndex + ", column " + colIndex);
+                    }
                 }
+                // Parse the string value to an integer and assign it to the 2D array for gridObjectData
+               
 
                 // Set scriptableObjectData[rowIndex, colIndex] to only the first 3 characters of scriptableObjectColumns[colIndex]
                 if (scriptableObjectColumns[colIndex] != "0")
@@ -483,11 +509,39 @@ public class GameManager : MonoBehaviour
         }
 
         // Now you have the grid data in the 'gridData' array, and you can use it to instantiate the grid
-        InstantiateGrid();
         InstantiateGridFromData(gridObjectData, scriptableObjectData);
     }
 
+    void DoorConnect()
+    {
+        Tile _keyTile = grid[rowIndex * GridWidth + colIndex].GetComponent<Tile>();
+        Key _targetKey;
+        if (_keyTile.OccupyingObject == null)
+        {
+            throw new Exception("Invalid Key Coords");
+        }
+        if (!_keyTile.OccupyingObject.TryGetComponent<Key>(out _targetKey))
+        {
+            throw new Exception("Invalid Key Coords");
 
+        }
+        Tile _doorTile = grid[doorCoordY * GridWidth + doorCoordY].GetComponent<Tile>();
+
+        Door _targetdoor;
+        if (_doorTile.OccupyingObject == null)
+        {
+            throw new Exception("Invalid Door Coords");
+
+        }
+        if (!_doorTile.OccupyingObject.TryGetComponent<Door>(out _targetdoor))
+        {
+            throw new Exception("Invalid Door Coords");
+
+        }
+
+        _targetKey.door = _targetdoor;
+
+    }
 
     void InstantiateGridFromData(int[,] gridObjectData, string[,] scriptableObjectData)
     {

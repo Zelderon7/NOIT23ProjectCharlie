@@ -2073,7 +2073,7 @@ MonoBehaviour:
     objectName: Empty
     prefab: {fileID: 0}
   - id: 1
-    objectName: Path
+    objectName: Door
     prefab: {fileID: 4707468532797146543, guid: a135bf6e1196bfa488237690f9d2f815, type: 3}
   - id: 2
     objectName: Wall
