@@ -5,7 +5,19 @@ using UnityEngine;
 
 public class Key : MonoBehaviour, IInteractableGridObject
 {
-    public Door door;
+    private Door _door;
+
+    public Door door 
+    { 
+        get => _door;
+        set
+        {
+            if(_door != null)
+                _door.IsLocked = false;
+            _door = value;
+            _door.IsLocked = true;
+        }
+    }
 
     public void Interact(Action callback)
     {

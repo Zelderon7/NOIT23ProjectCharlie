@@ -25,7 +25,7 @@ public class Door : MonoBehaviour, IInteractableGridObject
     private bool isLocked;
 
     public bool IsLocked { get => isLocked;
-        private set 
+        set 
         {
             isLocked = value;
             mySpriteRenderer.sprite = IsLocked ? Locked : UnLocked;
