@@ -130,6 +130,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     {
         animator = GetComponent<Animator>();
         myAudioSource = GetComponent<AudioSource>();
+        Debug.Log($"Robot is Awake{animator != null}{myAudioSource != null}");
     }
 
     public void Start()

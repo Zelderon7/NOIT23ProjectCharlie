@@ -49,9 +49,8 @@ public class IDEManager : MonoBehaviour
 
     #endregion
 
-    [SerializeField]
-    List<CodeBlocksPrefabs> BlockTypesPrefs = new List<CodeBlocksPrefabs>();
-
+    
+    public List<CodeBlocksPrefabs> BlockTypesPrefs { get => blockTypesPrefs; private set => blockTypesPrefs = value; }
     [SerializeField] float scrollSpeed = 20f;
     [SerializeField] GameObject IDEBackground;
 
@@ -71,13 +70,13 @@ public class IDEManager : MonoBehaviour
             if (value == null)
                 return;
             if (CurrentlyProgramed != null)
-                SaveProgram(CurrentlyProgramed);
+                SaveProgram(CurrentlyProgramed.Id);
             if(!CodeableObjectsDictionary.ContainsKey(value.Id))
                 CodeableObjectsDictionary.Add(value.Id, value);
             CurrentlyProgramedId = value.Id;
             if (!SavedPrograms.ContainsKey(CurrentlyProgramed))
                 SavedPrograms.Add(CurrentlyProgramed, new List<GameObject>());
-            LoadProgram(CurrentlyProgramed);
+            LoadProgram(CurrentlyProgramed.Id);
         }
     }
 
@@ -86,6 +85,9 @@ public class IDEManager : MonoBehaviour
     public bool IsActive { get { return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE; } }
 
     public Action OnCodeStart = () => { };
+
+    [SerializeField]
+    private List<CodeBlocksPrefabs> blockTypesPrefs = new List<CodeBlocksPrefabs>();
 
     public int CurrentlyProgramedId { get; private set; }
 
@@ -108,17 +110,17 @@ public class IDEManager : MonoBehaviour
             
     }
 
-    void SaveProgram(ICodeable program)
+    void SaveProgram(int programId)
     {
-        foreach (var item in SavedPrograms[program])
+        foreach (var item in SavedPrograms[GetICodeableById(programId)])
         {
             transform.position -= Vector3.right * 50;
         }
     }
 
-    void LoadProgram(ICodeable program)
+    void LoadProgram(int programId)
     {
-        foreach (var item in SavedPrograms[program])
+        foreach (var item in SavedPrograms[GetICodeableById(programId)])
         {
             transform.position += Vector3.right * 50;
         }
@@ -160,42 +162,6 @@ public class IDEManager : MonoBehaviour
         
     }
 
-    public void RefreshCodeDrawer(BlockTypes[] blocks)
-    {
-        for (int i = 0; i < blocks.Length; i++)
-        {
-            GameObject temp = Instantiate(BlockTypesPrefs[blocks[i].id].Prefab, parent: Drawer.transform);
-            temp.GetComponentsInChildren<SpriteRenderer>().ToList().ForEach(x => { x.sortingLayerName = "IDEScreen"; x.sortingOrder += 11; });
-            var _tempTextRef = temp.GetComponentInChildren<TextMeshPro>();
-            if( _tempTextRef != null)
-            {
-                _tempTextRef.sortingOrder += 11;
-            }
-                
-
-            temp.transform.localScale = new Vector3(.5f, .5f, 1);
-            temp.transform.localPosition = new Vector3(-.4f, 5 - i*(temp.transform.localScale.y*1.8f) - temp.transform.localScale.y, -2);
-            temp.tag = "DrawerBlock";
-            temp.GetComponentsInChildren<Transform>().ToList().ForEach(x => x.gameObject.tag = "DrawerBlock");
-            temp.GetComponentsInChildren<OutputConnectionScript>().ToList().ForEach(x => Destroy(x));
-            temp.GetComponentsInChildren<InputConnector>().ToList().ForEach(x => Destroy(x));
-            GameObject targetParent = temp.GetComponentInChildren<Block>().gameObject;
-            Destroy(targetParent.GetComponent<Block>());
-            DrawerBlock scriptRef = targetParent.AddComponent<DrawerBlock>();
-            GameObject TextObject = Instantiate(new GameObject("TextHolder"),parent: temp.transform);
-            scriptRef.text = TextObject.AddComponent<TextMeshPro>();
-            scriptRef.text.rectTransform.localPosition = Vector3.right * 3.8f;
-            scriptRef.text.rectTransform.sizeDelta = Vector2.one;
-            scriptRef.text.enableAutoSizing = true;
-            scriptRef.text.fontSizeMin = 0;
-            scriptRef.text.color = Color.black;
-            scriptRef.text.fontStyle = FontStyles.Bold;
-            scriptRef.Count = blocks[i].count;
-            scriptRef.RefreshText();
-            scriptRef.MePrefab = BlockTypesPrefs[blocks[i].id].Prefab;
-        }
-    }
-
     /// <summary>
     /// Moves the IDEBackground and The main camera up or down based on the <see cref="scrollSpeed"/>
     /// </summary>
@@ -225,7 +191,7 @@ public class IDEManager : MonoBehaviour
 
     private void OnOpen()
     {
-        RefreshCodeDrawer(CurrentlyProgramed.MyBlockTypes);
+        Drawer.GetComponentInChildren<DrawerScript>().RefreshDrawer(CurrentlyProgramedId);
     }
 
 }

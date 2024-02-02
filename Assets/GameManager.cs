@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 [Serializable]
 public struct Object {
@@ -49,6 +50,23 @@ public class ScriptableObjectData {
 
 public class GameManager : MonoBehaviour
 {
+    internal struct GridObjectConnections
+    {
+        public int x, y, x1, y1;
+
+        public GridObjectConnections(int x, int y, int x1, int y1)
+        {
+            this.x = x;
+            this.y = y;
+            this.x1 = x1;
+            this.y1 = y1;
+        }
+
+        public override string ToString()
+        {
+            return $"KeyX: {x}; KeyY: {y}; DoorX: {x1}; DoorY{y1}";
+        }
+    }
 
     [SerializeField]
     List<Object> gridObjects = new List<Object>();
@@ -61,7 +79,7 @@ public class GameManager : MonoBehaviour
     #region Singleton pattern
     private static GameManager instance;
 
-    string seed = "0,0,{3-[0,4]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
+    string seed = "0,0,{3-[3,0]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
     ScriptableObjectData[] scriptableObjectDataArray;
 
     string levelName;
@@ -89,6 +107,8 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    [SerializeField]
+    Button StartCodeButton;
 
     #region Menus
 
@@ -184,7 +204,11 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private List<Sprite> GridTileSprites;
 
+    private List<GridObjectConnections> gridObjectsConnections = new List<GridObjectConnections>();
+
     #endregion
+
+    GameObject Robot;
 
     #region UIManagment
 
@@ -223,14 +247,19 @@ public class GameManager : MonoBehaviour
         OnMenusClose[Menus.IDE] += OnIDEClose;
 
         #endregion
-        InstantiateGrid();
 
+        InstantiateGrid();
         ProcessSeedString(seed);
 
     }
     #region Grid Instantiation
     public void InstantiateGrid()
     {
+        if(Robot != null)
+            Destroy(Robot);
+
+        grid.ForEach(item => { Destroy(item); });
+
         Camera mainCamera = Camera.main;
 
         if (mainCamera == null)
@@ -247,9 +276,11 @@ public class GameManager : MonoBehaviour
             0f
         );
 
+        grid.Clear();
+
         for (int row = 0; row < _gridHeight; row++)
         {
-            for (int col = 0; col < _gridWidth; col++)
+            for (int col = 0; col < GridWidth; col++)
             {
                 float x = offset.x + col * (cellSize + gridSpacing);
                 float y = offset.y - row * (cellSize + gridSpacing);
@@ -270,7 +301,7 @@ public class GameManager : MonoBehaviour
         int x, y;
         if (col == 0)
             x = 0;
-        else if (col == _gridWidth - 1)
+        else if (col == GridWidth - 1)
             x = 2;
         else
             x = 1;
@@ -294,7 +325,7 @@ public class GameManager : MonoBehaviour
         cameraHeight -= gridYRepos;
 
         float cellSizeY = (cameraHeight - (2 * gridPadding) - (gridSpacing * (_gridHeight - 1))) / _gridHeight;
-        float cellSizeX = (cameraWidth - (2 * gridPadding) - (gridSpacing * (_gridWidth - 1))) / _gridWidth;
+        float cellSizeX = (cameraWidth - (2 * gridPadding) - (gridSpacing * (GridWidth - 1))) / GridWidth;
 
         return Mathf.Min(cellSizeX, cellSizeY);
     }
@@ -353,6 +384,8 @@ public class GameManager : MonoBehaviour
     public void ProcessSeedString(string seed)
     {
 
+        gridObjectsConnections.Clear();
+
         if (seed == null)
             seed = this.seed;
 
@@ -368,7 +401,7 @@ public class GameManager : MonoBehaviour
 
         // Process code blocks and scriptable objects
         List<ScriptableObjectData> scriptableObjectDataList = new List<ScriptableObjectData>();
-        string[,] scriptableObjectData = new string[_gridHeight, _gridWidth];
+        string[,] scriptableObjectData = new string[_gridHeight, GridWidth];
 
         foreach (string scriptableObjectRow in scriptableObjectRows)
         {
@@ -441,11 +474,11 @@ public class GameManager : MonoBehaviour
         scriptableObjectDataArray = scriptableObjectDataList.ToArray();
 
         // Set grid width and height based on seed
-        _gridWidth = Regex.Split(gridObjectRows[0], @",(?![^{]*\})").Length;
+        GridWidth = Regex.Split(gridObjectRows[0], @",(?![^{]*\})").Length;
         _gridHeight = gridObjectRows.Length;
 
         // Create a 2D array to store the grid data
-        int[,] gridObjectData = new int[_gridHeight, _gridWidth];
+        int[,] gridObjectData = new int[_gridHeight, GridWidth];
 
         // Iterate over each row
         for (int rowIndex = 0; rowIndex < _gridHeight; rowIndex++)
@@ -460,7 +493,7 @@ public class GameManager : MonoBehaviour
             scriptableObjectColumns = scriptableObjectColumns.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
             // Iterate over each column
-            for (int colIndex = 0; colIndex < _gridWidth; colIndex++)
+            for (int colIndex = 0; colIndex < GridWidth; colIndex++)
             {
                 if (gridObjectColumns[colIndex] != null & Regex.IsMatch(gridObjectColumns[colIndex], @"^{3-\[\d+,\d+\]}$")) //check if matches format
                 {
@@ -469,9 +502,8 @@ public class GameManager : MonoBehaviour
                     {
                         int doorCoordX = int.Parse(coordMatch.Groups[1].Value);
                         int doorCoordY = int.Parse(coordMatch.Groups[2].Value);
-                        Vector2[,] doorCoords = new Vector2[_gridHeight, _gridWidth];
-                        doorCoords[rowIndex, colIndex] = new Vector2(doorCoordX, doorCoordY);
 
+                        gridObjectsConnections.Add(new GridObjectConnections(colIndex, rowIndex, doorCoordX, doorCoordY));
                        
 
 
@@ -514,32 +546,34 @@ public class GameManager : MonoBehaviour
 
     void DoorConnect()
     {
-        Tile _keyTile = grid[rowIndex * GridWidth + colIndex].GetComponent<Tile>();
-        Key _targetKey;
-        if (_keyTile.OccupyingObject == null)
+        foreach(var cur in  gridObjectsConnections)
         {
-            throw new Exception("Invalid Key Coords");
+            Tile _keyTile = grid[cur.y * GridWidth + cur.x].GetComponent<Tile>();
+            Key _targetKey;
+            if (_keyTile.OccupyingObject == null)
+            {
+                throw new Exception("Invalid Key Coords " + cur);
+            }
+            if (!_keyTile.OccupyingObject.TryGetComponent<Key>(out _targetKey))
+            {
+                throw new Exception("Invalid Key Coords " + cur);
+
+            }
+            Tile _doorTile = grid[cur.y1 * GridWidth + cur.x1].GetComponent<Tile>();
+
+            Door _targetdoor;
+            if (_doorTile.OccupyingObject == null)
+            {
+                throw new Exception("Invalid Door Coords " + cur);
+
+            }
+            if (!_doorTile.OccupyingObject.TryGetComponent<Door>(out _targetdoor))
+            {
+                throw new Exception("Invalid Door Coords " + cur);
+            }
+
+            _targetKey.door = _targetdoor; 
         }
-        if (!_keyTile.OccupyingObject.TryGetComponent<Key>(out _targetKey))
-        {
-            throw new Exception("Invalid Key Coords");
-
-        }
-        Tile _doorTile = grid[doorCoordY * GridWidth + doorCoordY].GetComponent<Tile>();
-
-        Door _targetdoor;
-        if (_doorTile.OccupyingObject == null)
-        {
-            throw new Exception("Invalid Door Coords");
-
-        }
-        if (!_doorTile.OccupyingObject.TryGetComponent<Door>(out _targetdoor))
-        {
-            throw new Exception("Invalid Door Coords");
-
-        }
-
-        _targetKey.door = _targetdoor;
 
     }
 
@@ -549,7 +583,7 @@ public class GameManager : MonoBehaviour
         // Your existing grid instantiation code can be modified to use the provided grid data
         for (int row = 0; row < _gridHeight; row++)
         {
-            for (int col = 0; col < _gridWidth; col++)
+            for (int col = 0; col < GridWidth; col++)
             {
                 // Access gridData[row, col] to get the value for the current cell
 
@@ -561,7 +595,7 @@ public class GameManager : MonoBehaviour
                 if (gridObject != null && gridObjectId != 0)
                 {
 
-                    grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(gridObject, grid[row * _gridWidth + col].transform);
+                    grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(gridObject, grid[row * GridWidth + col].transform);
 
                     if (scriptableObjectData[row, col] != "0")
                     {
@@ -569,7 +603,7 @@ public class GameManager : MonoBehaviour
                         int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
 
                         GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableObjectId).prefab;//TODO: Add exception handling
-                        grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, (scriptableObjectId == 1 ? GridParent.transform.parent : grid[row * _gridWidth + col].transform));
+                        grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, (scriptableObjectId == 1 ? GridParent.transform.parent : grid[row * GridWidth + col].transform));
 
                     }
                 }
@@ -579,8 +613,15 @@ public class GameManager : MonoBehaviour
                     int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
 
                     GameObject scriptableObject = scriptableObjects.First(x => x.id == scriptableObjectId).prefab;//TODO: Add exception handling
-                    var temp = Instantiate(scriptableObject, (scriptableObjectId == 1 ? GridParent.transform.parent : grid[row * _gridWidth + col].transform));
-                    grid[row * _gridWidth + col].GetComponent<Tile>().OccupyingObject = temp;
+                    GameObject temp;
+                    if (scriptableObjectId == 1) 
+                    { 
+                        temp = Instantiate(scriptableObject, (GridParent.transform.parent));
+                        Robot = temp;
+                    }
+                    else
+                        temp = Instantiate(scriptableObject, grid[row * GridWidth + col].transform);
+                    grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = temp;
                     if (scriptableObjectDataArray[row * GridWidth+col] != null)
                     {
                         temp.GetComponent<ICodeable>().Id = scriptableObjectDataArray[row * GridWidth + col].ReferenceID;
@@ -592,6 +633,8 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+
+        DoorConnect();
     }
 
     private Object GetGridObjectById(int objectId)
@@ -616,6 +659,9 @@ public class GameManager : MonoBehaviour
     private void OnTryAgain()
     {
         GameOverWindowScreen.gameObject.SetActive(false);
+        InstantiateGrid();
+        ProcessSeedString(seed);
+        StartCodeButton.GetComponent<Button>().enabled = true;
         Time.timeScale = 1;
         IsGameOver = false;
     }
@@ -702,15 +748,15 @@ public class GameManager : MonoBehaviour
 
     public Vector2 GetCellPos(int x, int y)
     {
-        return grid[y*_gridWidth + x].transform.position;
+        return grid[y*GridWidth + x].transform.position;
     }
 
     public bool IsCellWalkable(int x, int y)
     {
-        if(x < 0 || y < 0 || x >= _gridWidth || y >= _gridHeight)
+        if(x < 0 || y < 0 || x >= GridWidth || y >= _gridHeight)
             return false;
         Tile _targetTile;
-        if (!grid[y * _gridWidth + x].TryGetComponent<Tile>(out _targetTile))
+        if (!grid[y * GridWidth + x].TryGetComponent<Tile>(out _targetTile))
             throw new Exception($"grid {new Vector2(x, y)} has no Tile.cs");
         if (_targetTile.OccupyingObject == null)
             return true;
@@ -724,13 +770,20 @@ public class GameManager : MonoBehaviour
 
     public void Interact(int x, int y, Action callback)
     {
-        if (grid[y * _gridWidth + x].GetComponent<Tile>().OccupyingObject == null)
+        if(x  < 0 || x >= GridWidth || y < 0 || y >= _gridHeight)
         {
             callback?.Invoke();
             return;
         }
             
-        GridObjectDataSheet _temp = grid[y * _gridWidth + x].GetComponent<Tile>().OccupyingObject.GetComponent<GridObjectDataSheet>();
+
+        if (grid[y * GridWidth + x].GetComponent<Tile>().OccupyingObject == null)
+        {
+            callback?.Invoke();
+            return;
+        }
+            
+        GridObjectDataSheet _temp = grid[y * GridWidth + x].GetComponent<Tile>().OccupyingObject.GetComponent<GridObjectDataSheet>();
         if (_temp.IsAutoInteractable == false)
         {
             callback?.Invoke();
