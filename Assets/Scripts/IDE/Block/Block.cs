@@ -12,6 +12,8 @@ public class Block : MonoBehaviour
 
     [SerializeField]
     private GameObject inpConnector = null;
+    public GameObject InputConnector { get => inpConnector; }
+
     Block connectedIn = null;
 
     [SerializeField]
@@ -27,17 +29,28 @@ public class Block : MonoBehaviour
 
     private Action ForDestroy = null;
     public DrawerBlock Papa;
+
+    public static Action<float> OnResize = (x) => { };
+
+    public Action OnPickup = () => { };
     
     internal virtual void Awake()
     {
+        if (transform.parent.parent.gameObject.name == "DrawerBlocks")
+            return;
+
         outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
         lastPos = transform.parent.position;
         Owner = IDEManager.Instance.CurrentlyProgramedId;
+        IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
+        IDEManager.Instance.AddBottomBlock(this);
+        OnResize += (x) => transform.parent.localScale = Vector3.one * x;
+        outConnectorsScripts.ToList().ForEach(x => OnResize += x.FixPosOnRescale);
     }
 
     private void Start()
     {
-        IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
+        
     }
 
     public virtual void RunBlock()
@@ -48,6 +61,7 @@ public class Block : MonoBehaviour
     private void OnMouseDown()
     {
         PrepDragAlong();
+        OnPickup?.Invoke();
     }
 
     private void DisconnectCur()
@@ -122,12 +136,13 @@ public class Block : MonoBehaviour
                 item.connected.myBlock.TrashMe();
             }
         }
+
         Destroy(transform.parent.gameObject);
     }
 
     public void PutDownBlock()
     {
-        if (CheckColliderOutOfScreenSpace(1.3f))
+        if (CheckColliderOutOfScreenSpace(1.3f) || !IDEManager.Instance.CheckPlacingPositionY(this))
         {
             transform.parent.position = lastPos;
             return;
@@ -142,6 +157,7 @@ public class Block : MonoBehaviour
         }
 
         lastPos = transform.parent.position;
+        IDEManager.Instance.OnBlockRepositioning(this);
     }
 
     private void OnMouseDrag()
@@ -212,5 +228,13 @@ public class Block : MonoBehaviour
     {
         if (collision.tag == "DrawerBlockTrasher")
             ForDestroy = null;
+    }
+
+    void OnDestroy()
+    {
+        //Debug.Log("I am being Destroyed");
+        OnResize -= OnResize;
+        if(transform.parent.parent.gameObject.name != "DrawerBlocks")
+            IDEManager.Instance.OnBlockDestruction(this);
     }
 }

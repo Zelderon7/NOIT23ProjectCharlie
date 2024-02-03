@@ -34,6 +34,8 @@ public class OutputConnectionScript : MonoBehaviour
 
         connected.Connected = this;
 
+        IDEManager.Instance.RemoveBottomBlock(myBlock);
+
         RearrangeChildrenAfterTarget(connected.transform.parent);
 
         return true;
@@ -55,6 +57,18 @@ public class OutputConnectionScript : MonoBehaviour
         myConnector.Connected?.FixPositionInStack();
     }
 
+    public void FixPosOnRescale(float newScale)
+    {
+        if (connected != null) return;
+        if(myBlock.InputConnector != null)
+        {
+            if(myBlock.InputConnector.GetComponent<InputConnector>().Connected != null)
+            {
+                myBlock.InputConnector.GetComponent<InputConnector>().Connected.FixPositionInStack();
+            }
+        }
+    }
+
     public void Disconnect()
     {
         if (connected == null) return;
@@ -63,6 +77,7 @@ public class OutputConnectionScript : MonoBehaviour
         connected.Connected = null;
         connected = null;
         //myBlock.ConnectableHere = false;
+        IDEManager.Instance.AddBottomBlock(myBlock);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -117,5 +132,10 @@ public class OutputConnectionScript : MonoBehaviour
         
         // Reposition the object to be moved after the target
         objectToMove.SetSiblingIndex(newIndex);
+    }
+
+    ~OutputConnectionScript()
+    {
+        Disconnect();
     }
 }

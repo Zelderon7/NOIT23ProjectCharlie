@@ -26,6 +26,7 @@ public class DrawerBlock : MonoBehaviour
         {
             count--;
             GameObject temp = Instantiate(MePrefab, parent: IDEManager.Instance.gameObject.transform);
+            temp.transform.localScale = Vector3.one * IDEManager.Instance.BlockSize;
             temp.GetComponentInChildren<Block>().Papa = this;
             SpriteRenderer[] _spRs = temp.GetComponentsInChildren<SpriteRenderer>();
             _spRs.ToList().ForEach(x => x.sortingLayerName = "IDEScreen");

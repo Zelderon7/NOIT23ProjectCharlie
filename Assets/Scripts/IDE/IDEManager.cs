@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using static Unity.Collections.AllocatorManager;
 
 public struct BlockTypes
 {
@@ -49,7 +50,9 @@ public class IDEManager : MonoBehaviour
 
     #endregion
 
-    
+
+    public float BlockSize { get => blockSizes[CurrentlyProgramedId]; private set => blockSizes[CurrentlyProgramedId] = value; }
+
     public List<CodeBlocksPrefabs> BlockTypesPrefs { get => blockTypesPrefs; private set => blockTypesPrefs = value; }
     [SerializeField] float scrollSpeed = 20f;
     [SerializeField] GameObject IDEBackground;
@@ -75,14 +78,26 @@ public class IDEManager : MonoBehaviour
                 CodeableObjectsDictionary.Add(value.Id, value);
             if (CodeableObjectsDictionary[value.Id] != value)
                 CodeableObjectsDictionary[value.Id] = value;
+
+            if (!LowestBlock.ContainsKey(value.Id))
+                LowestBlock.Add(value.Id, null);
+            if (!HighestBlock.ContainsKey(value.Id))
+                HighestBlock.Add(value.Id, null);
+            if (!BottomBlocks.ContainsKey(value.Id))
+                BottomBlocks.Add(value.Id, new List<Block>());
+
+            if (!blockSizes.ContainsKey(value.Id))
+                blockSizes.Add(value.Id, 1f);
+
             CurrentlyProgramedId = value.Id;
-            if (!SavedPrograms.ContainsKey(CurrentlyProgramed))
-                SavedPrograms.Add(CurrentlyProgramed, new List<GameObject>());
+            if (!SavedPrograms.ContainsKey(CurrentlyProgramed.Id))
+                SavedPrograms.Add(CurrentlyProgramed.Id, new List<GameObject>());
             LoadProgram(CurrentlyProgramed.Id);
         }
     }
 
-    Dictionary<ICodeable, List<GameObject>> SavedPrograms = new Dictionary<ICodeable, List<GameObject>>();
+    Dictionary<int, float> blockSizes = new Dictionary<int, float>();
+    Dictionary<int, List<GameObject>> SavedPrograms = new Dictionary<int, List<GameObject>>();
     Dictionary<int, ICodeable> CodeableObjectsDictionary = new Dictionary<int, ICodeable>();
     public bool IsActive { get { return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE; } }
 
@@ -95,9 +110,146 @@ public class IDEManager : MonoBehaviour
 
     public ICodeable GetICodeableById(int id) => CodeableObjectsDictionary[id];
 
-    public void OnBlockCreation(GameObject a)
+    #region ScrollingAndNavigationVariables
+
+    float maxDistanceToBlock = 8f;
+    [SerializeField]
+    float step = 1f;
+
+    public Dictionary<int, Block> HighestBlock { get; private set; } = new Dictionary<int, Block>();
+    public Dictionary<int, Block> LowestBlock { get; private set; } = new Dictionary<int, Block>();
+    public Dictionary<int, List<Block>> BottomBlocks { get; private set; } = new Dictionary<int, List<Block>>();
+
+    #endregion
+
+    #region ScrollingAndNavigation
+
+    public void AddBottomBlock(Block block)
     {
-        SavedPrograms[CurrentlyProgramed].Add(a);
+        if (!BottomBlocks.ContainsKey(block.Owner))
+            BottomBlocks.Add(block.Owner, new List<Block>());
+
+        if (BottomBlocks[block.Owner] == null)
+            BottomBlocks[block.Owner] = new List<Block>();
+
+        if (BottomBlocks[block.Owner].Contains(block))
+            return;
+
+        BottomBlocks[block.Owner].Add(block);
+    }
+
+    public void RemoveBottomBlock(Block block)
+    {
+        if (!BottomBlocks.ContainsKey(block.Owner))
+            return;
+
+        if (BottomBlocks[block.Owner] == null)
+            return;
+
+        if (!BottomBlocks[block.Owner].Contains(block))
+            return;
+
+        BottomBlocks[block.Owner].Remove(block);
+    }
+
+    public bool CheckPlacingPositionY(Block block)
+    {
+        if (LowestBlock[CurrentlyProgramedId] != null)
+        {
+            if (block.transform.parent.position.y < LowestBlock[CurrentlyProgramedId].transform.parent.position.y - maxDistanceToBlock)
+                return false;
+        }
+        else if(block.transform.parent.position.y < -maxDistanceToBlock)
+            return false;
+
+        if (HighestBlock[CurrentlyProgramedId] != null)
+        {
+            if (block.transform.parent.position.y > HighestBlock[CurrentlyProgramedId].transform.parent.position.y + maxDistanceToBlock)
+                return false;
+        }
+        else if (block.transform.parent.position.y > maxDistanceToBlock)
+            return false;
+
+        return true;
+    }
+
+    void OnLowestpickup()
+    {
+        LowestBlock[CurrentlyProgramedId].OnPickup -= OnLowestpickup;
+        GameObject _temp = SavedPrograms[CurrentlyProgramedId]
+            .OrderBy(x => x.transform.position.y)
+            .FirstOrDefault(x => x != LowestBlock[CurrentlyProgramedId].transform.parent.gameObject);
+        if (_temp != null)
+        {
+            LowestBlock[CurrentlyProgramedId] = _temp.GetComponentInChildren<Block>();
+            LowestBlock[CurrentlyProgramedId].OnPickup += OnLowestpickup;
+        }
+        else
+            LowestBlock[CurrentlyProgramedId] = null;
+        //Debug.Log($"(LP)Highest: {HighestBlock[CurrentlyProgramedId]}\nLowest: {LowestBlock[CurrentlyProgramedId]}");
+    }
+
+    void OnHighestpickup()
+    {
+        HighestBlock[CurrentlyProgramedId].OnPickup -= OnHighestpickup;
+        GameObject _temp = SavedPrograms[CurrentlyProgramedId]
+            .OrderByDescending(x => x.transform.position.y)
+            .FirstOrDefault(x => x != HighestBlock[CurrentlyProgramedId].transform.parent.gameObject);
+        if (_temp != null)
+        {
+            HighestBlock[CurrentlyProgramedId] = _temp.GetComponentInChildren<Block>();
+            HighestBlock[CurrentlyProgramedId].OnPickup += OnHighestpickup;
+        }
+        else
+            HighestBlock[CurrentlyProgramedId] = null;
+
+        //Debug.Log($"(HP)Highest: {HighestBlock[CurrentlyProgramedId]}\nLowest: {LowestBlock[CurrentlyProgramedId]}");
+    }
+
+    public void OnBlockRepositioning(Block block)
+    {
+        if (HighestBlock[CurrentlyProgramedId] == null)
+        {
+            HighestBlock[CurrentlyProgramedId] = block;
+            HighestBlock[CurrentlyProgramedId].OnPickup += OnHighestpickup;
+        }
+        else if (block.transform.parent.position.y > HighestBlock[CurrentlyProgramedId].transform.parent.position.y)
+        {
+            HighestBlock[CurrentlyProgramedId].OnPickup -= OnHighestpickup;
+            HighestBlock[CurrentlyProgramedId] = block;
+            HighestBlock[CurrentlyProgramedId].OnPickup += OnHighestpickup;
+        }
+
+        if (LowestBlock[CurrentlyProgramedId] == null)
+        {
+            LowestBlock[CurrentlyProgramedId] = block;
+            LowestBlock[CurrentlyProgramedId].OnPickup += OnLowestpickup;
+        }
+        else if (block.transform.parent.position.y < LowestBlock[CurrentlyProgramedId].transform.parent.position.y)
+        {
+            LowestBlock[CurrentlyProgramedId].OnPickup -= OnLowestpickup;
+            LowestBlock[CurrentlyProgramedId] = block;
+            LowestBlock[CurrentlyProgramedId].OnPickup += OnLowestpickup;
+        }
+
+        //Debug.Log($"(Repos)Highest: {HighestBlock[CurrentlyProgramedId]}\nLowest: {LowestBlock[CurrentlyProgramedId]}");
+    }
+
+    #endregion
+
+    public void OnBlockDestruction(Block block)
+    {
+        SavedPrograms[CurrentlyProgramedId].Remove(block.transform.parent.gameObject);
+        if (LowestBlock[CurrentlyProgramedId] == block)
+            OnLowestpickup();
+        if (HighestBlock[CurrentlyProgramedId] == block)
+            OnHighestpickup();
+    }
+
+    public void OnBlockCreation(GameObject block)
+    {
+        SavedPrograms[CurrentlyProgramedId].Add(block);
+        OnBlockRepositioning(block.GetComponentInChildren<Block>());
     }
 
     public void StartCode()
@@ -114,17 +266,19 @@ public class IDEManager : MonoBehaviour
 
     void SaveProgram(int programId)
     {
-        foreach (var item in SavedPrograms[GetICodeableById(programId)])
+        foreach (var item in SavedPrograms[programId])
         {
-            transform.position -= Vector3.right * 50;
+            //transform.position -= Vector3.right * 50;
+            item.SetActive(false);
         }
     }
 
     void LoadProgram(int programId)
     {
-        foreach (var item in SavedPrograms[GetICodeableById(programId)])
+        foreach (var item in SavedPrograms[programId])
         {
-            transform.position += Vector3.right * 50;
+            //transform.position += Vector3.right * 50;
+            item.SetActive(true);
         }
     }
 
@@ -158,6 +312,16 @@ public class IDEManager : MonoBehaviour
             // Get the scroll wheel delta
             float scrollDelta = Input.mouseScrollDelta.y;
 
+            if(Input.GetButtonUp("q"))
+            {
+                if (BottomBlocks[CurrentlyProgramedId].Count > 0)
+                {
+                    float newSize = BottomBlocks[CurrentlyProgramedId][0].transform.parent.localScale.x/1.2f;
+                    Block.OnResize(newSize);
+                    BlockSize = newSize;
+                }
+            }
+
             if (scrollDelta != 0)
                 ScrollUpAndDown(scrollDelta);
         }
@@ -172,13 +336,46 @@ public class IDEManager : MonoBehaviour
     void ScrollUpAndDown(float scrollDelta)
     {
         if (IDEBackground == null)
-           IDEBackground = GameManager.Instance.IDEScreen.GetComponentsInChildren<Transform>().First(x => (x.gameObject.name == "Background")).gameObject;
+        {
+            IDEBackground = GameManager.Instance.IDEScreen.GetComponentsInChildren<Transform>().FirstOrDefault(x => x.gameObject.name == "Background")?.gameObject;
+            if (IDEBackground == null)
+                throw new System.Exception("Couldn't find the Background of IDEScreen");
+        }
 
-        if (IDEBackground == null)
-            throw new System.Exception("Couldn't find the Background of IDEScreen");
+        // Define boundaries
+        float minY, maxY;
+        if (LowestBlock[CurrentlyProgramedId] != null)
+            minY = LowestBlock[CurrentlyProgramedId].transform.parent.position.y - maxDistanceToBlock / 2; // Minimum Y position
+        else
+            minY = -maxDistanceToBlock / 2;
 
-        IDEBackground.transform.Translate(Vector3.up * scrollDelta * scrollSpeed * Time.deltaTime);
-        Camera.main.transform.Translate(Vector3.up * scrollDelta * scrollSpeed * Time.deltaTime);
+        if (HighestBlock[CurrentlyProgramedId] != null)
+            maxY = HighestBlock[CurrentlyProgramedId].transform.parent.position.y + maxDistanceToBlock / 2; // Maximum Y position (adjust as needed)
+        else
+            maxY = maxDistanceToBlock / 2;
+
+        // Calculate the delta based on the scroll input
+        float delta = scrollDelta * scrollSpeed * Time.deltaTime;
+
+        // Move the IDEBackground and the main camera
+        IDEBackground.transform.Translate(Vector3.up * delta, Space.World);
+        Camera.main.transform.Translate(Vector3.up * delta, Space.World);
+
+        // Clamp the positions within the defined boundaries
+        Vector3 clampedBackgroundPosition = new Vector3(IDEBackground.transform.position.x, Mathf.Clamp(IDEBackground.transform.position.y, minY, maxY), IDEBackground.transform.position.z);
+        Vector3 clampedCameraPosition = new Vector3(Camera.main.transform.position.x, Mathf.Clamp(Camera.main.transform.position.y, minY, maxY), Camera.main.transform.position.z);
+
+        // Set the clamped positions
+        IDEBackground.transform.position = clampedBackgroundPosition;
+        Camera.main.transform.position = clampedCameraPosition;
+
+        // Calculate the step based on the desired interval
+        float newBackgroundY = Mathf.Round(IDEBackground.transform.position.y / step) * step;
+        float newCameraY = Mathf.Round(Camera.main.transform.position.y / step) * step;
+
+        // Set the positions to the nearest step
+        IDEBackground.transform.position = new Vector3(IDEBackground.transform.position.x, newBackgroundY, IDEBackground.transform.position.z);
+        Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, newCameraY, Camera.main.transform.position.z);
     }
 
     public void PrepToClose()

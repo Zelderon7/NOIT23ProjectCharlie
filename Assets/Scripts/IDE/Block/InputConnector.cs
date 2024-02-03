@@ -19,4 +19,9 @@ public class InputConnector : MonoBehaviour
         //Block temp = Connected.transform.parent.parent.GetComponentInChildren<Block>();
         myBlock.RunBlock();
     }
+
+    private void OnDestroy()
+    {
+        Connected?.Disconnect();
+    }
 }

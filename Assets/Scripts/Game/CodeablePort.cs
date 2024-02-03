@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CodeablePort : MonoBehaviour
@@ -19,7 +20,7 @@ public class CodeablePort : MonoBehaviour
 
     void MyOnGameStart()
     {
-        this.gameObject.active = false;
+        this.gameObject.SetActive(false);
     }
 
     private void OnMouseDown()
@@ -29,7 +30,7 @@ public class CodeablePort : MonoBehaviour
         GameManager.Instance.CurrentMenu = GameManager.Menus.IDE;
     }
 
-    ~CodeablePort()
+    void OnDestroy()
     {
         OnGameStart -= MyOnGameStart;
     }
