@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using static Unity.Collections.AllocatorManager;
 
 public struct BlockTypes
@@ -53,6 +54,8 @@ public class IDEManager : MonoBehaviour
 
     public float BlockSize { get => blockSizes[CurrentlyProgramedId]; private set => blockSizes[CurrentlyProgramedId] = value; }
 
+    [SerializeField]
+    Button StartButton;
     public List<CodeBlocksPrefabs> BlockTypesPrefs { get => blockTypesPrefs; private set => blockTypesPrefs = value; }
     [SerializeField] float scrollSpeed = 20f;
     [SerializeField] GameObject IDEBackground;
@@ -227,6 +230,7 @@ public class IDEManager : MonoBehaviour
             GameManager.Instance.CurrentMenu = GameManager.Menus.Game;
         else
         {
+            StartButton.enabled = false;
             OnCodeStart?.Invoke();
             CodeablePort.OnGameStart?.Invoke();
         }

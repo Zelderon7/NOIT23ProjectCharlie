@@ -19,10 +19,9 @@ public class MoveBlock : Block
 
         ((IDEManager.Instance.GetICodeableById(Owner)) as IWalkable).MoveMe(() =>
         {
+            base.RunBlock();
             if (outConnectorsScripts?[0] != null)
                 outConnectorsScripts[0].GoNext();
-            else
-                GameManager.Instance.GameOver();
         });
 
         

@@ -54,7 +54,12 @@ public class Block : MonoBehaviour
 
     public virtual void RunBlock()
     {
-
+        foreach (var script in outConnectorsScripts)
+        {
+            if (script.connected != null)
+                return;
+        }
+        GameManager.Instance.GameOver();
     }
 
     private void OnMouseDown()

@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class DrawerScript : MonoBehaviour
 {
-    public bool Opened { get; private set; } = false;
+    public bool Opened { get; private set; } = true;
     bool inMotion = false;
     private Dictionary<int, List<GameObject>> DrawerBlocksDictionary = new Dictionary<int, List<GameObject>>();
     private int curId = -1;

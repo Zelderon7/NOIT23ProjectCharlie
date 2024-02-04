@@ -30,6 +30,7 @@ public class Key : MonoBehaviour, IInteractableGridObject
         yield return new WaitForSeconds(1);
         GetComponent<AudioSource>().Play();
         door.Unlock();
+        yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
         Destroy(gameObject);
     }
 }

@@ -1254,18 +1254,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 637075991}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &637075992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2588,6 +2576,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f27e497a26c9fe4b9ab9f44efa10456, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StartButton: {fileID: 637075991}
   scrollSpeed: 300
   IDEBackground: {fileID: 1489801062}
   Drawer: {fileID: 563753952}
@@ -2604,6 +2593,7 @@ MonoBehaviour:
   - id: 3
     Name: Turn Left
     Prefab: {fileID: 164645760845261873, guid: 1d8c0fe30dbdc71418e58789e524b6cb, type: 3}
+  step: 1
 --- !u!1 &1570569703
 GameObject:
   m_ObjectHideFlags: 0

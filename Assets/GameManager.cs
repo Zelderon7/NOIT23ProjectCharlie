@@ -162,7 +162,7 @@ public class GameManager : MonoBehaviour
 
     #region Grid Variables
 
-    string seed = "0,0,{3-[3,0]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1:([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
+    string seed = "";
     ScriptableObjectData[] scriptableObjectDataArray;
 
     string levelName;
@@ -252,8 +252,8 @@ public class GameManager : MonoBehaviour
         #endregion
 
         InstantiateGrid();
-        ProcessSeedString(seed);
-
+        if(seed != "")
+            ProcessSeedString(seed);
     }
     #region Grid Instantiation
     public void InstantiateGrid()
@@ -667,7 +667,8 @@ public class GameManager : MonoBehaviour
     {
         GameOverWindowScreen.gameObject.SetActive(false);
         InstantiateGrid();
-        ProcessSeedString(seed);
+        if(seed != null)
+            ProcessSeedString(seed);
         StartCodeButton.GetComponent<Button>().enabled = true;
         Time.timeScale = 1;
         IsGameOver = false;

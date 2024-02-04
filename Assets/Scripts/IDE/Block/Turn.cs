@@ -13,10 +13,9 @@ public class Turn : Block
 
         (IDEManager.Instance.GetICodeableById(Owner) as IWalkable).Turn(RightOrLeft, () =>
         {
+            base.RunBlock();
             if (outConnectorsScripts?[0] != null)
                 outConnectorsScripts[0].GoNext();
-            else
-                GameManager.Instance.GameOver();
         });
 
 

@@ -11,9 +11,8 @@ public class StartBlock : Block
 
     public override void RunBlock()
     {
+        base.RunBlock();
         if (outConnectorsScripts?[0] != null)
             outConnectorsScripts[0].GoNext();
-        else
-            GameManager.Instance.GameOver();
     }
 }
