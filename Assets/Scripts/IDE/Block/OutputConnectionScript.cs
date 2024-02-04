@@ -34,8 +34,6 @@ public class OutputConnectionScript : MonoBehaviour
 
         connected.Connected = this;
 
-        IDEManager.Instance.RemoveBottomBlock(myBlock);
-
         RearrangeChildrenAfterTarget(connected.transform.parent);
 
         return true;
@@ -77,7 +75,6 @@ public class OutputConnectionScript : MonoBehaviour
         connected.Connected = null;
         connected = null;
         //myBlock.ConnectableHere = false;
-        IDEManager.Instance.AddBottomBlock(myBlock);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

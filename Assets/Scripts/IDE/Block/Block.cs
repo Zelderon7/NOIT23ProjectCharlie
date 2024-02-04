@@ -43,7 +43,6 @@ public class Block : MonoBehaviour
         lastPos = transform.parent.position;
         Owner = IDEManager.Instance.CurrentlyProgramedId;
         IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
-        IDEManager.Instance.AddBottomBlock(this);
         OnResize += (x) => transform.parent.localScale = Vector3.one * x;
         outConnectorsScripts.ToList().ForEach(x => OnResize += x.FixPosOnRescale);
     }
