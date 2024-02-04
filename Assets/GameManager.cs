@@ -679,6 +679,7 @@ public class GameManager : MonoBehaviour
         IsGameOver = true;
         VictoryWindowScreen.gameObject.SetActive(true);
         VictoryWindowScreen.NextLevel.onClick.AddListener(OnNextLevel);
+        CommunicationManager.SendData("Victory");
     }
 
     public void OnNextLevel()
