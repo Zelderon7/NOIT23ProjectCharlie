@@ -421,9 +421,9 @@ public class GameManager : MonoBehaviour
                     
                     if (match.Success)
                     {
-                        string scriptableObject = match.Groups[1].Value.Split(':')[0].Trim();
+                        string scriptableObject = match.Groups[1].Value.Split('#')[0].Trim();
 
-                        string codeBlocks = match.Groups[1].Value.Split(':')[1].Trim();
+                        string codeBlocks = match.Groups[1].Value.Split('#')[1].Trim();
 
                         // Split scriptableObject into its components: ID, facing direction, reference ID
                         string[] scriptableObjectComponents = scriptableObject.Split('-');
