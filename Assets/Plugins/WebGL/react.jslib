@@ -1,5 +1,5 @@
 mergeInto(LibraryManager.library, {
   SendData: function(data){
-    window.dispatchReactUnityEvent("FetchData", UTF8ToString(data));
+    window.dispatchReactUnityEvent("SendData", UTF8ToString(data));
   },
 });
