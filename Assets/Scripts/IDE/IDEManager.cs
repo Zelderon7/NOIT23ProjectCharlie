@@ -59,7 +59,7 @@ public class IDEManager : MonoBehaviour
 
     [SerializeField]
     GameObject Drawer;
-    public ICodeable CurrentlyProgramed 
+    public ICodeable CurrentlyProgramed
     {
         get 
         {
@@ -83,8 +83,6 @@ public class IDEManager : MonoBehaviour
                 LowestBlock.Add(value.Id, null);
             if (!HighestBlock.ContainsKey(value.Id))
                 HighestBlock.Add(value.Id, null);
-            if (!BottomBlocks.ContainsKey(value.Id))
-                BottomBlocks.Add(value.Id, new List<Block>());
 
             if (!blockSizes.ContainsKey(value.Id))
                 blockSizes.Add(value.Id, 1f);
@@ -118,39 +116,10 @@ public class IDEManager : MonoBehaviour
 
     public Dictionary<int, Block> HighestBlock { get; private set; } = new Dictionary<int, Block>();
     public Dictionary<int, Block> LowestBlock { get; private set; } = new Dictionary<int, Block>();
-    public Dictionary<int, List<Block>> BottomBlocks { get; private set; } = new Dictionary<int, List<Block>>();
 
     #endregion
 
     #region ScrollingAndNavigation
-
-    public void AddBottomBlock(Block block)
-    {
-        if (!BottomBlocks.ContainsKey(block.Owner))
-            BottomBlocks.Add(block.Owner, new List<Block>());
-
-        if (BottomBlocks[block.Owner] == null)
-            BottomBlocks[block.Owner] = new List<Block>();
-
-        if (BottomBlocks[block.Owner].Contains(block))
-            return;
-
-        BottomBlocks[block.Owner].Add(block);
-    }
-
-    public void RemoveBottomBlock(Block block)
-    {
-        if (!BottomBlocks.ContainsKey(block.Owner))
-            return;
-
-        if (BottomBlocks[block.Owner] == null)
-            return;
-
-        if (!BottomBlocks[block.Owner].Contains(block))
-            return;
-
-        BottomBlocks[block.Owner].Remove(block);
-    }
 
     public bool CheckPlacingPositionY(Block block)
     {
@@ -314,11 +283,14 @@ public class IDEManager : MonoBehaviour
 
             if(Input.GetButtonUp("q"))
             {
-                if (BottomBlocks[CurrentlyProgramedId].Count > 0)
+                if (SavedPrograms.ContainsKey(CurrentlyProgramedId))
                 {
-                    float newSize = BottomBlocks[CurrentlyProgramedId][0].transform.parent.localScale.x/1.2f;
-                    Block.OnResize(newSize);
-                    BlockSize = newSize;
+                    if (SavedPrograms[CurrentlyProgramedId].Count > 0)
+                    {
+                        float newSize = SavedPrograms[CurrentlyProgramedId][0].transform.parent.localScale.x/1.2f;
+                        Block.OnResize(newSize);
+                        BlockSize = newSize;
+                    }
                 }
             }
 
