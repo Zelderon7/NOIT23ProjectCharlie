@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class OutputConnectionScript : MonoBehaviour
@@ -131,8 +132,9 @@ public class OutputConnectionScript : MonoBehaviour
         objectToMove.SetSiblingIndex(newIndex);
     }
 
-    ~OutputConnectionScript()
+    void OnDestroy()
     {
+        Block.OnResize -= FixPosOnRescale;
         Disconnect();
     }
 }

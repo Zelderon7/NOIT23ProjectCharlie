@@ -7,15 +7,15 @@ public class Flag : MonoBehaviour, IInteractableGridObject
 {
     public void Interact(Action callback)
     {
-        StartCoroutine(PickMeUp());
-        callback?.Invoke();
+        StartCoroutine(PickMeUp(callback));
     }
 
-    IEnumerator PickMeUp()
+    IEnumerator PickMeUp(Action callback)
     {
+        GameManager.Instance.Victory();
+        callback?.Invoke();
         GetComponent<AudioSource>().Play(); 
         yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
         Destroy(gameObject);
-        GameManager.Instance.Victory();
     }
 }

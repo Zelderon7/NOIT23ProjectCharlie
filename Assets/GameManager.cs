@@ -162,7 +162,7 @@ public class GameManager : MonoBehaviour
 
     #region Grid Variables
 
-    string seed = "";
+    string seed = "0,0,{3-[3,0]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1#([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
     ScriptableObjectData[] scriptableObjectDataArray;
 
     string levelName;
@@ -678,9 +678,15 @@ public class GameManager : MonoBehaviour
     {
         if(IsGameOver) return;
         IsGameOver = true;
+        StartCoroutine(VictoryCoroutine());
+    }
+
+    IEnumerator VictoryCoroutine()
+    {
+        yield return new WaitForSeconds(.5f);
         VictoryWindowScreen.gameObject.SetActive(true);
         VictoryWindowScreen.NextLevel.onClick.AddListener(OnNextLevel);
-        CommunicationManager.SendData("Victory");
+        CommunicationManager.SendDataMethod("Victory");
     }
 
     public void OnNextLevel()

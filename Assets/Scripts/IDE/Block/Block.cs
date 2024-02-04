@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class Block : MonoBehaviour
 {
@@ -43,7 +44,7 @@ public class Block : MonoBehaviour
         lastPos = transform.parent.position;
         Owner = IDEManager.Instance.CurrentlyProgramedId;
         IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
-        OnResize += (x) => transform.parent.localScale = Vector3.one * x;
+        OnResize += MyOnResize;
         outConnectorsScripts.ToList().ForEach(x => OnResize += x.FixPosOnRescale);
     }
 
@@ -51,6 +52,8 @@ public class Block : MonoBehaviour
     {
         
     }
+
+    private void MyOnResize(float x) =>  transform.parent.localScale = Vector3.one * x;
 
     public virtual void RunBlock()
     {
@@ -237,7 +240,7 @@ public class Block : MonoBehaviour
     void OnDestroy()
     {
         //Debug.Log("I am being Destroyed");
-        OnResize -= OnResize;
+        OnResize -= MyOnResize;
         if(transform.parent.parent.gameObject.name != "DrawerBlocks")
             IDEManager.Instance.OnBlockDestruction(this);
     }

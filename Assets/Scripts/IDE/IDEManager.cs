@@ -287,15 +287,19 @@ public class IDEManager : MonoBehaviour
 
             if(Input.GetButtonUp("q"))
             {
-                if (SavedPrograms.ContainsKey(CurrentlyProgramedId))
-                {
-                    if (SavedPrograms[CurrentlyProgramedId].Count > 0)
-                    {
-                        float newSize = SavedPrograms[CurrentlyProgramedId][0].transform.parent.localScale.x/1.2f;
-                        Block.OnResize(newSize);
-                        BlockSize = newSize;
-                    }
-                }
+                float newSize = BlockSize / 1.2f;
+                if (newSize < .2f)
+                    newSize = .2f;
+                Block.OnResize(newSize);
+                BlockSize = newSize;
+            }
+            if (Input.GetButtonUp("e"))
+            {
+                float newSize = BlockSize * 1.2f;
+                if (newSize > 1.5f)
+                    newSize = 1.5f;
+                Block.OnResize(newSize);
+                BlockSize = newSize;
             }
 
             if (scrollDelta != 0)

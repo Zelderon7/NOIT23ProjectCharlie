@@ -6,5 +6,12 @@ using UnityEngine;
 public class CommunicationManager : MonoBehaviour
 {
     [DllImport("__Internal")]
-    public static extern void SendData(string data);
+    private static extern void SendData(string data);
+
+    public static void SendDataMethod(string data)
+    {
+#if UNITY_WEBGL == true && UNITY_EDITOR == false
+    SendData (data);
+#endif
+    }
 }
