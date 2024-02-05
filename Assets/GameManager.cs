@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool _curMenuChangable = true;
-    private string seed = "0,0,{3-[3,0]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1#([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
+    private string seed;
     private string levelName;
     private string authorName;
     private float _gridXRepos = 2.15f;
@@ -597,7 +597,7 @@ public class GameManager : MonoBehaviour {
         IsGameOver = true;
         GameOverWindowScreen.gameObject.SetActive(true);
         Time.timeScale = 0;
-        GameOverWindowScreen.TryAgain.onClick.AddListener(OnTryAgain);
+        GameOverWindowScreen.TryAgain.onClick.AddListener(() => OnTryAgain(GameOverWindowScreen.TryAgain));
     }
 
     public void Victory()
@@ -647,9 +647,9 @@ public class GameManager : MonoBehaviour {
         _curMenuChangable = true;
     }
 
-    private void OnTryAgain()
+    private void OnTryAgain(Button caller)
     {
-        GameOverWindowScreen.gameObject.SetActive(false);
+        caller.transform.parent.gameObject.SetActive(false);
         InstantiateGrid();
         if (seed != null)
             ProcessSeedString(seed);
@@ -668,12 +668,11 @@ public class GameManager : MonoBehaviour {
     private void OnIDEOpen()
     {
         StartCoroutine(MoveTransform(IDEScreen.transform, Vector3.zero, 1.5f));
-        //StartCoroutine(MoveTransform(GameScreen.transform, new Vector3(18, 0, 0), 1.5f));
     }
 
     private void OnIDEClose()
     {
-        IDEManager.Instance.ClosePreparation();
+        IDEManager.Instance.OnClose();
         StartCoroutine(MoveTransform(IDEScreen.transform, new Vector3(-18f, 0, 0), 1.5f));
         //StartCoroutine(MoveTransform(GameScreen.transform, Vector3.zero, 1.5f));
     }
@@ -683,6 +682,7 @@ public class GameManager : MonoBehaviour {
         yield return new WaitForSeconds(.5f);
         VictoryWindowScreen.gameObject.SetActive(true);
         CommunicationManager.SendDataMethod("Victory");
+        VictoryWindowScreen.TryAgain.onClick.AddListener(() => OnTryAgain(VictoryWindowScreen.TryAgain));
     }
 
     #endregion Menus

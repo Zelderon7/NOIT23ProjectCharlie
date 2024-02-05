@@ -55,13 +55,7 @@ public class IDEManager : MonoBehaviour {
         get; private set;
     }
 
-    public bool IsActive
-    {
-        get
-        {
-            return GameManager.Instance.CurrentMenu == GameManager.Menus.IDE;
-        }
-    }
+    public bool IsActive { get; private set; } = false;
 
     public Action OnCodeStart = () => { };
 
@@ -220,6 +214,9 @@ public class IDEManager : MonoBehaviour {
         if (!IsActive)
             return;
 
+        if (Input.GetMouseButton(0))
+            return;
+
         if (ctx.performed)
         {
             float newSize = BlockSize / 1.2f;
@@ -233,6 +230,9 @@ public class IDEManager : MonoBehaviour {
     public void OnE(InputAction.CallbackContext ctx)
     {
         if (!IsActive)
+            return;
+
+        if (Input.GetMouseButton(0))
             return;
 
         if (ctx.performed)
@@ -307,8 +307,9 @@ public class IDEManager : MonoBehaviour {
         Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, newCameraY, Camera.main.transform.position.z);
     }
 
-    public void ClosePreparation()
+    public void OnClose()
     {
+        IsActive = false;
         if (IDEBackground != null)
             IDEBackground.transform.position = Vector3.zero;
         else
@@ -335,7 +336,14 @@ public class IDEManager : MonoBehaviour {
 
     private void OnOpen()
     {
+        StartCoroutine(WaitToOpen());
         Drawer.GetComponentInChildren<DrawerScript>().RefreshDrawer(CurrentlyProgramedId);
+    }
+
+    IEnumerator WaitToOpen()
+    {
+        yield return new WaitForSeconds(1.5f);
+        IsActive = true;
     }
 
     private void OnLowestpickup()
