@@ -2,11 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using static Unity.Collections.AllocatorManager;
 
 public struct BlockTypes
 {
@@ -57,7 +55,7 @@ public class IDEManager : MonoBehaviour
     [SerializeField]
     Button StartButton;
     public List<CodeBlocksPrefabs> BlockTypesPrefs { get => blockTypesPrefs; private set => blockTypesPrefs = value; }
-    [SerializeField] float scrollSpeed = 20f;
+    [SerializeField] float scrollSpeed = 1f;
     [SerializeField] GameObject IDEBackground;
 
     [SerializeField]
@@ -207,6 +205,8 @@ public class IDEManager : MonoBehaviour
         //Debug.Log($"(Repos)Highest: {HighestBlock[CurrentlyProgramedId]}\nLowest: {LowestBlock[CurrentlyProgramedId]}");
     }
 
+    bool CanScroll = true;
+
     #endregion
 
     public void OnBlockDestruction(Block block)
@@ -278,43 +278,57 @@ public class IDEManager : MonoBehaviour
         GameManager.Instance.OnMenusOpen[GameManager.Menus.IDE] += OnOpen;
     }
 
-    private void Update()
+    public void OnQ(InputAction.CallbackContext ctx)
     {
-        if (IsActive)
+        if (!IsActive)
+            return;
+
+        if (ctx.performed)
         {
-            // Get the scroll wheel delta
-            float scrollDelta = Input.mouseScrollDelta.y;
-
-            if(Input.GetButtonUp("q"))
-            {
-                float newSize = BlockSize / 1.2f;
-                if (newSize < .2f)
-                    newSize = .2f;
-                Block.OnResize(newSize);
-                BlockSize = newSize;
-            }
-            if (Input.GetButtonUp("e"))
-            {
-                float newSize = BlockSize * 1.2f;
-                if (newSize > 1.5f)
-                    newSize = 1.5f;
-                Block.OnResize(newSize);
-                BlockSize = newSize;
-            }
-
-            if (scrollDelta != 0)
-                ScrollUpAndDown(scrollDelta);
+            float newSize = BlockSize / 1.2f;
+            if (newSize < .2f)
+                newSize = .2f;
+            Block.OnResize(newSize);
+            BlockSize = newSize;
         }
-        
     }
 
-    /// <summary>
-    /// Moves the IDEBackground and The main camera up or down based on the <see cref="scrollSpeed"/>
-    /// </summary>
-    /// <param name="scrollDelta">The current scroll direction</param>
-    /// <exception cref="System.Exception"></exception>
-    void ScrollUpAndDown(float scrollDelta)
+    public void OnE(InputAction.CallbackContext ctx)
     {
+        if (!IsActive)
+            return;
+
+        if (ctx.performed)
+        {
+            float newSize = BlockSize * 1.2f;
+            if (newSize > 1.5f)
+                newSize = 1.5f;
+            Block.OnResize(newSize);
+            BlockSize = newSize;
+        }
+    }
+
+    IEnumerator WaitForNextScroll() { yield return new WaitForSeconds(.05f); CanScroll = true; }
+
+    public void OnScroll(InputAction.CallbackContext ctx)
+    {
+        if (!IsActive)
+            return;
+
+        if (!ctx.performed)
+            return;
+
+        if (ctx.ReadValue<Vector2>().y == 0)
+            return;
+
+        if (!CanScroll)
+            return;
+
+        CanScroll = false;
+        StartCoroutine(WaitForNextScroll());
+
+        float scrollDelta = ctx.ReadValue<Vector2>().y < 0? -1 : 1;
+
         if (IDEBackground == null)
         {
             IDEBackground = GameManager.Instance.IDEScreen.GetComponentsInChildren<Transform>().FirstOrDefault(x => x.gameObject.name == "Background")?.gameObject;
@@ -335,7 +349,7 @@ public class IDEManager : MonoBehaviour
             maxY = maxDistanceToBlock / 2;
 
         // Calculate the delta based on the scroll input
-        float delta = scrollDelta * scrollSpeed * Time.deltaTime;
+        float delta = scrollDelta;
 
         // Move the IDEBackground and the main camera
         IDEBackground.transform.Translate(Vector3.up * delta, Space.World);
