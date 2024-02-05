@@ -683,20 +683,10 @@ public class GameManager : MonoBehaviour
 
     IEnumerator VictoryCoroutine()
     {
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(1f);
         VictoryWindowScreen.gameObject.SetActive(true);
-        VictoryWindowScreen.NextLevel.onClick.AddListener(OnNextLevel);
         CommunicationManager.SendDataMethod("Victory");
     }
-
-    public void OnNextLevel()
-    {
-        Debug.Log("OnNextLevel");
-        VictoryWindowScreen.gameObject.SetActive(false);
-        Time.timeScale = 1;
-        IsGameOver = false;
-    }
-
 
     private void ChangeMenu(Menus value)
     {
