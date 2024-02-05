@@ -3,43 +3,40 @@ using System.Collections;
 using UnityEngine;
 
 public class Door : MonoBehaviour, IInteractableGridObject {
-    float openAnimationDuration;
 
-    [SerializeField]
-    AnimationCurve AnimationCurve;
+    float _openAnimationDuration;
+    bool _isLocked;
 
-    private GameObject mySpriteMask;
-    private SpriteRenderer mySpriteRenderer;
+    [SerializeField] AnimationCurve _animationCurve;
+    [SerializeField] Sprite _locked;
+    [SerializeField] Sprite _unlocked;
+    [SerializeField] GameObject _mySpriteMask;
 
-    AudioSource myAudioSource;
+    SpriteRenderer _mySpriteRenderer;
+    AudioSource _myAudioSource;
     AudioClip OpenDoorClip;
 
-    [SerializeField]
-    Sprite Locked;
-    [SerializeField]
-    Sprite UnLocked;
-    [SerializeField]
-    private bool isLocked;
+    
 
     public bool IsLocked
     {
-        get => isLocked;
+        get => _isLocked;
         set
         {
-            isLocked = value;
-            mySpriteRenderer.sprite = IsLocked ? Locked : UnLocked;
+            _isLocked = value;
+            _mySpriteRenderer.sprite = IsLocked ? _locked : _unlocked;
             GetComponent<GridObjectDataSheet>().CanWalkOver = !IsLocked;
         }
     }
     public void Awake()
     {
-        mySpriteMask = GetComponentInChildren<SpriteMask>().gameObject;
-        mySpriteRenderer = GetComponent<SpriteRenderer>();
-        mySpriteRenderer.sprite = IsLocked ? Locked : UnLocked;
+        _mySpriteMask = GetComponentInChildren<SpriteMask>().gameObject;
+        _mySpriteRenderer = GetComponent<SpriteRenderer>();
+        _mySpriteRenderer.sprite = IsLocked ? _locked : _unlocked;
         GetComponent<GridObjectDataSheet>().CanWalkOver = !IsLocked;
-        myAudioSource = GetComponent<AudioSource>();
-        OpenDoorClip = myAudioSource.clip;
-        openAnimationDuration = OpenDoorClip.length;
+        _myAudioSource = GetComponent<AudioSource>();
+        OpenDoorClip = _myAudioSource.clip;
+        _openAnimationDuration = OpenDoorClip.length;
     }
 
     public void Interact(Action callback)
@@ -51,20 +48,20 @@ public class Door : MonoBehaviour, IInteractableGridObject {
 
     IEnumerator OpenDoor(Action callback)
     {
-        myAudioSource.Play();
+        _myAudioSource.Play();
         float elapsedTime = 0f;
         Vector3 startPosition = transform.localPosition;
         Vector3 targetPosition = transform.localPosition + Vector3.down * transform.localScale.y;
 
-        while (elapsedTime < openAnimationDuration)
+        while (elapsedTime < _openAnimationDuration)
         {
-            float t = elapsedTime / openAnimationDuration;
+            float t = elapsedTime / _openAnimationDuration;
 
-            float easedT = AnimationCurve.Evaluate(t);
+            float easedT = _animationCurve.Evaluate(t);
 
             transform.localPosition = Vector3.Lerp(startPosition, targetPosition, easedT);
 
-            mySpriteMask.transform.localPosition = startPosition - transform.localPosition;
+            _mySpriteMask.transform.localPosition = startPosition - transform.localPosition;
 
             elapsedTime += Time.deltaTime;
 
@@ -73,7 +70,7 @@ public class Door : MonoBehaviour, IInteractableGridObject {
 
         transform.localPosition = targetPosition;
 
-        mySpriteMask.transform.localPosition = startPosition - transform.localPosition;
+        _mySpriteMask.transform.localPosition = startPosition - transform.localPosition;
 
 
 

@@ -1,14 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GridObjectDataSheet : MonoBehaviour
 {
-    [SerializeField]
     public bool CanWalkOver;
-    [SerializeField]
-    private UnityEngine.Object autoInteract;
+    [SerializeField] UnityEngine.Object _autoInteract;
 
     public bool IsAutoInteractable
     {
@@ -18,10 +14,10 @@ public class GridObjectDataSheet : MonoBehaviour
     public IInteractableGridObject AutoInteract { 
         get 
         { 
-            if(autoInteract == null)
+            if(_autoInteract == null)
                 return null;
-            if (autoInteract is IInteractableGridObject) 
-                return autoInteract as IInteractableGridObject; 
+            if (_autoInteract is IInteractableGridObject) 
+                return _autoInteract as IInteractableGridObject; 
             else throw new ArgumentException("Invalid Argument"); 
         }
     }

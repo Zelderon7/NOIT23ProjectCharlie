@@ -1,77 +1,89 @@
-using System.Collections;
-using System.Collections.Generic;
 using System;
 using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using Unity.Mathematics;
 
 public class Block : MonoBehaviour
 {
     public int Owner;
-
-    [SerializeField]
-    private GameObject inpConnector = null;
-    public GameObject InputConnector { get => inpConnector; }
-
-    Block connectedIn = null;
-
-    [SerializeField]
-    private GameObject outConnectorsHolder;
     public bool ConnectableHere = false;
-    internal OutputConnectionScript[] outConnectorsScripts = null;
 
-    [SerializeField]
-    private GameObject argsholder = null;
-    private GameObject[] args = null;//TODO: GameObject => DataBlock
-    private Vector2 dragOffset = Vector2.zero;
-    private Vector2 lastPos = Vector2.zero;
+    GameObject[] _args = null;//TODO: GameObject => DataBlock
 
-    private Action ForDestroy = null;
-    public DrawerBlock Papa;
-
+    public DrawerBlock Parent;
     public static Action<float> OnResize = (x) => { };
-
     public Action OnPickup = () => { };
+
+
+
+    [SerializeField] GameObject outConnectorsHolder;
+    [SerializeField] GameObject inpConnector = null;
+    [SerializeField] GameObject argsholder = null;
+
+    public GameObject InpConnector { get => inpConnector; }
+    internal OutputConnectionScript[] _outConnectorsScripts = null;
+
+    Vector2 dragOffset = Vector2.zero;
+    Vector2 lastPos = Vector2.zero;
+
+    Action ForDestroy = null;
     
     internal virtual void Awake()
     {
         if (transform.parent.parent.gameObject.name == "DrawerBlocks")
             return;
 
-        outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
+        _outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
         lastPos = transform.parent.position;
         Owner = IDEManager.Instance.CurrentlyProgramedId;
         IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
         OnResize += MyOnResize;
-        outConnectorsScripts.ToList().ForEach(x => OnResize += x.FixPosOnRescale);
+        _outConnectorsScripts.ToList().ForEach(x => OnResize += x.FixPosOnRescale);
     }
-
-    private void Start()
+    void OnTriggerEnter2D(Collider2D collision)
     {
-        
+        if (collision.CompareTag("DrawerBlockTrasher"))
+            ForDestroy = SelfDestruct;
+    }
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("DrawerBlockTrasher"))
+            ForDestroy = null;
+    }
+    void OnDestroy()
+    {
+        OnResize -= MyOnResize;
+        if (transform.parent.parent.gameObject.name != "DrawerBlocks")
+            IDEManager.Instance.OnBlockDestruction(this);
+    }
+    void OnMouseUp()
+    {
+        ForDestroy?.Invoke();
+        PutDownBlock();
+    }
+    void OnMouseDown()
+    {
+        PrepDragAlong();
+        OnPickup?.Invoke();
+    }
+    void OnMouseDrag()
+    {
+        MoveWithMouse();
     }
 
-    private void MyOnResize(float x) =>  transform.parent.localScale = Vector3.one * x;
+
+    void MyOnResize(float x) =>  transform.parent.localScale = Vector3.one * x;
 
     public virtual void RunBlock()
     {
-        foreach (var script in outConnectorsScripts)
+        foreach (var script in _outConnectorsScripts)
         {
-            if (script.connected != null)
+            if (script.Connected != null)
                 return;
         }
         GameManager.Instance.GameOver();
     }
 
-    private void OnMouseDown()
-    {
-        PrepDragAlong();
-        OnPickup?.Invoke();
-    }
-
-    private void DisconnectCur()
+    void DisconnectCurrent()
     {
         if(inpConnector == null)
             return;
@@ -83,7 +95,6 @@ public class Block : MonoBehaviour
             if (outputConnection != null)
             {
                 outputConnection.Disconnect();
-                //Debug.Log("Disconnected sucsesfully");
             }
         }
     }
@@ -92,55 +103,45 @@ public class Block : MonoBehaviour
     {
         dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
 
-        foreach (var outConnector in outConnectorsScripts)
+        foreach (var outConnector in _outConnectorsScripts)
         {
-            outConnector?.connected?.myBlock.PrepDragAlong();
+            outConnector?.Connected?.Block.PrepDragAlong();
         }
     }
 
-    /// <summary>
-    /// Should only be called from the MouseUp() or on the MouseUp() on connected which is dragging the current
-    /// Checks for possible connection and connects to it.
-    /// </summary>
     public void ConnectIfPossible()
     {
-        foreach (var item in outConnectorsScripts)
+        foreach (var item in _outConnectorsScripts)
         {
             if (item.Connect())
                 item.FixPositionInStack();
         }
 
-        foreach (var outConnector in outConnectorsScripts)
+        foreach (var outConnector in _outConnectorsScripts)
         {
-            outConnector?.connected?.myBlock.ConnectIfPossible();
+            outConnector?.Connected?.Block.ConnectIfPossible();
         }
 
         if (inpConnector == null)
             return;
 
-        if(inpConnector.GetComponent<InputConnector>().forConnection != null)
+        if(inpConnector.GetComponent<InputConnector>().ForConnection != null)
         {
-            if (inpConnector.GetComponent<InputConnector>().forConnection.Connect())
+            if (inpConnector.GetComponent<InputConnector>().ForConnection.Connect())
             {
                 inpConnector.GetComponent<InputConnector>().Connected.FixPositionInStack();
             }
         }
     }
 
-    private void OnMouseUp()
+    void SelfDestruct()
     {
-        ForDestroy?.Invoke();
-        PutDownBlock();
-    }
-
-    private void TrashMe()
-    {
-        Papa.Count++;
-        foreach (var item in outConnectorsScripts)
+        Parent.Count++;
+        foreach (var item in _outConnectorsScripts)
         {
-            if(item.connected != null)
+            if(item.Connected != null)
             {
-                item.connected.myBlock.TrashMe();
+                item.Connected.Block.SelfDestruct();
             }
         }
 
@@ -155,34 +156,25 @@ public class Block : MonoBehaviour
             return;
         }
 
-        DisconnectCur();
+        DisconnectCurrent();
         ConnectIfPossible();
 
-        foreach (var outConnector in outConnectorsScripts)
+        foreach (var outConnector in _outConnectorsScripts)
         {
-            outConnector?.connected?.myBlock.ConnectIfPossible();
+            outConnector?.Connected?.Block.ConnectIfPossible();
         }
 
         lastPos = transform.parent.position;
         IDEManager.Instance.OnBlockRepositioning(this);
     }
 
-    private void OnMouseDrag()
-    {
-        MoveWithMouse();
-    }
-
-    /// <summary>
-    /// Should only be called from the MouseDrag() or on the MouseDrag() on connected which is dragging the current
-    /// Moves the block based of the cursor's position and the <see cref="dragOffset"/>
-    /// </summary>
     public void MoveWithMouse()
     {
         transform.parent.transform.position = GetMousePos() - dragOffset;
 
-        foreach (var outConnector in outConnectorsScripts)
+        foreach (var outConnector in _outConnectorsScripts)
         {
-            outConnector?.connected?.myBlock.MoveWithMouse();
+            outConnector?.Connected?.Block.MoveWithMouse();
         }
     }
 
@@ -191,25 +183,17 @@ public class Block : MonoBehaviour
         return Camera.main.ScreenToWorldPoint( Input.mousePosition );
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns>true if it's out of bounds</returns>
-    bool CheckColliderOutOfScreenSpace(float tollerance)
+    bool CheckColliderOutOfScreenSpace(float tolerance)
     {
-        Collider2D collider = GetComponent<BoxCollider2D>();
-
-        if (collider != null)
+        
+        if (TryGetComponent<BoxCollider2D>(out var collider))
         {
-            // Calculate the screen bounds in world space
             Vector3 screenBoundsMin = Camera.main.ScreenToWorldPoint(Vector3.zero);
             Vector3 screenBoundsMax = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
 
-            // Calculate the bounds of the collider in world space
             Bounds colliderBounds = collider.bounds;
 
-            // Check if the collider bounds are even slightly out of the screen
-            return !IsBoundsWithinScreen(colliderBounds, screenBoundsMin, screenBoundsMax, tollerance);
+            return !IsBoundsWithinScreen(colliderBounds, screenBoundsMin, screenBoundsMax, tolerance);
         }
         else
         {
@@ -220,28 +204,8 @@ public class Block : MonoBehaviour
 
     bool IsBoundsWithinScreen(Bounds bounds, Vector3 screenBoundsMin, Vector3 screenBoundsMax, float tollerance)
     {
-        // Check if the bounds are within the screen bounds
-        //Debug.Log($"Bounds: {bounds.max.x}X, {bounds.max.y}Y");
         return bounds.min.x + tollerance >= screenBoundsMin.x && bounds.max.x - tollerance <= screenBoundsMax.x;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.tag == "DrawerBlockTrasher")
-            ForDestroy = TrashMe;
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.tag == "DrawerBlockTrasher")
-            ForDestroy = null;
-    }
-
-    void OnDestroy()
-    {
-        //Debug.Log("I am being Destroyed");
-        OnResize -= MyOnResize;
-        if(transform.parent.parent.gameObject.name != "DrawerBlocks")
-            IDEManager.Instance.OnBlockDestruction(this);
-    }
+    
 }

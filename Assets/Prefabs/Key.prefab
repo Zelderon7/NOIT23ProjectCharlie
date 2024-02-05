@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CanWalkOver: 1
-  autoInteract: {fileID: 2441080251929369800}
+  _autoInteract: {fileID: 2441080251929369800}
 --- !u!114 &2441080251929369800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,7 +135,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab3984eab4f086b4e91d779d3a4b3049, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  door: {fileID: 0}
 --- !u!82 &676394126033785144
 AudioSource:
   m_ObjectHideFlags: 0

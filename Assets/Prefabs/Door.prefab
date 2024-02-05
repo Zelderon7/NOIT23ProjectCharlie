@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CanWalkOver: 1
-  autoInteract: {fileID: 7605999572352603712}
+  _autoInteract: {fileID: 7605999572352603712}
 --- !u!114 &7605999572352603712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,42 +114,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7617b4ca516f844498c3cc0cd535d532, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AnimationCurve:
+  _animationCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 4.4190087
-      outSlope: 4.4190087
+      inSlope: 1
+      outSlope: 1
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.033494204
-      value: 0.14801118
-      inSlope: 0.12628528
-      outSlope: 0.12628528
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.14640968
+      outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0.88151443
-      outSlope: 0.88151443
+      inSlope: 1
+      outSlope: 1
       tangentMode: 34
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  Locked: {fileID: 1781338099, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
-  UnLocked: {fileID: 352697812, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
-  isLocked: 0
+  _locked: {fileID: 1781338099, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
+  _unlocked: {fileID: 352697812, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
+  _mySpriteMask: {fileID: 0}
 --- !u!82 &1786197774657015025
 AudioSource:
   m_ObjectHideFlags: 0
