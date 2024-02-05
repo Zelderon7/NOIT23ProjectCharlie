@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CanWalkOver: 1
-  autoInteract: {fileID: -8647713093224204257}
+  _autoInteract: {fileID: -8647713093224204257}
 --- !u!114 &-8647713093224204257
 MonoBehaviour:
   m_ObjectHideFlags: 0

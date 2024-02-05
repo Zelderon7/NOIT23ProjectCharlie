@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,67 +6,60 @@ using UnityEngine;
 
 public class DrawerScript : MonoBehaviour
 {
-    public bool Opened { get; private set; } = true;
-    bool inMotion = false;
-    private Dictionary<int, List<GameObject>> DrawerBlocksDictionary = new Dictionary<int, List<GameObject>>();
-    private int curId = -1;
-    private void Start()
-    {
-        
-    }
+    public bool IsOpen { get; private set; } = true;
 
-    IEnumerator OnOpenCoroutine()
-    {
-        inMotion = true;
-        yield return StartCoroutine(MoveTransform(transform.parent, new Vector3(-.388f, 0, 0), 1f));
-        Opened = true;
-        inMotion = false;
-    }
+    bool _inMotion = false;
+    int _currentId = -1;
 
-    IEnumerator OnCloseCoroutine()
-    {
-        inMotion = true;
-        yield return StartCoroutine(MoveTransform(transform.parent, new Vector3(-.615f, 0, 0), 1f));
-        Opened = false;
-        inMotion = false;
-    }
+    Dictionary<int, List<GameObject>> _drawerBlocksDictionary = new Dictionary<int, List<GameObject>>();
 
-    private void OnMouseDown()
+    void OnMouseDown()
     {
-        if (inMotion) return;
-        
-        if(Opened)
+        if (_inMotion)
+            return;
+
+        if (IsOpen)
             StartCoroutine(OnCloseCoroutine());
         else
             StartCoroutine(OnOpenCoroutine());
     }
 
+    IEnumerator OnOpenCoroutine()
+    {
+        _inMotion = true;
+        yield return StartCoroutine(MoveTransform(transform.parent, new Vector3(-.388f, 0, 0), 1f));
+        IsOpen = true;
+        _inMotion = false;
+    }
+
+    IEnumerator OnCloseCoroutine()
+    {
+        _inMotion = true;
+        yield return StartCoroutine(MoveTransform(transform.parent, new Vector3(-.615f, 0, 0), 1f));
+        IsOpen = false;
+        _inMotion = false;
+    }
+
+   
+
     public IEnumerator MoveTransform(Transform targetTransform, Vector3 targetPosition, float duration)
     {
-        // Store the initial position of the transform
         Vector3 startPosition = targetTransform.localPosition;
 
-        // Variable to track elapsed time
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
         {
-            // Calculate the interpolation factor between 0 and 1 based on elapsed time and duration
             float t = elapsedTime / duration;
+            float easedT = GameManager.Instance.EaseInOutQuad.Evaluate(t);
 
-            float easedT = GameManager.Instance.EaseInOutQuad.Evaluate(t); // Use the easing function
-
-            // Use Vector3.Lerp to interpolate between the start and target positions
             targetTransform.localPosition = Vector3.Lerp(startPosition, targetPosition, easedT);
 
-            // Increment the elapsed time
             elapsedTime += Time.deltaTime;
 
-            // Wait for the next frame
             yield return null;
         }
 
-        // Ensure that the transform reaches the exact target position
         targetTransform.localPosition = targetPosition;
     }
 
@@ -75,11 +67,11 @@ public class DrawerScript : MonoBehaviour
     {
         for (int i = 0; i < blocks.Length; i++)
         {
-            GameObject temp = Instantiate(IDEManager.Instance.BlockTypesPrefs[blocks[i].id].Prefab, parent: gameObject.transform.parent.Find("DrawerBlocks"));
+            GameObject temp = Instantiate(IDEManager.Instance.BlockTypesPrefs[blocks[i].Id].Prefab, parent: gameObject.transform.parent.Find("DrawerBlocks"));
 
-            if (!DrawerBlocksDictionary.ContainsKey(id))
-                DrawerBlocksDictionary.Add(id, new List<GameObject>());
-            DrawerBlocksDictionary[id].Add(temp);
+            if (!_drawerBlocksDictionary.ContainsKey(id))
+                _drawerBlocksDictionary.Add(id, new List<GameObject>());
+            _drawerBlocksDictionary[id].Add(temp);
 
             temp.GetComponentsInChildren<SpriteRenderer>().ToList().ForEach(x => { x.sortingLayerName = "IDEScreen"; x.sortingOrder += 11; });
             var _tempTextRef = temp.GetComponentInChildren<TextMeshPro>();
@@ -99,28 +91,30 @@ public class DrawerScript : MonoBehaviour
             Destroy(targetParent.GetComponent<Block>());
             DrawerBlock scriptRef = targetParent.AddComponent<DrawerBlock>();
             GameObject TextObject = Instantiate(new GameObject("TextHolder"), parent: temp.transform);
-            scriptRef.text = TextObject.AddComponent<TextMeshPro>();
-            scriptRef.text.rectTransform.localPosition = Vector3.right * 3.8f;
-            scriptRef.text.rectTransform.sizeDelta = Vector2.one;
-            scriptRef.text.enableAutoSizing = true;
-            scriptRef.text.fontSizeMin = 0;
-            scriptRef.text.color = Color.black;
-            scriptRef.text.fontStyle = FontStyles.Bold;
-            scriptRef.Count = blocks[i].count;
+            scriptRef.Text = TextObject.AddComponent<TextMeshPro>();
+            scriptRef.Text.rectTransform.localPosition = Vector3.right * 3.8f;
+            scriptRef.Text.rectTransform.sizeDelta = Vector2.one;
+            scriptRef.Text.enableAutoSizing = true;
+            scriptRef.Text.fontSizeMin = 0;
+            scriptRef.Text.color = Color.black;
+            scriptRef.Text.fontStyle = FontStyles.Bold;
+            scriptRef.Count = blocks[i].Count;
             scriptRef.RefreshText();
-            scriptRef.MePrefab = IDEManager.Instance.BlockTypesPrefs[blocks[i].id].Prefab;
+            scriptRef.Prefab = IDEManager.Instance.BlockTypesPrefs[blocks[i].Id].Prefab;
         }
     }
 
     public void RefreshDrawer(int id)
     {
-        if(id == curId || id < 0) return;
+        if(id == _currentId || id < 0) return;
 
-        if(curId != -1)
-            DrawerBlocksDictionary[curId].ForEach(x => x.gameObject.SetActive(false));
+        if(_currentId != -1)
+            _drawerBlocksDictionary[_currentId].ForEach(x => x.gameObject.SetActive(false));
 
-        if (!DrawerBlocksDictionary.ContainsKey(id))
-            InstantiateCodeDrawer(IDEManager.Instance.GetICodeableById(id).MyBlockTypes, id);
-        DrawerBlocksDictionary[id].ForEach(x => x.gameObject.SetActive(true));
+        if (!_drawerBlocksDictionary.ContainsKey(id))
+            InstantiateCodeDrawer(IDEManager.Instance.GetICodeableById(id).BlockTypes, id);
+        _drawerBlocksDictionary[id].ForEach(x => x.gameObject.SetActive(true));
+
+        _currentId = id;
     }
 }

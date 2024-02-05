@@ -1,13 +1,12 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Key : MonoBehaviour, IInteractableGridObject
 {
     Door _door;
 
-    public Door door
+    public Door Door
     {
         get => _door;
         set
@@ -29,7 +28,7 @@ public class Key : MonoBehaviour, IInteractableGridObject
     {
         yield return new WaitForSeconds(1);
         GetComponent<AudioSource>().Play();
-        door.Unlock();
+        Door.Unlock();
         yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
         Destroy(gameObject);
     }

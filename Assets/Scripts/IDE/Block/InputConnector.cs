@@ -1,23 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class InputConnector : MonoBehaviour
 {
-    public Block myBlock { get; private set; }
+    public Block Block { get; private set; }
     public OutputConnectionScript Connected = null;
-    public OutputConnectionScript forConnection = null;
+    public OutputConnectionScript ForConnection = null;
 
     private void Awake()
     {
-        myBlock = transform.parent.gameObject.GetComponentInChildren<Block>();
-        if (myBlock == null)
+        Block = transform.parent.gameObject.GetComponentInChildren<Block>();
+        if (Block == null)
             Debug.LogError("BlockNotFound");
     }
     public void CallMe()
     {
-        //Block temp = Connected.transform.parent.parent.GetComponentInChildren<Block>();
-        myBlock.RunBlock();
+        Block.RunBlock();
     }
 
     private void OnDestroy()

@@ -1,33 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 
 public class DrawerBlock : MonoBehaviour
 {
-    public TextMeshPro text;
+    public TextMeshPro Text;
+    public GameObject Prefab;
+    Block _currentBlock;
+
+    int _count;
+
     public int Count
     {
-        get => count;
+        get => _count;
         set
         {
-            count = value;
+            _count = value;
             RefreshText();
         }
     }
-    private int count;
-    public GameObject MePrefab;
-    private Block curBlock;
 
-    private void OnMouseDown()
+    void OnMouseDown()
     {
-        if (count != 0)
+        if (_count != 0)
         {
-            count--;
-            GameObject temp = Instantiate(MePrefab, parent: IDEManager.Instance.gameObject.transform);
+            _count--;
+            GameObject temp = Instantiate(Prefab, parent: IDEManager.Instance.gameObject.transform);
             temp.transform.localScale = Vector3.one * IDEManager.Instance.BlockSize;
-            temp.GetComponentInChildren<Block>().Papa = this;
+            temp.GetComponentInChildren<Block>().Parent = this;
             SpriteRenderer[] _spRs = temp.GetComponentsInChildren<SpriteRenderer>();
             _spRs.ToList().ForEach(x => x.sortingLayerName = "IDEScreen");
             _spRs.ToList().ForEach(x => x.sortingOrder += 100);
@@ -37,43 +37,43 @@ public class DrawerBlock : MonoBehaviour
                 _tempTextRef.sortingOrder += 100;
             }
             temp.transform.position = new Vector3(GetMousePos().x, GetMousePos().y, 0);
-            curBlock = temp.GetComponentInChildren<Block>();
-            curBlock?.PrepDragAlong();
+            _currentBlock = temp.GetComponentInChildren<Block>();
+            _currentBlock?.PrepDragAlong();
         }
         RefreshText();
     }
 
     private void OnMouseDrag()
     {
-        curBlock?.MoveWithMouse();
+        _currentBlock?.MoveWithMouse();
     }
 
     private void OnMouseUp()
     {
-        if (curBlock == null)
+        if (_currentBlock == null)
             return;
 
-        curBlock.PutDownBlock();
-        curBlock.transform.parent.localPosition -= Vector3.forward;
-        SpriteRenderer[] _spRs = curBlock.transform.parent.GetComponentsInChildren<SpriteRenderer>();
+        _currentBlock.PutDownBlock();
+        _currentBlock.transform.parent.localPosition -= Vector3.forward;
+        SpriteRenderer[] _spRs = _currentBlock.transform.parent.GetComponentsInChildren<SpriteRenderer>();
         _spRs.ToList().ForEach(x => x.sortingOrder -= 100);
-        var _tempTextRef = curBlock.transform.parent.GetComponentInChildren<TextMeshPro>();
+        var _tempTextRef = _currentBlock.transform.parent.GetComponentInChildren<TextMeshPro>();
         if (_tempTextRef != null)
         {
             _tempTextRef.sortingOrder -= 100;
         }
-        curBlock = null;
+        _currentBlock = null;
     }
 
     public void RefreshText()
     {
-        if (count < 0)
+        if (_count < 0)
         {
-            text.text = "";
+            Text.text = "";
         }
         else
         {
-            text.text = "x" + count;
+            Text.text = "x" + _count;
         }
     }
     Vector2 GetMousePos()

@@ -9,13 +9,21 @@ using UnityEngine;
 
 public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 {
-    Animator animator;
-    private Vector2 gridPos = Vector2.zero;
-    private Block starterBlock;
-    private float moveSpeed = 1f;
-    [SerializeField] Transform Arrow;
+    float _moveSpeed = 1f;
+    int _currentDirectionIndex = 1;
+    int _id;
 
-    Vector2[] _directions =
+    Animator _animator;
+    Vector2 _gridPos = Vector2.zero;
+    Block _starterBlock;
+
+    [SerializeField] Transform Arrow;
+    [SerializeField] AudioClip RotateClip;
+
+    BlockTypes[] _blocks;
+    AudioSource _audioSource;
+
+    readonly Vector2[] _directions =
         {
             Vector2.up,
             Vector2.right,
@@ -23,34 +31,33 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
             Vector2.left
         };
     
-    public Vector2 FacingDirection { get => _directions[curDirI]; 
+    public Vector2 FacingDirection { get => _directions[_currentDirectionIndex]; 
         private set
         {
             int temp = _directions.ToList().IndexOf(value);
             if (temp == -1)
                 throw new ArgumentException($"Invalid direction: {value}");
-            curDirI = temp;
-            RefreshArrow();
+            _currentDirectionIndex = temp;
+            UpdateArrow();
         } }
 
-    private int curDirI = 1;
 
-    Block ICodeable.StarterBlock { get => starterBlock; set => starterBlock = value; }
+    Block ICodeable.StarterBlock { get => _starterBlock; set => _starterBlock = value; }
     Vector2 ICodeable.GridPosition
     {
-        get => gridPos;
+        get => _gridPos;
         set
         {
-            gridPos = value;
+            _gridPos = value;
             transform.position = GameManager.Instance.GetCellPos((int)value.x, (int)value.y);
         }
     }
     int ICodeable.GridRotation
     {
-        get => curDirI;
+        get => _currentDirectionIndex;
         set => FacingDirection = _directions[value];
     }
-    BlockTypes[] ICodeable.MyBlockTypes { get => myBlocks; set => myBlocks = value; }
+    BlockTypes[] ICodeable.BlockTypes { get => _blocks; set => _blocks = value; }
     public int Id
     {
         get => _id;
@@ -60,24 +67,33 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         }
     }
 
-    private int _id;
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+        _audioSource = GetComponent<AudioSource>();
 
-    BlockTypes[] myBlocks;
+        if (IDEManager.Instance != null)
+        {
+            IDEManager.Instance.CurrentlyProgramed = this;
+            transform.position = GameManager.Instance.GetCellPos((int)_gridPos.x, (int)_gridPos.y);
+            if (FacingDirection.x != 0)
+                transform.localScale = new Vector2(GameManager.Instance.CellSize * FacingDirection.x * -1, GameManager.Instance.CellSize);
+        }
+    }
 
-    #region Audio
+    public void Start()
+    {
+        IDEManager.Instance.CurrentlyProgramed = this;
+        transform.position = GameManager.Instance.GetCellPos((int)_gridPos.x, (int)_gridPos.y);
+        if (FacingDirection.x != 0)
+            transform.localScale = new Vector2(GameManager.Instance.CellSize * FacingDirection.x * -1, GameManager.Instance.CellSize);
+    }
 
-    AudioSource myAudioSource;
-
-    [SerializeField]
-    AudioClip RotateClip;
-
-    #endregion
-
-    private void RefreshArrow()
+    void UpdateArrow()
     {
         Arrow.transform.rotation = Quaternion.identity;
 
-        switch (curDirI)
+        switch (_currentDirectionIndex)
         {
             case 0: Arrow.transform.Rotate(0f, 0f, 180f);
                 break;
@@ -101,23 +117,21 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
     public void Turn(bool RightOrLeft, Action callback = null)
     {
-        //Debug.Log($"Turning {(RightOrLeft? "Right" : "Left")}, curDir = {FacingDirection}");
-        int prevDir = curDirI;
-        curDirI += RightOrLeft ? 1 : -1;
-        if (curDirI < 0)
-            curDirI = 3;
-        curDirI %= 4;
+        int prevDir = _currentDirectionIndex;
+        _currentDirectionIndex += RightOrLeft ? 1 : -1;
+        if (_currentDirectionIndex < 0)
+            _currentDirectionIndex = 3;
+        _currentDirectionIndex %= 4;
             
         if(FacingDirection.x != 0)
             transform.localScale *= new Vector2(transform.localScale.x < 0? FacingDirection.x : FacingDirection.x * -1, 1);
 
-        //Debug.Log($"Turned to {FacingDirection}");
-        RefreshArrow();
+        UpdateArrow();
 
         if(RotateClip != null)
         {
-            myAudioSource.clip = RotateClip;
-            myAudioSource.Play();
+            _audioSource.clip = RotateClip;
+            _audioSource.Play();
             StartCoroutine(WaitSeconds(RotateClip.length, callback));
         }
         else
@@ -130,31 +144,9 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         callback?.Invoke();
     }
 
-    private void Awake()
-    {
-        animator = GetComponent<Animator>();
-        myAudioSource = GetComponent<AudioSource>();
-        
-        if(IDEManager.Instance != null)
-        {
-            IDEManager.Instance.CurrentlyProgramed = this;
-            transform.position = GameManager.Instance.GetCellPos((int)gridPos.x, (int)gridPos.y);
-            if (FacingDirection.x != 0)
-                transform.localScale = new Vector2(GameManager.Instance.cellSize * FacingDirection.x * -1, GameManager.Instance.cellSize);
-        }
-    }
-
-    public void Start()
-    {
-        IDEManager.Instance.CurrentlyProgramed = this;
-        transform.position = GameManager.Instance.GetCellPos((int)gridPos.x, (int)gridPos.y);
-        if(FacingDirection.x != 0)
-            transform.localScale = new Vector2(GameManager.Instance.cellSize * FacingDirection.x * -1, GameManager.Instance.cellSize);
-    }
-
     public void MoveMeTo(Vector2 direction, Action callback = null)
     {
-        GameManager.Instance.Interact((int)(gridPos.x + direction.x), (int)(gridPos.y - direction.y), () => {
+        GameManager.Instance.Interact((int)(_gridPos.x + direction.x), (int)(_gridPos.y - direction.y), () => {
 
             if (callback != null)
             {
@@ -167,15 +159,15 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
                     
                 callback += () =>
                 {
-                    animator.SetBool("IsMoving", false);
+                    _animator.SetBool("IsMoving", false);
                 };
 
                 if (_invList != null)
                     _invList.ToList().ForEach(x => callback += (System.Action)x) ;
             }
-            animator.SetBool("IsMoving", true);
-            StartCoroutine(MoveCoroutine(direction, GameManager.Instance.cellSize + GameManager.Instance.gridSpacing, callback));
-            gridPos = new Vector2(gridPos.x + direction.x, gridPos.y - direction.y);
+            _animator.SetBool("IsMoving", true);
+            StartCoroutine(MoveCoroutine(direction, GameManager.Instance.CellSize + GameManager.Instance.gridSpacing, callback));
+            _gridPos = new Vector2(_gridPos.x + direction.x, _gridPos.y - direction.y);
         });
 
     }
@@ -188,32 +180,21 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
     private IEnumerator MoveCoroutine(Vector3 direction, float distance, Action callback)
     {
         float elapsedTime = 0f;
-        
+        float totalTime = distance / _moveSpeed;
+
         Vector3 startPosition = transform.position;
 
-        // Calculate the time required to cover the specified distance with the given speed
-        float totalTime = distance / moveSpeed;
 
         while (elapsedTime < totalTime)
         {
-            // Move the object in the specified direction
-            transform.Translate(direction * moveSpeed * Time.deltaTime);
+            transform.Translate(direction * _moveSpeed * Time.deltaTime);
 
-            // Update the elapsed time
             elapsedTime += Time.deltaTime;
 
-            // Yield until the next frame
             yield return null;
         }
 
-        // Ensure the object reaches the exact target position
         transform.position = startPosition + direction * distance;
-        Debug.Log("Movement Over" + distance);
         callback?.Invoke();
-    }
-
-    void ICodeable.OnRestart()
-    {
-        
     }
 }

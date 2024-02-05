@@ -2789,29 +2789,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 745c82ed166a55e4387d4817fe53851e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridObjects:
-  - id: 0
-    objectName: Empty
-    prefab: {fileID: 0}
-  - id: 1
-    objectName: Door
-    prefab: {fileID: 4707468532797146543, guid: a135bf6e1196bfa488237690f9d2f815, type: 3}
-  - id: 2
-    objectName: Wall
-    prefab: {fileID: 7554923224101955970, guid: 7d91ca2e5ee8cc54e9d28d049bb69619, type: 3}
-  - id: 3
-    objectName: Key
-    prefab: {fileID: 2651603407939270582, guid: 96a31ce7fb299fc4eb664fe120381a63, type: 3}
-  - id: 4
-    objectName: Flag
-    prefab: {fileID: 8016009510891192292, guid: 30a85bb5c22e9324ebaccf8654d72198, type: 3}
-  scriptableObjects:
-  - id: 1
-    objectName: Robot
-    prefab: {fileID: 7021549350433633468, guid: b9f478c72d8c04849b4f9cb387ea63fc, type: 3}
-  StartCodeButton: {fileID: 637075991}
-  _IDEScreen: {fileID: 1547482288}
-  _GameScreen: {fileID: 2099311896}
   EaseInOutQuad:
     serializedVersion: 2
     m_Curve:
@@ -2836,12 +2813,16 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  tilePrefab: {fileID: 8872334791307316497, guid: ad9fa4ef8db62b9478e75db591a7cb43, type: 3}
-  GridParent: {fileID: 2036588631}
-  gridPadding: 0.5
   gridSpacing: 0
+  gridPadding: 0.5
   _gridWidth: 5
   _gridHeight: 5
+  tilePrefab: {fileID: 8872334791307316497, guid: ad9fa4ef8db62b9478e75db591a7cb43, type: 3}
+  GridParent: {fileID: 2036588631}
+  _GameScreen: {fileID: 2099311896}
+  _IDEScreen: {fileID: 1547482288}
+  GameOverWindowScreen: {fileID: 1570569707}
+  VictoryWindowScreen: {fileID: 1995321864}
   GridTileSprites:
   - {fileID: -250858331, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
   - {fileID: 566659296, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
@@ -2852,8 +2833,27 @@ MonoBehaviour:
   - {fileID: 1430619233, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
   - {fileID: -1506663351, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
   - {fileID: 145525946, guid: d427c4e010fc55343884fe7c1c61d202, type: 3}
-  GameOverWindowScreen: {fileID: 1570569707}
-  VictoryWindowScreen: {fileID: 1995321864}
+  gridObjects:
+  - Id: 0
+    ObjectName: Empty
+    Prefab: {fileID: 0}
+  - Id: 1
+    ObjectName: Door
+    Prefab: {fileID: 4707468532797146543, guid: a135bf6e1196bfa488237690f9d2f815, type: 3}
+  - Id: 2
+    ObjectName: Wall
+    Prefab: {fileID: 7554923224101955970, guid: 7d91ca2e5ee8cc54e9d28d049bb69619, type: 3}
+  - Id: 3
+    ObjectName: Key
+    Prefab: {fileID: 2651603407939270582, guid: 96a31ce7fb299fc4eb664fe120381a63, type: 3}
+  - Id: 4
+    ObjectName: Flag
+    Prefab: {fileID: 8016009510891192292, guid: 30a85bb5c22e9324ebaccf8654d72198, type: 3}
+  scriptableObjects:
+  - Id: 1
+    ObjectName: Robot
+    Prefab: {fileID: 7021549350433633468, guid: b9f478c72d8c04849b4f9cb387ea63fc, type: 3}
+  StartCodeButton: {fileID: 637075991}
 --- !u!1 &1364518221
 GameObject:
   m_ObjectHideFlags: 0
@@ -2882,8 +2882,8 @@ Transform:
   m_GameObject: {fileID: 1364518221}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 10, z: 1}
+  m_LocalPosition: {x: -0.5285, y: 0, z: 0}
+  m_LocalScale: {x: 5, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 563753953}
@@ -3277,24 +3277,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f27e497a26c9fe4b9ab9f44efa10456, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartButton: {fileID: 637075991}
-  scrollSpeed: 300
-  IDEBackground: {fileID: 1489801062}
-  Drawer: {fileID: 563753952}
   blockTypesPrefs:
-  - id: 0
+  - Id: 0
     Name: Start
     Prefab: {fileID: 4452601916555427395, guid: 71fa2ae561035d848a9bad8ae5b71e4f, type: 3}
-  - id: 1
+  - Id: 0
     Name: Move
     Prefab: {fileID: 7987566804181896519, guid: 4a7eb2c05530d884a928de3a0f1fe26b, type: 3}
-  - id: 2
+  - Id: 0
     Name: Turn Right
     Prefab: {fileID: 5280537596641223825, guid: d15eb575e6cad8741a706e158e5fd82b, type: 3}
-  - id: 3
+  - Id: 0
     Name: Turn Left
     Prefab: {fileID: 164645760845261873, guid: 1d8c0fe30dbdc71418e58789e524b6cb, type: 3}
-  step: 1
+  StartButton: {fileID: 637075991}
+  IDEBackground: {fileID: 1489801062}
+  Drawer: {fileID: 563753952}
 --- !u!1 &1570569703
 GameObject:
   m_ObjectHideFlags: 0
@@ -3387,103 +3385,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TryAgain: {fileID: 2021701347}
   Text: {fileID: 325173146}
---- !u!1 &1579294801
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1579294804}
-  - component: {fileID: 1579294803}
-  - component: {fileID: 1579294802}
-  m_Layer: 0
-  m_Name: WebTestingOrk
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!212 &1579294802
-SpriteRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1579294801}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 2
-  m_Sprite: {fileID: 3559035562325122912, guid: cdb7dd9e288cb404794a9011892d0b54, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 0.16, y: 0.15}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
---- !u!114 &1579294803
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1579294801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6105be1915149e74ab3398e93eb43cd3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1579294804
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1579294801}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.9, y: -1.3124, z: 0}
-  m_LocalScale: {x: 9.5648, y: 9.5648, z: 9.5648}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1584372198
 GameObject:
   m_ObjectHideFlags: 0
@@ -4487,5 +4388,4 @@ SceneRoots:
   - {fileID: 1584372202}
   - {fileID: 105511720}
   - {fileID: 964703255}
-  - {fileID: 1579294804}
   - {fileID: 401181377}

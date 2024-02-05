@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class StartBlock : Block
 {
     private void Start()
@@ -12,7 +8,7 @@ public class StartBlock : Block
     public override void RunBlock()
     {
         base.RunBlock();
-        if (outConnectorsScripts?[0] != null)
-            outConnectorsScripts[0].GoNext();
+        if (_outConnectorsScripts?[0] != null)
+            _outConnectorsScripts[0].GoNext();
     }
 }
