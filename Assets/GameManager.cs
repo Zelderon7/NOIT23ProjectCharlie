@@ -325,7 +325,11 @@ public class GameManager : MonoBehaviour {
     public void FetchData(string data)
     {
         if (FetchDataFlag)
+        {
+            Debug.LogError("Tried to fetch data again");
             return;
+        }
+
         FetchDataFlag = true;
         // Split the data using the "//" delimiter
         string[] dataParts = data.Split(new string[] { "//" }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -378,9 +382,10 @@ public class GameManager : MonoBehaviour {
     public void ProcessSeedString(string seed)
     {
         _gridObjectsConnections.Clear();
-        Debug.Log($"Processing seed: {seed}");
 
         seed ??= this.seed;
+
+        Debug.Log($"Processing seed: {seed}");
 
         string[] subseeds = seed.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
@@ -452,8 +457,9 @@ public class GameManager : MonoBehaviour {
                 }
             }
         }
-
+        Debug.Log($"Previous _scriptObjDataArr: {_scriptableObjectDataArray}");
         _scriptableObjectDataArray = scriptableObjectDataList.ToArray();
+        Debug.Log($"Current _scriptObjDataArr: {_scriptableObjectDataArray}");
 
         GridWidth = Regex.Split(gridObjectRows[0], @",(?![^{]*\})").Length;
         GridHeight = gridObjectRows.Length;
@@ -556,11 +562,15 @@ public class GameManager : MonoBehaviour {
                 }
                 if (scriptableObjectData[row, col] != "0")
                 {
+                    Debug.Log($"Instantiating scriptable at: {col + "-" + row}");
+
                     int scriptableObjectId = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[0]);
                     int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
 
                     GameObject scriptableObject = scriptableObjects.First(x => x.Id == scriptableObjectId).Prefab;
                     GameObject temp;
+
+                    Debug.Log($"Scriptable type: {scriptableObject.name} (id[{scriptableObjectId}])");
 
                     if (scriptableObjectId == 1)
                     {
