@@ -378,6 +378,7 @@ public class GameManager : MonoBehaviour {
     public void ProcessSeedString(string seed)
     {
         _gridObjectsConnections.Clear();
+        Debug.Log($"Processing seed: {seed}");
 
         seed ??= this.seed;
 
