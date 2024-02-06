@@ -256,11 +256,30 @@ public class GameManager : MonoBehaviour {
 
         CellSize = CalculateCellSize(mainCamera);
 
-        Vector3 offset = new Vector3(
+        /*Vector3 offset = new Vector3(
             mainCamera.aspect * mainCamera.orthographicSize * -1 + gridPadding + (CellSize / 2),
             mainCamera.orthographicSize - gridPadding - (CellSize / 2),
             0f
-        );
+        );*/
+
+        // Get the size of the camera's view in world space
+        float cameraHeight = Camera.main.orthographicSize * 2;
+        float cameraWidth = cameraHeight * Camera.main.aspect;
+
+        float newCameraWidth = cameraWidth - _gridXRepos;
+        float newCameraHeight = cameraHeight - _gridYRepos;
+
+        // Calculate the total width and height of the grid in world space
+        float totalWidth = GridWidth * (CellSize + gridSpacing);
+        float totalHeight = GridHeight * (CellSize + gridSpacing);
+
+        // Calculate the top-left corner position of the grid
+        float topLeftX = (newCameraWidth - totalWidth) / 2;
+        float topLeftY = (newCameraHeight - totalHeight) / 2;
+
+        // Create the offset vector using the calculated values
+        Vector3 offset = new Vector3(cameraWidth/-2 + topLeftX + CellSize/2, cameraHeight / 2 - topLeftY - CellSize / 2, 0f);
+
 
         grid.Clear();
 
@@ -622,6 +641,7 @@ public class GameManager : MonoBehaviour {
         if (IsGameOver)
             return;
         IsGameOver = true;
+        CommunicationManager.SendDataMethod("Game Over");
         GameOverWindowScreen.gameObject.SetActive(true);
         Time.timeScale = 0;
         GameOverWindowScreen.TryAgain.onClick.AddListener(() => OnTryAgain(GameOverWindowScreen.TryAgain));
