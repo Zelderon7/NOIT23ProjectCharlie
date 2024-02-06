@@ -105,6 +105,7 @@ public class GameManager : MonoBehaviour {
     private float _gridXRepos = 2.15f;
     private float _gridYRepos = 1.2f;
     public float gridSpacing = 0.2f;
+    private bool FetchDataFlag = false;
 
     [SerializeField] private float gridPadding = 0;
     [SerializeField] private int _gridWidth, _gridHeight;
@@ -323,6 +324,9 @@ public class GameManager : MonoBehaviour {
 
     public void FetchData(string data)
     {
+        if (FetchDataFlag)
+            return;
+        FetchDataFlag = true;
         // Split the data using the "//" delimiter
         string[] dataParts = data.Split(new string[] { "//" }, System.StringSplitOptions.RemoveEmptyEntries);
 
