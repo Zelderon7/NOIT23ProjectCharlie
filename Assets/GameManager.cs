@@ -99,9 +99,9 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool _curMenuChangable = true;
-    private string seed;
-    private string levelName;
-    private string authorName;
+    private string _seed = "0,0,{3-[3,0]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1#([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
+    private string _levelName;
+    private string _authorName;
     private float _gridXRepos = 2.15f;
     private float _gridYRepos = 1.2f;
     public float gridSpacing = 0.2f;
@@ -126,7 +126,8 @@ public class GameManager : MonoBehaviour {
 
     private ScriptableObjectData[] _scriptableObjectDataArray;
     private List<GameObject> grid = new List<GameObject>();
-
+    string[,] _scriptableObjectData;
+    int[,] _gridObjectData;
     public int GridWidth
     {
         get
@@ -234,18 +235,15 @@ public class GameManager : MonoBehaviour {
 
         #endregion Menus
 
-        InstantiateGrid();
-        if (seed != "")
-            ProcessSeedString(seed);
+        
+        if (_seed != "")
+            ProcessSeedString(_seed);
     }
 
     #region Grid Instantiation
 
     public void InstantiateGrid()
     {
-        if (_robot != null)
-            Destroy(_robot);
-
         grid.ForEach(item => { Destroy(item); });
 
         Camera mainCamera = Camera.main;
@@ -266,7 +264,7 @@ public class GameManager : MonoBehaviour {
 
         grid.Clear();
 
-        for (int row = 0; row < _gridHeight; row++)
+        for (int row = 0; row < GridHeight; row++)
         {
             for (int col = 0; col < GridWidth; col++)
             {
@@ -332,7 +330,7 @@ public class GameManager : MonoBehaviour {
 
         FetchDataFlag = true;
         // Split the data using the "//" delimiter
-        string[] dataParts = data.Split(new string[] { "//" }, System.StringSplitOptions.RemoveEmptyEntries);
+        string[] dataParts = data.Split(new string[] { "//" }, StringSplitOptions.RemoveEmptyEntries);
 
         // Process the data
         foreach (string part in dataParts)
@@ -350,15 +348,15 @@ public class GameManager : MonoBehaviour {
                 switch (key)
                 {
                     case "LEVEL_NAME":
-                        levelName = value;
+                        _levelName = value;
                         break;
 
                     case "AUTHOR_NAME":
-                        authorName = value;
+                        _authorName = value;
                         break;
 
                     case "SEED":
-                        seed = value;
+                        _seed = value;
                         break;
 
                     default:
@@ -371,19 +369,19 @@ public class GameManager : MonoBehaviour {
             }
         }
 
-        ProcessSeedString(seed);
+        ProcessSeedString(_seed);
 
         // Now, you have the values in the levelName, authorName, and seed variables
-        Debug.Log("Level Name: " + levelName);
-        Debug.Log("Author Name: " + authorName);
-        Debug.Log("Seed: " + seed);
+        Debug.Log("Level Name: " + _levelName);
+        Debug.Log("Author Name: " + _authorName);
+        Debug.Log("Seed: " + _seed);
     }
 
     public void ProcessSeedString(string seed)
     {
         _gridObjectsConnections.Clear();
 
-        seed ??= this.seed;
+        seed ??= _seed;
 
         Debug.Log($"Processing seed: {seed}");
 
@@ -391,18 +389,19 @@ public class GameManager : MonoBehaviour {
 
         string gridObjectSeed = subseeds[0];
         string[] gridObjectRows = gridObjectSeed.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        GridWidth = Regex.Split(gridObjectRows[0], @",(?![^{]*\})").Length;
+        GridHeight = gridObjectRows.Length;
 
         string scriptableObjectSeedWithCodeBlocks = subseeds[1];
         string[] scriptableObjectRows = scriptableObjectSeedWithCodeBlocks.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
         // Process code blocks and scriptable objects
         List<ScriptableObjectData> scriptableObjectDataList = new List<ScriptableObjectData>();
-        string[,] scriptableObjectData = new string[_gridHeight, GridWidth];
 
         foreach (string scriptableObjectRow in scriptableObjectRows)
         {
             string[] scriptableObjectElements = Regex.Split(scriptableObjectRow, @",(?!.*\])");
-
+            
             foreach (string element in scriptableObjectElements)
             {
                 if (element != "0")
@@ -461,12 +460,11 @@ public class GameManager : MonoBehaviour {
         _scriptableObjectDataArray = scriptableObjectDataList.ToArray();
         Debug.Log($"Current _scriptObjDataArr: {_scriptableObjectDataArray}");
 
-        GridWidth = Regex.Split(gridObjectRows[0], @",(?![^{]*\})").Length;
-        GridHeight = gridObjectRows.Length;
+        
+        _scriptableObjectData = new string[GridHeight, GridWidth];
+        _gridObjectData = new int[GridHeight, GridWidth];
 
-        int[,] gridObjectData = new int[_gridHeight, GridWidth];
-
-        for (int rowIndex = 0; rowIndex < _gridHeight; rowIndex++)
+        for (int rowIndex = 0; rowIndex < GridHeight; rowIndex++)
         {
             string[] gridObjectColumns = Regex.Split(gridObjectRows[rowIndex], @",(?![^{]*\})");
             string[] scriptableObjectColumns = Regex.Split(scriptableObjectRows[rowIndex], @",(?![^{}]*\})");
@@ -484,13 +482,13 @@ public class GameManager : MonoBehaviour {
                         int doorCoordY = int.Parse(coordMatch.Groups[2].Value);
 
                         _gridObjectsConnections.Add(new GridObjectConnections(colIndex, rowIndex, doorCoordX, doorCoordY));
-                        gridObjectData[rowIndex, colIndex] = 3;
+                        _gridObjectData[rowIndex, colIndex] = 3;
                     }
                 } else
                 {
                     if (int.TryParse(gridObjectColumns[colIndex], out int cellValue))
                     {
-                        gridObjectData[rowIndex, colIndex] = cellValue;
+                        _gridObjectData[rowIndex, colIndex] = cellValue;
                     } else
                     {
                         Debug.LogError("Failed to parse grid data at row " + rowIndex + ", column " + colIndex);
@@ -499,14 +497,14 @@ public class GameManager : MonoBehaviour {
 
                 if (scriptableObjectColumns[colIndex] != "0")
                 {
-                    scriptableObjectData[rowIndex, colIndex] = scriptableObjectColumns[colIndex].Substring(1, 3);
+                    _scriptableObjectData[rowIndex, colIndex] = scriptableObjectColumns[colIndex].Substring(1, 3);
                 } else
                 {
-                    scriptableObjectData[rowIndex, colIndex] = "0";
+                    _scriptableObjectData[rowIndex, colIndex] = "0";
                 }
             }
         }
-        InstantiateGridFromData(gridObjectData, scriptableObjectData);
+        InstantiateGridFromData();
     }
 
     private void DoorConnect()
@@ -538,34 +536,36 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void InstantiateGridFromData(int[,] gridObjectData, string[,] scriptableObjectData)
+    private void InstantiateGridFromData()
     {
+        InstantiateGrid();
+
         for (int row = 0; row < _gridHeight; row++)
         {
             for (int col = 0; col < GridWidth; col++)
             {
-                int gridObjectId = gridObjectData[row, col];
+                int gridObjectId = _gridObjectData[row, col];
                 GameObject gridObject = gridObjects.First(x => x.Id == gridObjectId).Prefab;
 
                 if (gridObject != null && gridObjectId != 0)
                 {
                     grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(gridObject, grid[row * GridWidth + col].transform);
 
-                    if (scriptableObjectData[row, col] != "0")
+                    if (_scriptableObjectData[row, col] != "0")
                     {
-                        int scriptableObjectId = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[0]);
-                        int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
+                        int scriptableObjectId = Convert.ToInt32(_scriptableObjectData[row, col].Split('-')[0]);
+                        int rotation = Convert.ToInt32(_scriptableObjectData[row, col].Split('-')[1]);
 
                         GameObject scriptableObject = scriptableObjects.First(x => x.Id == scriptableObjectId).Prefab;
                         grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = Instantiate(scriptableObject, (scriptableObjectId == 1 ? GridParent.transform.parent : grid[row * GridWidth + col].transform));
                     }
                 }
-                if (scriptableObjectData[row, col] != "0")
+                if (_scriptableObjectData[row, col] != "0")
                 {
                     Debug.Log($"Instantiating scriptable at: {col + "-" + row}");
 
-                    int scriptableObjectId = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[0]);
-                    int rotation = Convert.ToInt32(scriptableObjectData[row, col].Split('-')[1]);
+                    int scriptableObjectId = Convert.ToInt32(_scriptableObjectData[row, col].Split('-')[0]);
+                    int rotation = Convert.ToInt32(_scriptableObjectData[row, col].Split('-')[1]);
 
                     GameObject scriptableObject = scriptableObjects.First(x => x.Id == scriptableObjectId).Prefab;
                     GameObject temp;
@@ -574,21 +574,33 @@ public class GameManager : MonoBehaviour {
 
                     if (scriptableObjectId == 1)
                     {
-                        temp = Instantiate(scriptableObject, (GridParent.transform.parent));
-                        _robot = temp;
+                        if (_robot == null)
+                        {
+                            temp = Instantiate(scriptableObject, (GridParent.transform.parent));
+                            _robot = temp;
+                        }
+                        if (_scriptableObjectDataArray[row * GridWidth + col] != null)
+                        {
+                            _robot.GetComponent<ICodeable>().Id = _scriptableObjectDataArray[row * GridWidth + col].ReferenceId;
+                            _robot.GetComponent<ICodeable>().GridPosition = new Vector2(col, row);
+                            _robot.GetComponent<ICodeable>().GridRotation = _scriptableObjectDataArray[row * GridWidth + col].FacingDirection;
+                            _robot.GetComponent<ICodeable>().BlockTypes = _scriptableObjectDataArray[row * GridWidth + col].CodeBlocks;
+                        }
+
                     } else
                     {
                         temp = Instantiate(scriptableObject, grid[row * GridWidth + col].transform);
                         grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = temp;
+                        if (_scriptableObjectDataArray[row * GridWidth + col] != null)
+                        {
+                            temp.GetComponent<ICodeable>().Id = _scriptableObjectDataArray[row * GridWidth + col].ReferenceId;
+                            temp.GetComponent<ICodeable>().GridPosition = new Vector2(col, row);
+                            temp.GetComponent<ICodeable>().GridRotation = _scriptableObjectDataArray[row * GridWidth + col].FacingDirection;
+                            temp.GetComponent<ICodeable>().BlockTypes = _scriptableObjectDataArray[row * GridWidth + col].CodeBlocks;
+                        }
                     }
 
-                    if (_scriptableObjectDataArray[row * GridWidth + col] != null)
-                    {
-                        temp.GetComponent<ICodeable>().Id = _scriptableObjectDataArray[row * GridWidth + col].ReferenceId;
-                        temp.GetComponent<ICodeable>().GridPosition = new Vector2(col, row);
-                        temp.GetComponent<ICodeable>().GridRotation = _scriptableObjectDataArray[row * GridWidth + col].FacingDirection;
-                        temp.GetComponent<ICodeable>().BlockTypes = _scriptableObjectDataArray[row * GridWidth + col].CodeBlocks;
-                    }
+                   
                 }
             }
         }
@@ -665,9 +677,7 @@ public class GameManager : MonoBehaviour {
     private void OnTryAgain(Button caller)
     {
         caller.transform.parent.gameObject.SetActive(false);
-        InstantiateGrid();
-        if (seed != null)
-            ProcessSeedString(seed);
+        InstantiateGridFromData();
         StartCodeButton.GetComponent<Button>().enabled = true;
         Time.timeScale = 1;
         IsGameOver = false;
