@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool _curMenuChangable = true;
-    private string _seed = "0,0,{3-[3,0]},1,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,0/2,2,2,2,4/;{1-1-1#([0,1],[1,-1],[2,-1],[3,-1])},0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/0,0,0,0,0/";
+    private string _seed;
     private string _levelName;
     private string _authorName;
     private float _gridXRepos = 2.15f;
@@ -398,6 +398,40 @@ public class GameManager : MonoBehaviour {
 
     public void ProcessSeedString(string seed)
     {
+        const string gridObjectsRowSplitter = @",(?![^{]*\})";
+
+        /*@",           // Splits the string by commas
+        (?![^{]*\})     //negative lookahead that skips anything inside of {}
+        ";*/
+
+        const string scriptableDataGetterRegex = @"^\{(\d+-\d+-\d+)-\((\[-?\d+,-?\d+\](?:,\[-?\d+,-?\d+\])*)\)\}$";
+
+        /*@"^                   // Start
+        {                       // Matches an opening curly bracket
+        (\d+-\d+-\d+)           // First Match group: (id-facingDir-referenceId)
+        -                       // - separator
+        \(                      // Matches an opening bracket
+        (\[-?\d+,-?\d+\]        // Second Match group: [number, number]
+        (?:,\[-?\d+,-?\d+\])*   // Non capturing group: Allows the previous match group to repeat infinitely, separated with ',': [num, num],[num,num]
+        )                       // Closing the second matching group
+        \)                      // Matches the closing bracket
+        }$                      // Matches the closing curly bracket and ends the regex expression";*/
+
+        const string keyRegex = @"^{3-\[(\d+),(\d+)\]}$";
+
+        /*@"^                   // Start
+        {3-                     // Matches an opening curly bracket with the id 3 and a -
+        \[                      // Matches an opening square bracket
+        (\d+),(\d+)             // 2 capturing groups: posNum1, posNum2
+        \]}$                    // Matches the 2 closing brackets and ends the regex";*/
+
+        const string codeBlockRegex = @"\[(-?\d+),(-?\d+)\]";
+
+        /*@"\[                  // Matches an opening square bracket
+        (-?\d+),(-?\d+)         // the 2 matching groups: num1, num2
+        \]                      // Matches the closing square bracket";*/
+
+
         _gridObjectsConnections.Clear();
 
         seed ??= _seed;
@@ -408,7 +442,7 @@ public class GameManager : MonoBehaviour {
 
         string gridObjectSeed = subseeds[0];
         string[] gridObjectRows = gridObjectSeed.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        GridWidth = Regex.Split(gridObjectRows[0], @",(?![^{]*\})").Length;
+        GridWidth = Regex.Split(gridObjectRows[0], gridObjectsRowSplitter).Length;
         GridHeight = gridObjectRows.Length;
 
         string scriptableObjectSeedWithCodeBlocks = subseeds[1];
@@ -419,19 +453,19 @@ public class GameManager : MonoBehaviour {
 
         foreach (string scriptableObjectRow in scriptableObjectRows)
         {
-            string[] scriptableObjectElements = Regex.Split(scriptableObjectRow, @",(?!.*\])");
-            
+            string[] scriptableObjectElements = Regex.Split(scriptableObjectRow, gridObjectsRowSplitter);
+
             foreach (string element in scriptableObjectElements)
             {
                 if (element != "0")
                 {
-                    Match match = Regex.Match(element, @"^{(.+)}(?:,(\d+))*$");
+                    Match match = Regex.Match(element, scriptableDataGetterRegex);
 
                     if (match.Success)
                     {
-                        string scriptableObject = match.Groups[1].Value.Split('#')[0].Trim();
+                        string scriptableObject = match.Groups[1].ToString().Trim();
 
-                        string codeBlocks = match.Groups[1].Value.Split('#')[1].Trim();
+                        string codeBlocks = match.Groups[2].ToString().Trim();
 
                         string[] scriptableObjectComponents = scriptableObject.Split('-');
 
@@ -441,7 +475,7 @@ public class GameManager : MonoBehaviour {
                             int facingDirection = int.Parse(scriptableObjectComponents[1]);
                             int referenceID = int.Parse(scriptableObjectComponents[2]);
 
-                            MatchCollection codeBlockMatches = Regex.Matches(codeBlocks, @"\[(-?\d+),(-?\d+)\]");
+                            MatchCollection codeBlockMatches = Regex.Matches(codeBlocks, codeBlockRegex);
 
                             List<BlockTypes> codeBlocksList = new List<BlockTypes>();
 
@@ -452,7 +486,8 @@ public class GameManager : MonoBehaviour {
                                     int.TryParse(codeBlockMatch.Groups[2].Value, out int count))
                                 {
                                     codeBlocksList.Add(new BlockTypes(codeBlockID, count));
-                                } else
+                                }
+                                else
                                 {
                                     Debug.LogError($"Failed to parse code block ID or count from entry: {codeBlockMatch.Value}");
                                 }
@@ -461,15 +496,18 @@ public class GameManager : MonoBehaviour {
                             BlockTypes[] codeBlocksArray = codeBlocksList.ToArray();
 
                             scriptableObjectDataList.Add(new ScriptableObjectData(scriptableObjectID, facingDirection, referenceID, codeBlocksArray));
-                        } else
+                        }
+                        else
                         {
                             Debug.LogError("Invalid format for scriptable object components: " + scriptableObject);
                         }
-                    } else
+                    }
+                    else
                     {
                         Debug.LogError("Invalid format for scriptable object element: " + element);
                     }
-                } else
+                }
+                else
                 {
                     scriptableObjectDataList.Add(null);
                 }
@@ -479,22 +517,22 @@ public class GameManager : MonoBehaviour {
         _scriptableObjectDataArray = scriptableObjectDataList.ToArray();
         Debug.Log($"Current _scriptObjDataArr: {_scriptableObjectDataArray}");
 
-        
+
         _scriptableObjectData = new string[GridHeight, GridWidth];
         _gridObjectData = new int[GridHeight, GridWidth];
 
         for (int rowIndex = 0; rowIndex < GridHeight; rowIndex++)
         {
-            string[] gridObjectColumns = Regex.Split(gridObjectRows[rowIndex], @",(?![^{]*\})");
-            string[] scriptableObjectColumns = Regex.Split(scriptableObjectRows[rowIndex], @",(?![^{}]*\})");
+            string[] gridObjectColumns = Regex.Split(gridObjectRows[rowIndex], gridObjectsRowSplitter);
+            string[] scriptableObjectColumns = Regex.Split(scriptableObjectRows[rowIndex], gridObjectsRowSplitter);
 
             scriptableObjectColumns = scriptableObjectColumns.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
             for (int colIndex = 0; colIndex < GridWidth; colIndex++)
             {
-                if (gridObjectColumns[colIndex] != null & Regex.IsMatch(gridObjectColumns[colIndex], @"^{3-\[\d+,\d+\]}$"))
+                if (gridObjectColumns[colIndex] != null & Regex.IsMatch(gridObjectColumns[colIndex], keyRegex))
                 {
-                    Match coordMatch = Regex.Match(gridObjectColumns[colIndex], @"{3-\[(\d+),(\d+)\]}");
+                    Match coordMatch = Regex.Match(gridObjectColumns[colIndex], keyRegex);
                     if (coordMatch.Success)
                     {
                         int doorCoordX = int.Parse(coordMatch.Groups[1].Value);
@@ -503,12 +541,14 @@ public class GameManager : MonoBehaviour {
                         _gridObjectsConnections.Add(new GridObjectConnections(colIndex, rowIndex, doorCoordX, doorCoordY));
                         _gridObjectData[rowIndex, colIndex] = 3;
                     }
-                } else
+                }
+                else
                 {
                     if (int.TryParse(gridObjectColumns[colIndex], out int cellValue))
                     {
                         _gridObjectData[rowIndex, colIndex] = cellValue;
-                    } else
+                    }
+                    else
                     {
                         Debug.LogError("Failed to parse grid data at row " + rowIndex + ", column " + colIndex);
                     }
@@ -517,7 +557,8 @@ public class GameManager : MonoBehaviour {
                 if (scriptableObjectColumns[colIndex] != "0")
                 {
                     _scriptableObjectData[rowIndex, colIndex] = scriptableObjectColumns[colIndex].Substring(1, 3);
-                } else
+                }
+                else
                 {
                     _scriptableObjectData[rowIndex, colIndex] = "0";
                 }

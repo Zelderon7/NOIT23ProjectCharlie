@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: 5}
+  m_AnchoredPosition: {x: 0.6257, y: 0}
+  m_SizeDelta: {x: 21.2514, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &1398495688286427870
 MeshRenderer:
@@ -57,7 +57,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  - {fileID: 1930642975593471236, guid: ca721b4c07debc64687a1a58c4157692, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -99,17 +99,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TurnRight
+  m_text: Rotate Right
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ca721b4c07debc64687a1a58c4157692, type: 2}
+  m_sharedMaterial: {fileID: 1930642975593471236, guid: ca721b4c07debc64687a1a58c4157692, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -126,10 +126,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 5.7
-  m_fontSizeBase: 36
+  m_fontSize: 3
+  m_fontSizeBase: 3
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 1
   m_fontSizeMax: 1000
   m_fontStyle: 1
@@ -459,7 +459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Connected: {fileID: 0}
-  forConnection: {fileID: 0}
+  ForConnection: {fileID: 0}
 --- !u!1 &5280537596641223825
 GameObject:
   m_ObjectHideFlags: 0
@@ -671,11 +671,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92f6af97c45acce428b138e15763fd3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inpConnector: {fileID: 4932617557249172263}
-  outConnectorsHolder: {fileID: 7589350947979362296}
+  Owner: 0
   ConnectableHere: 0
+  Parent: {fileID: 0}
+  outConnectorsHolder: {fileID: 7589350947979362296}
+  inpConnector: {fileID: 4932617557249172263}
   argsholder: {fileID: 5500930655274161180}
-  Papa: {fileID: 0}
   RightOrLeft: 1
 --- !u!50 &6507510463815901198
 Rigidbody2D:
