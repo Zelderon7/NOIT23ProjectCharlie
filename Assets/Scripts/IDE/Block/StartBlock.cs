@@ -1,8 +1,10 @@
 public class StartBlock : Block
 {
-    private void Start()
+    internal override void Awake()
     {
-        IDEManager.Instance.OnCodeStart += RunBlock;
+        base.Awake();
+        if(IDEManager.Instance != null)
+            IDEManager.Instance.OnCodeStart += RunBlock;
     }
 
     public override void RunBlock()
@@ -10,5 +12,11 @@ public class StartBlock : Block
         base.RunBlock();
         if (_outConnectorsScripts?[0] != null)
             _outConnectorsScripts[0].GoNext();
+    }
+
+    internal override void OnDestroy()
+    {
+        if(IDEManager.Instance != null)
+            IDEManager.Instance.OnCodeStart -= RunBlock;
     }
 }

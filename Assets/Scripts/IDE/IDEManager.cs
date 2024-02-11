@@ -185,6 +185,7 @@ public class IDEManager : MonoBehaviour {
     public void OnBlockDestruction(Block block)
     {
         _savedPrograms[CurrentlyProgramedId].Remove(block.transform.parent.gameObject);
+
         if (LowestBlock[CurrentlyProgramedId] == block)
             OnLowestpickup();
         if (HighestBlock[CurrentlyProgramedId] == block)
@@ -200,13 +201,20 @@ public class IDEManager : MonoBehaviour {
     public void StartCode()
     {
         if (GameManager.Instance.CurrentMenu != GameManager.Menus.Game)
-            GameManager.Instance.CurrentMenu = GameManager.Menus.Game;
-        else
         {
-            StartButton.enabled = false;
-            OnCodeStart?.Invoke();
-            CodeablePort.OnGameStart?.Invoke();
+            GameManager.Instance.CurrentMenu = GameManager.Menus.Game;
+            return;
         }
+
+        if (!_savedPrograms.ContainsKey(CurrentlyProgramedId))
+            return;
+
+        if (OnCodeStart.GetInvocationList().Length <= 1)
+            return;
+
+        StartButton.enabled = false;
+        OnCodeStart.Invoke();
+        CodeablePort.OnGameStart?.Invoke();
     }
 
     public void OnQ(InputAction.CallbackContext ctx)
