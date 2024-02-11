@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool _curMenuChangable = true;
-    private string _seed;
+    private string _seed = "0,0,{3-[2,1]},2,2/0,0,1,4,2/0,2,2,2,2/;0,0,0,0,0/0,0,0,0,0/{1-1-0-([0,1],[3,2],[1,6],[2,2])},0,0,0,0/";
     private string _levelName;
     private string _authorName;
     private float _gridXRepos = 2.15f;

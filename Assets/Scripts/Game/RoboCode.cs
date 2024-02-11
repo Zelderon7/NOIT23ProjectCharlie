@@ -9,7 +9,7 @@ using UnityEngine;
 
 public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 {
-    float _moveSpeed = 1f;
+    float _moveSpeed = 1.5f;
     int _currentDirectionIndex = 1;
     int _id;
 

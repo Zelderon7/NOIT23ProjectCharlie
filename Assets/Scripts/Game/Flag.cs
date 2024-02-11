@@ -11,10 +11,10 @@ public class Flag : MonoBehaviour, IInteractableGridObject
 
     IEnumerator PickMeUp(Action callback)
     {
-        GameManager.Instance.Victory();
         callback?.Invoke();
+        yield return new WaitForSeconds(GameManager.Instance.CellSize / 1.5f);
         GetComponent<AudioSource>().Play(); 
-        yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
-        Destroy(gameObject);
+        //yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
+        GameManager.Instance.Victory();
     }
 }

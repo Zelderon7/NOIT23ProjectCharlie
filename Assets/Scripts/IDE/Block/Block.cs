@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 
@@ -49,7 +50,7 @@ public class Block : MonoBehaviour
         if (collision.CompareTag("DrawerBlockTrasher"))
             ForDestroy = null;
     }
-    void OnDestroy()
+    internal virtual void OnDestroy()
     {
         OnResize -= MyOnResize;
         if (transform.parent.parent.gameObject.name != "DrawerBlocks")
@@ -80,7 +81,14 @@ public class Block : MonoBehaviour
             if (script.Connected != null)
                 return;
         }
-        GameManager.Instance.GameOver();
+
+        StartCoroutine(Delay(1f, () => GameManager.Instance.GameOver()));
+    }
+
+    IEnumerator Delay(float time, Action callback)
+    {
+        yield return new WaitForSeconds(time);
+        callback();
     }
 
     void DisconnectCurrent()
@@ -161,7 +169,11 @@ public class Block : MonoBehaviour
 
         foreach (var outConnector in _outConnectorsScripts)
         {
-            outConnector?.Connected?.Block.ConnectIfPossible();
+            if (outConnector != null)
+            {
+                if (outConnector.Connected != null)
+                    outConnector.Connected.Block.ConnectIfPossible();
+            }
         }
 
         lastPos = transform.parent.position;
