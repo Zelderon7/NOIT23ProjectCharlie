@@ -36,6 +36,13 @@ public class IDEManager : MonoBehaviour {
     private readonly float _step = 1f;
     private bool _canScroll = true;
 
+    [SerializeField]
+    SliderBall _sizeSlider;
+    int curZoomLevel = 5;
+    float minBlockSize = .3f;
+
+    const float BLOCKSIZESTEP = .1f;
+
     private Dictionary<int, float> _blockSizes = new Dictionary<int, float>();
     private Dictionary<int, List<GameObject>> _savedPrograms = new Dictionary<int, List<GameObject>>();
     private Dictionary<int, ICodeable> CodeableObjectsDictionary = new Dictionary<int, ICodeable>();
@@ -131,11 +138,19 @@ public class IDEManager : MonoBehaviour {
         }
 
         #endregion Singleton pattern
+
+        _sizeSlider.OnChange += OnZoomInOut;
     }
 
     private void Start()
     {
         GameManager.Instance.OnMenusOpen[GameManager.Menus.IDE] += OnOpen;
+    }
+
+    void OnZoomInOut(int x)
+    {
+        BlockSize = minBlockSize + x * BLOCKSIZESTEP;
+        Block.OnResize(BlockSize);
     }
 
     public bool CheckPlacingPositionY(Block block)
@@ -215,42 +230,6 @@ public class IDEManager : MonoBehaviour {
         StartButton.enabled = false;
         OnCodeStart.Invoke();
         CodeablePort.OnGameStart?.Invoke();
-    }
-
-    public void OnQ(InputAction.CallbackContext ctx)
-    {
-        if (!IsActive)
-            return;
-
-        if (Input.GetMouseButton(0))
-            return;
-
-        if (ctx.performed)
-        {
-            float newSize = BlockSize / 1.2f;
-            if (newSize < .2f)
-                newSize = .2f;
-            Block.OnResize(newSize);
-            BlockSize = newSize;
-        }
-    }
-
-    public void OnE(InputAction.CallbackContext ctx)
-    {
-        if (!IsActive)
-            return;
-
-        if (Input.GetMouseButton(0))
-            return;
-
-        if (ctx.performed)
-        {
-            float newSize = BlockSize * 1.2f;
-            if (newSize > 1.5f)
-                newSize = 1.5f;
-            Block.OnResize(newSize);
-            BlockSize = newSize;
-        }
     }
 
     private IEnumerator WaitForNextScroll()

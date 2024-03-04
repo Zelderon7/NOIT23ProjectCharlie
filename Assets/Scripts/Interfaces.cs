@@ -1,5 +1,23 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using System;
+
+public interface ICodeable
+{
+    int Id { get; set; }
+    int GridRotation
+    {
+        get; set;
+    }
+
+    Vector2 GridPosition { get; set; }
+    BlockTypes[] BlockTypes { get; set; }
+}
+public interface IInteractableGridObject
+{
+    void Interact(Action callback);
+}
 
 public interface IWalkable : ICodeable
 {
@@ -21,3 +39,8 @@ public interface IWalkable : ICodeable
     /// <param name="RightOrLeft">The direction of the turn: true => clockwise(right)</param>
     void Turn(bool RightOrLeft, Action callback);
 }
+public interface IBlockDataGetter<T>
+{
+    public T Value { get; }
+}
+

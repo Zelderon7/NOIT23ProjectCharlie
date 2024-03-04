@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool _curMenuChangable = true;
-    private string _seed = "0,0,{3-[2,1]},2,2/0,0,1,4,2/0,2,2,2,2/;0,0,0,0,0/0,0,0,0,0/{1-1-0-([0,1],[3,2],[1,6],[2,2])},0,0,0,0/";
+    private string _seed = "1,2,{3-[1,3]},0,0,1,0/0,2,2,2,1,2,0/{3-[5,2]},2,{3-[0,6]},0,0,1,0/0,1,0,0,{3-[2,5]},2,0/{3-[5,0]},2,0,0,{3-[0,0]},2,{3-[5,6]}/0,2,1,2,2,2,1/1,2,0,0,{3-[6,5]},1,4/;0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,{1-1-0-([0,1],[1,40],[2,8],[3,8])},0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/";
     private string _levelName;
     private string _authorName;
     private float _gridXRepos = 2.15f;
@@ -238,6 +238,14 @@ public class GameManager : MonoBehaviour {
         
         if (_seed != "")
             ProcessSeedString(_seed);
+    }
+
+    private void Start()
+    {
+#if !UNITY_EDITOR && UNITY_WEBGL
+        // disable WebGLInput.captureAllKeyboardInput so elements in web page can handle keyboard inputs
+        WebGLInput.captureAllKeyboardInput = false;
+#endif
     }
 
     #region Grid Instantiation
@@ -533,7 +541,7 @@ public class GameManager : MonoBehaviour {
                 if (gridObjectColumns[colIndex] != null & Regex.IsMatch(gridObjectColumns[colIndex], keyRegex))
                 {
                     Match coordMatch = Regex.Match(gridObjectColumns[colIndex], keyRegex);
-                    if (coordMatch.Success)
+                    if (coordMatch.Success) 
                     {
                         int doorCoordX = int.Parse(coordMatch.Groups[1].Value);
                         int doorCoordY = int.Parse(coordMatch.Groups[2].Value);

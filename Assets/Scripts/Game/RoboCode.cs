@@ -41,8 +41,6 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
             UpdateArrow();
         } }
 
-
-    Block ICodeable.StarterBlock { get => _starterBlock; set => _starterBlock = value; }
     Vector2 ICodeable.GridPosition
     {
         get => _gridPos;
