@@ -8,13 +8,13 @@ public class InputConnector : MonoBehaviour
 
     private void Awake()
     {
-        Block = transform.parent.gameObject.GetComponentInChildren<Block>();
+        Block = transform.parent.parent.gameObject.GetComponentInChildren<Block>();
         if (Block == null)
             Debug.LogError("BlockNotFound");
     }
     public void CallMe()
     {
-        Block.RunBlock();
+        Block.RunBlock(this);
     }
 
     private void OnDestroy()

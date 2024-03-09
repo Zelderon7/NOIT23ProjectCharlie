@@ -30,7 +30,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6088744032096389920}
-  - {fileID: 533264389413489105}
+  - {fileID: 6866615821279646440}
   - {fileID: 8510822142861807044}
   - {fileID: 4136427064154161210}
   - {fileID: 5564517401403704576}
@@ -382,6 +382,38 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 542655601436351833}
   m_maskType: 0
+--- !u!1 &5694600309328442201
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6866615821279646440}
+  m_Layer: 5
+  m_Name: Inputs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6866615821279646440
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5694600309328442201}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 533264389413489105}
+  m_Father: {fileID: 5875164064074182942}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8008088698760733983
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,11 +502,11 @@ Transform:
   m_GameObject: {fileID: 8535160452695009610}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.42, y: 0.323, z: 0}
+  m_LocalPosition: {x: -2.42, y: 0.32299995, z: 0}
   m_LocalScale: {x: 0.38, y: 0.35, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5875164064074182942}
+  m_Father: {fileID: 6866615821279646440}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &7462941204958173117
 BoxCollider2D:
@@ -586,7 +618,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Connected: {fileID: 0}
-  forConnection: {fileID: 0}
+  ForConnection: {fileID: 0}
 --- !u!1 &8917383696501457642
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,11 +763,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0cab4bfd1db2cc499375686bc5e08d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inpConnector: {fileID: 8535160452695009610}
-  outConnectorsHolder: {fileID: 8008088698760733983}
+  Owner: 0
   ConnectableHere: 0
+  Parent: {fileID: 0}
+  outConnectorsHolder: {fileID: 8008088698760733983}
+  inpConnectorsHolder: {fileID: 5694600309328442201}
   argsholder: {fileID: 2233590687080787997}
-  Papa: {fileID: 0}
 --- !u!50 &7106908315528985714
 Rigidbody2D:
   serializedVersion: 4

@@ -39,25 +39,32 @@ public class OutputConnectionScript : MonoBehaviour
         if(Connected == null)
             return;
 
+        if (myBlock.outConnectorsScripts[^1] != this)
+            return;
+
         Vector3 tPos = Connected.gameObject.transform.position;
         Vector3 myPos = gameObject.transform.position;
         myBlock.transform.parent.position += new Vector3(tPos.x - myPos.x, tPos.y - myPos.y, 0);
 
-        InputConnector myConnector = myBlock.transform.parent.gameObject.GetComponentInChildren<InputConnector>();
-        if (myConnector == null)
-            return;
-
-        myConnector.Connected?.FixPositionInStack();
+        InputConnector[] myConnectors = myBlock.inputConnectorsScripts;
+        if (myConnectors.Length > 0)
+        {
+            foreach (InputConnector myConnector in myConnectors)
+            {
+                myConnector.Connected?.FixPositionInStack();
+            }
+        }
     }
 
     public void FixPosOnRescale(float newScale)
     {
         if (Connected != null) return;
-        if(myBlock.InpConnector != null)
+
+        if(myBlock.inputConnectorsScripts.Length > 0)
         {
-            if(myBlock.InpConnector.GetComponent<InputConnector>().Connected != null)
+            foreach (InputConnector inpConnector in myBlock.inputConnectorsScripts)
             {
-                myBlock.InpConnector.GetComponent<InputConnector>().Connected.FixPositionInStack();
+                inpConnector.Connected?.FixPositionInStack();
             }
         }
     }

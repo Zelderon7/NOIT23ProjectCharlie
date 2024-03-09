@@ -3,7 +3,7 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 
-public class Block : MonoBehaviour
+public abstract class Block : MonoBehaviour
 {
     public int Owner;
     public bool ConnectableHere = false;
@@ -14,14 +14,12 @@ public class Block : MonoBehaviour
     public static Action<float> OnResize = (x) => { };
     public Action OnPickup = () => { };
 
-
-
     [SerializeField] GameObject outConnectorsHolder;
-    [SerializeField] GameObject inpConnector = null;
+    [SerializeField] GameObject inpConnectorsHolder;
     [SerializeField] GameObject argsholder = null;
 
-    public GameObject InpConnector { get => inpConnector; }
-    internal OutputConnectionScript[] _outConnectorsScripts = null;
+    public OutputConnectionScript[] outConnectorsScripts { get; internal set; } = null;
+    public InputConnector[] inputConnectorsScripts { get; private set; } = null;
 
     Vector2 dragOffset = Vector2.zero;
     Vector2 lastPos = Vector2.zero;
@@ -33,12 +31,14 @@ public class Block : MonoBehaviour
         if (transform.parent.parent.gameObject.name == "DrawerBlocks")
             return;
 
-        _outConnectorsScripts = outConnectorsHolder?.GetComponentsInChildren<OutputConnectionScript>();
+        outConnectorsScripts = outConnectorsHolder != null ? outConnectorsHolder.GetComponentsInChildren<OutputConnectionScript>(true) : new OutputConnectionScript[0];
+        inputConnectorsScripts = inpConnectorsHolder != null ? inpConnectorsHolder.GetComponentsInChildren<InputConnector>(true) : new InputConnector[0];
+
         lastPos = transform.parent.position;
         Owner = IDEManager.Instance.CurrentlyProgramedId;
         IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
         OnResize += MyOnResize;
-        _outConnectorsScripts.ToList().ForEach(x => OnResize += x.FixPosOnRescale);
+        outConnectorsScripts.ToList().ForEach(x => OnResize += x.FixPosOnRescale);
     }
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -71,12 +71,11 @@ public class Block : MonoBehaviour
         MoveWithMouse();
     }
 
-
     void MyOnResize(float x) =>  transform.parent.localScale = Vector3.one * x;
 
-    public virtual void RunBlock()
+    public virtual void RunBlock(InputConnector connectorInUse = null)
     {
-        foreach (var script in _outConnectorsScripts)
+        foreach (var script in outConnectorsScripts)
         {
             if (script.Connected != null)
                 return;
@@ -93,10 +92,10 @@ public class Block : MonoBehaviour
 
     void DisconnectCurrent()
     {
-        if(inpConnector == null)
+        if (inputConnectorsScripts.Length == 0)
             return;
 
-        InputConnector inputConnector = inpConnector?.GetComponent<InputConnector>();
+        InputConnector inputConnector = inputConnectorsScripts[0]?.GetComponent<InputConnector>();
         if (inputConnector != null)
         {
             OutputConnectionScript outputConnection = inputConnector.Connected;
@@ -111,41 +110,52 @@ public class Block : MonoBehaviour
     {
         dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
 
-        foreach (var outConnector in _outConnectorsScripts)
+        foreach (var outConnector in outConnectorsScripts)
         {
-            outConnector?.Connected?.Block.PrepDragAlong();
+            InputConnector connected = outConnector.Connected;
+            if (connected != null && connected.Block.inputConnectorsScripts[0] == connected)
+            {
+                connected.Block.PrepDragAlong();
+            }
         }
     }
 
     public void ConnectIfPossible()
     {
-        foreach (var item in _outConnectorsScripts)
+        foreach (var item in outConnectorsScripts)
         {
             if (item.Connect())
                 item.FixPositionInStack();
         }
 
-        foreach (var outConnector in _outConnectorsScripts)
+        foreach (var outConnector in outConnectorsScripts)
         {
-            outConnector?.Connected?.Block.ConnectIfPossible();
-        }
-
-        if (inpConnector == null)
-            return;
-
-        if(inpConnector.GetComponent<InputConnector>().ForConnection != null)
-        {
-            if (inpConnector.GetComponent<InputConnector>().ForConnection.Connect())
+            InputConnector connected = outConnector?.Connected;
+            if (connected != null && connected.Block.inputConnectorsScripts[^1] != connected)
             {
-                inpConnector.GetComponent<InputConnector>().Connected.FixPositionInStack();
+                connected.Block.ConnectIfPossible();
             }
         }
+
+        if (inputConnectorsScripts.Length == 0)
+            return;
+        foreach (var inpConnector in inputConnectorsScripts)
+        {
+            if(inpConnector.GetComponent<InputConnector>().ForConnection != null)
+            {
+                if (inpConnector.GetComponent<InputConnector>().ForConnection.Connect())
+                {
+                    inpConnector.GetComponent<InputConnector>().Connected.FixPositionInStack();
+                }
+            }
+        }
+        
     }
 
     void SelfDestruct()
     {
         Parent.Count++;
-        foreach (var item in _outConnectorsScripts)
+        foreach (var item in outConnectorsScripts)
         {
             if(item.Connected != null)
             {
@@ -167,7 +177,7 @@ public class Block : MonoBehaviour
         DisconnectCurrent();
         ConnectIfPossible();
 
-        foreach (var outConnector in _outConnectorsScripts)
+        foreach (var outConnector in outConnectorsScripts)
         {
             if (outConnector != null)
             {
@@ -182,11 +192,15 @@ public class Block : MonoBehaviour
 
     public void MoveWithMouse()
     {
-        transform.parent.transform.position = GetMousePos() - dragOffset;
+        float tempZ = transform.parent.position.z;
+        transform.parent.position = GetMousePos() - dragOffset;
+        transform.parent.position = new Vector3(transform.parent.position.x, transform.parent.position.y, tempZ);
 
-        foreach (var outConnector in _outConnectorsScripts)
+        foreach (var outConnector in outConnectorsScripts)
         {
-            outConnector?.Connected?.Block.MoveWithMouse();
+            Block block = outConnector?.Connected?.Block;
+            if (block != null && block.inputConnectorsScripts?[0] == outConnector.Connected)
+                block.MoveWithMouse();
         }
     }
 
