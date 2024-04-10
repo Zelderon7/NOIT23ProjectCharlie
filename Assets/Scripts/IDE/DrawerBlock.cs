@@ -32,6 +32,7 @@ public class DrawerBlock : MonoBehaviour
             _spRs.ToList().ForEach(x => x.sortingLayerName = "IDEScreen");
             _spRs.ToList().ForEach(x => x.sortingOrder += 100);
             var _tempTextRef = temp.GetComponentInChildren<TextMeshPro>();
+            temp.GetComponentInChildren<Block>().tag = "Block";
             if( _tempTextRef != null )
             {
                 _tempTextRef.sortingOrder += 100;

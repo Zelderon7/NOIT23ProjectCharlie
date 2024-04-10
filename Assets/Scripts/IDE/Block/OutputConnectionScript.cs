@@ -5,6 +5,8 @@ public class OutputConnectionScript : MonoBehaviour
     public InputConnector Connected { get; private set; } = null;
     InputConnector _forConnection = null;
 
+    public Block Block { get => myBlock; }
+
     [SerializeField] Block myBlock;
     public bool GoNext()
     {

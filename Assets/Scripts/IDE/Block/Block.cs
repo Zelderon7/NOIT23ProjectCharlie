@@ -13,6 +13,45 @@ public abstract class Block : MonoBehaviour
     public DrawerBlock Parent;
     public static Action<float> OnResize = (x) => { };
     public Action OnPickup = () => { };
+    public bool IsPickedUp { get; private set; }
+
+    public virtual float MySize 
+    { 
+        get
+        {
+            //return IDEManager.Instance.BlockSize;
+            return 1;
+        } 
+    }
+
+    public float StackSize
+    {
+        get
+        {
+            float ans = 0;
+            foreach(OutputConnectionScript ocs in outConnectorsScripts)
+            {
+                if(ocs.Connected != null)
+                    ans += ocs.Connected.IsPrimary ? ocs.Connected.Block.MySize + ocs.Connected.Block.StackSize : 0;
+            }
+            return ans;
+        }
+    }
+
+    public Block StackHead 
+    { 
+        get
+        {
+            if (inputConnectorsScripts[0] != null)
+            {
+                if (inputConnectorsScripts[0].Connected != null)
+                {
+                    return inputConnectorsScripts[0].Connected.Block.StackHead;
+                }
+            }
+            return this;
+        } 
+    }
 
     [SerializeField] GameObject outConnectorsHolder;
     [SerializeField] GameObject inpConnectorsHolder;
@@ -118,6 +157,8 @@ public abstract class Block : MonoBehaviour
                 connected.Block.PrepDragAlong();
             }
         }
+
+        IsPickedUp = true;
     }
 
     public void ConnectIfPossible()
@@ -141,13 +182,11 @@ public abstract class Block : MonoBehaviour
             return;
         foreach (var inpConnector in inputConnectorsScripts)
         {
-            if(inpConnector.GetComponent<InputConnector>().ForConnection != null)
-            {
-                if (inpConnector.GetComponent<InputConnector>().ForConnection.Connect())
-                {
-                    inpConnector.GetComponent<InputConnector>().Connected.FixPositionInStack();
-                }
-            }
+            if(inpConnector.ForConnection != null)
+                inpConnector.ForConnection.Connect();
+
+            if(inpConnector.Connected != null)
+                inpConnector.Connected.FixPositionInStack();
         }
         
     }
@@ -188,6 +227,7 @@ public abstract class Block : MonoBehaviour
 
         lastPos = transform.parent.position;
         IDEManager.Instance.OnBlockRepositioning(this);
+        IsPickedUp = false;
     }
 
     public void MoveWithMouse()
