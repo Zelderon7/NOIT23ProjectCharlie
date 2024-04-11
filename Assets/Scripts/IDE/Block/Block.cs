@@ -151,16 +151,38 @@ public abstract class Block : MonoBehaviour
     {
         dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
 
-        foreach (var outConnector in outConnectorsScripts)
-        {
-            InputConnector connected = outConnector.Connected;
-            if (connected != null && connected.Block.inputConnectorsScripts[0] == connected)
-            {
-                connected.Block.PrepDragAlong();
-            }
-        }
+        // Disconnect the current block or the bottom block of the stack from its connections
+        DisconnectBottomBlock();
 
         IsPickedUp = true;
+    }
+
+    void DisconnectBottomBlock()
+    {
+        // Find the bottom block of the stack
+        Block bottomBlock = this;
+        while (bottomBlock.outConnectorsScripts.Any(oc => oc.Connected != null))
+        {
+            bottomBlock = bottomBlock.outConnectorsScripts.First(oc => oc.Connected != null).Connected.Block;
+        }
+
+        // Disconnect the bottom output connector if it's connected
+        if (bottomBlock.outConnectorsScripts.Length > 0)
+        {
+            foreach (var outConnector in bottomBlock.outConnectorsScripts)
+            {
+                if (outConnector.Connected != null)
+                {
+                    outConnector.Disconnect();
+                    break; // Assuming only one connection needs to be disconnected. Remove break if all need to be disconnected.
+                }
+            }
+        }
+    }
+
+    Vector2 GetMousePos()
+    {
+        return Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
     public void ConnectIfPossible()
