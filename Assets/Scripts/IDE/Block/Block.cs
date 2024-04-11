@@ -149,12 +149,21 @@ public abstract class Block : MonoBehaviour
 
     public void PrepDragAlong()
     {
-        dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
+        // Calculate the drag offset for the current block
+        CalculateDragOffset();
 
-        // Disconnect the current block or the bottom block of the stack from its connections
+        // Disconnect the bottom block of the stack from its connections
         DisconnectBottomBlock();
 
+        // Propagate the PrepDragAlong call down the stack
+        PropagatePrepDragAlong();
+        
         IsPickedUp = true;
+    }
+
+    void CalculateDragOffset()
+    {
+        dragOffset = GetMousePos() - (Vector2)transform.parent.transform.position;
     }
 
     void DisconnectBottomBlock()
@@ -176,6 +185,19 @@ public abstract class Block : MonoBehaviour
                     outConnector.Disconnect();
                     break; // Assuming only one connection needs to be disconnected. Remove break if all need to be disconnected.
                 }
+            }
+        }
+    }
+
+    void PropagatePrepDragAlong()
+    {
+        // If this block is connected to another block below it, call PrepDragAlong on that block
+        foreach (var outConnector in outConnectorsScripts)
+        {
+            if (outConnector.Connected != null)
+            {
+                outConnector.Connected.Block.PrepDragAlong();
+                break; // Assuming we only need to propagate to the first connected block below. Remove break if needed otherwise.
             }
         }
     }
