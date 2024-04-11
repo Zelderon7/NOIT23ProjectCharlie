@@ -25,11 +25,14 @@ public class ExtendBlock : MonoBehaviour
             targetSize += MyBlock.outConnectorsScripts[0].Connected.Block.StackSize;
         }
 
+        if(targetSize < 1)
+            targetSize = 1;
+
         BottomBracketComponents.ToList().ForEach((x) => { x.transform.localPosition = new Vector2(x.transform.localPosition.x, DEFAULTPOS - targetSize + 1); });
         LeftBracket.transform.localScale = new Vector2(0.3f, targetSize > 1? targetSize : 1);
         LeftBracket.transform.localPosition = new Vector2(-2.68f, -1 - ((targetSize - 1) / 2));
         BoxCollider2D bc = GetComponent<BoxCollider2D>();
-        bc.size = new Vector2(bc.size.x, (targetSize > 1 ? targetSize : 1) * 2);
+        bc.size = new Vector2(bc.size.x, targetSize * 2);
         bc.offset = new Vector2(bc.offset.x, bc.size.y / 2);
     }
 

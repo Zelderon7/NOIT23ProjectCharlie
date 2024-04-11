@@ -143,6 +143,8 @@ public abstract class Block : MonoBehaviour
                 outputConnection.Disconnect();
             }
         }
+
+        
     }
 
     public void PrepDragAlong()
