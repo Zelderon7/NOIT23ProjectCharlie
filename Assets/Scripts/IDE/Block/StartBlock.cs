@@ -13,9 +13,10 @@ public class StartBlock : Block
 
     public override void RunBlock(InputConnector connectorInUse = null)
     {
-        base.RunBlock(connectorInUse);
-        if (outConnectorsScripts?[0] != null)
+        if (outConnectorsScripts[0] != null)
             outConnectorsScripts[0].GoNext();
+        else
+            GameManager.Instance.GameOver();
     }
 
     internal override void OnDestroy()

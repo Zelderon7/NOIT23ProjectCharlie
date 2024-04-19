@@ -18,11 +18,12 @@ public class MoveBlock : Block
 
         ((IDEManager.Instance.GetICodeableById(Owner)) as IWalkable).MoveMe(() =>
         {
-            base.RunBlock(connectorInUse);
-            if (outConnectorsScripts?[0] != null)
+            if (outConnectorsScripts[0].Connected != null)
+            {
                 outConnectorsScripts[0].GoNext();
+            }
+            else
+                GameManager.Instance.GameOver();
         });
-
-        
     }
 }

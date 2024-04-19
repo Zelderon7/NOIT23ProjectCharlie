@@ -5,7 +5,7 @@ using UnityEngine;
 
 public abstract class Block : MonoBehaviour
 {
-    public int Owner;
+    public int Owner = -1;
     public bool ConnectableHere = false;
 
     GameObject[] _args = null;//TODO: GameObject => DataBlock
@@ -42,7 +42,7 @@ public abstract class Block : MonoBehaviour
     { 
         get
         {
-            if (inputConnectorsScripts[0] != null)
+            if (inputConnectorsScripts.Length > 0)
             {
                 if (inputConnectorsScripts[0].Connected != null)
                 {
@@ -51,6 +51,21 @@ public abstract class Block : MonoBehaviour
             }
             return this;
         } 
+    }
+
+    public Block StackBottom
+    {
+        get
+        {
+            if (outConnectorsScripts.Length > 0)
+            {
+                if (outConnectorsScripts[^1].Connected != null)
+                {
+                    return outConnectorsScripts[^1].Connected.Block.StackBottom;
+                }
+            }
+            return this;
+        }
     }
 
     [SerializeField] GameObject outConnectorsHolder;
@@ -74,10 +89,21 @@ public abstract class Block : MonoBehaviour
         inputConnectorsScripts = inpConnectorsHolder != null ? inpConnectorsHolder.GetComponentsInChildren<InputConnector>(true) : new InputConnector[0];
 
         lastPos = transform.parent.position;
-        Owner = IDEManager.Instance.CurrentlyProgramedId;
-        IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
-        OnResize += MyOnResize;
-        outConnectorsScripts.ToList().ForEach(x => OnResize += x.FixPosOnRescale);
+        if(IDEManager.Instance != null)
+        {
+            Owner = IDEManager.Instance.CurrentlyProgramedId;
+            IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
+            OnResize += MyOnResize;
+        }
+    }
+    internal void Start()
+    {
+        if(Owner == -1)
+        {
+            Owner = IDEManager.Instance.CurrentlyProgramedId;
+            IDEManager.Instance.OnBlockCreation(transform.parent.gameObject);
+            OnResize += MyOnResize;
+        }
     }
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -93,7 +119,7 @@ public abstract class Block : MonoBehaviour
     {
         OnResize -= MyOnResize;
         if (transform.parent.parent.gameObject.name != "DrawerBlocks")
-            IDEManager.Instance.OnBlockDestruction(this);
+            IDEManager.Instance?.OnBlockDestruction(this);
     }
     void OnMouseUp()
     {
@@ -102,6 +128,9 @@ public abstract class Block : MonoBehaviour
     }
     void OnMouseDown()
     {
+        DisconnectCurrent();
+        DisconnectBottomBlock();
+        StackHead.outConnectorsScripts[^1]?.Connected?.FixPositionInStack();
         PrepDragAlong();
         OnPickup?.Invoke();
     }
@@ -110,18 +139,13 @@ public abstract class Block : MonoBehaviour
         MoveWithMouse();
     }
 
-    void MyOnResize(float x) =>  transform.parent.localScale = Vector3.one * x;
-
-    public virtual void RunBlock(InputConnector connectorInUse = null)
+    void MyOnResize(float x)
     {
-        foreach (var script in outConnectorsScripts)
-        {
-            if (script.Connected != null)
-                return;
-        }
-
-        StartCoroutine(Delay(1f, () => GameManager.Instance.GameOver()));
+        transform.parent.localScale = Vector3.one * x;
+        StackHead.outConnectorsScripts[^1]?.Connected?.FixPositionInStack();
     }
+
+    public abstract void RunBlock(InputConnector connectorInUse = null);
 
     IEnumerator Delay(float time, Action callback)
     {
@@ -134,7 +158,7 @@ public abstract class Block : MonoBehaviour
         if (inputConnectorsScripts.Length == 0)
             return;
 
-        InputConnector inputConnector = inputConnectorsScripts[0]?.GetComponent<InputConnector>();
+        InputConnector inputConnector = inputConnectorsScripts[0];
         if (inputConnector != null)
         {
             OutputConnectionScript outputConnection = inputConnector.Connected;
@@ -152,13 +176,10 @@ public abstract class Block : MonoBehaviour
         // Calculate the drag offset for the current block
         CalculateDragOffset();
 
-        // Disconnect the bottom block of the stack from its connections
-        DisconnectBottomBlock();
+        IsPickedUp = true;
 
         // Propagate the PrepDragAlong call down the stack
         PropagatePrepDragAlong();
-        
-        IsPickedUp = true;
     }
 
     void CalculateDragOffset()
@@ -170,23 +191,19 @@ public abstract class Block : MonoBehaviour
     {
         // Find the bottom block of the stack
         Block bottomBlock = this;
-        while (bottomBlock.outConnectorsScripts.Any(oc => oc.Connected != null))
+        if (bottomBlock.outConnectorsScripts.Length == 0)
+            return;
+
+        while (bottomBlock.outConnectorsScripts[^1].Connected != null && 
+             bottomBlock.outConnectorsScripts[^1].Connected.IsPrimary)
         {
-            bottomBlock = bottomBlock.outConnectorsScripts.First(oc => oc.Connected != null).Connected.Block;
+            bottomBlock = bottomBlock.outConnectorsScripts[^1].Connected.Block;
+            if (bottomBlock.outConnectorsScripts.Length == 0)
+                return;
         }
 
         // Disconnect the bottom output connector if it's connected
-        if (bottomBlock.outConnectorsScripts.Length > 0)
-        {
-            foreach (var outConnector in bottomBlock.outConnectorsScripts)
-            {
-                if (outConnector.Connected != null)
-                {
-                    outConnector.Disconnect();
-                    break; // Assuming only one connection needs to be disconnected. Remove break if all need to be disconnected.
-                }
-            }
-        }
+        bottomBlock.outConnectorsScripts[^1].Disconnect();
     }
 
     void PropagatePrepDragAlong()
@@ -194,10 +211,9 @@ public abstract class Block : MonoBehaviour
         // If this block is connected to another block below it, call PrepDragAlong on that block
         foreach (var outConnector in outConnectorsScripts)
         {
-            if (outConnector.Connected != null)
+            if (outConnector.Connected != null && outConnector.Connected.Block.inputConnectorsScripts[0].Connected == outConnector)//The second check is to prevent stack overflow on case the block is placed inside of an extended block
             {
                 outConnector.Connected.Block.PrepDragAlong();
-                break; // Assuming we only need to propagate to the first connected block below. Remove break if needed otherwise.
             }
         }
     }
@@ -212,13 +228,14 @@ public abstract class Block : MonoBehaviour
         foreach (var item in outConnectorsScripts)
         {
             if (item.Connect())
-                item.FixPositionInStack();
+                item.Connected.FixPositionInStack();
         }
 
+        //propagates the ConnectIfPossible to the rest of the stack
         foreach (var outConnector in outConnectorsScripts)
         {
-            InputConnector connected = outConnector?.Connected;
-            if (connected != null && connected.Block.inputConnectorsScripts[^1] != connected)
+            InputConnector connected = outConnector.Connected;
+            if (connected != null && connected.Block.inputConnectorsScripts[^1] != connected)//The second check is to prevent stack overflow on case the block is placed inside of an extended block
             {
                 connected.Block.ConnectIfPossible();
             }
@@ -226,13 +243,15 @@ public abstract class Block : MonoBehaviour
 
         if (inputConnectorsScripts.Length == 0)
             return;
+
         foreach (var inpConnector in inputConnectorsScripts)
         {
             if(inpConnector.ForConnection != null)
-                inpConnector.ForConnection.Connect();
+            {
+                if (inpConnector.ForConnection.Connect())
+                    inpConnector.FixPositionInStack();
+            }
 
-            if(inpConnector.Connected != null)
-                inpConnector.Connected.FixPositionInStack();
         }
         
     }
@@ -242,7 +261,7 @@ public abstract class Block : MonoBehaviour
         Parent.Count++;
         foreach (var item in outConnectorsScripts)
         {
-            if(item.Connected != null)
+            if(item.Connected != null && item.Connected.IsPrimary)
             {
                 item.Connected.Block.SelfDestruct();
             }
@@ -255,11 +274,10 @@ public abstract class Block : MonoBehaviour
     {
         if (CheckColliderOutOfScreenSpace(1.3f) || !IDEManager.Instance.CheckPlacingPositionY(this))
         {
-            transform.parent.position = lastPos;
+            Debug.LogError("TODO: Move in bounds");
             return;
         }
 
-        DisconnectCurrent();
         ConnectIfPossible();
 
         foreach (var outConnector in outConnectorsScripts)
@@ -285,14 +303,9 @@ public abstract class Block : MonoBehaviour
         foreach (var outConnector in outConnectorsScripts)
         {
             Block block = outConnector?.Connected?.Block;
-            if (block != null && block.inputConnectorsScripts?[0] == outConnector.Connected)
+            if (block != null && block.inputConnectorsScripts[0] == outConnector.Connected)//second check is to prevent stack overflow if placed inside an extended block.
                 block.MoveWithMouse();
         }
-    }
-
-    Vector2 GetMousePos()
-    {
-        return Camera.main.ScreenToWorldPoint( Input.mousePosition );
     }
 
     bool CheckColliderOutOfScreenSpace(float tolerance)

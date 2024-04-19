@@ -129,13 +129,8 @@ public class IDEManager : MonoBehaviour {
     {
         #region Singleton pattern
 
-        if (_instance != null && _instance != this)
-            Destroy(gameObject);
-        else
-        {
-            if (_instance == null)
-                _instance = this;
-        }
+        if (_instance == null)
+            _instance = this;
 
         #endregion Singleton pattern
 
@@ -307,17 +302,17 @@ public class IDEManager : MonoBehaviour {
 
     private void SaveProgram(int programId)
     {
-        foreach (var item in _savedPrograms[programId])
+        for (int i = 0; i < _savedPrograms[programId].Count; i++)
         {
-            item.SetActive(false);
+            _savedPrograms[programId][i].SetActive(false);
         }
     }
 
     private void LoadProgram(int programId)
     {
-        foreach (var item in _savedPrograms[programId])
+        for(int i = 0; i < _savedPrograms[programId].Count; i++)
         {
-            item.SetActive(true);
+            _savedPrograms[programId][i].SetActive(true);
         }
     }
 

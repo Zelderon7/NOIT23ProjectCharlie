@@ -89,23 +89,22 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
     void UpdateArrow()
     {
-        Arrow.transform.rotation = Quaternion.identity;
-
-        switch (_currentDirectionIndex)
+        switch (_currentDirectionIndex)//For now it's always 1
         {
-            case 0: Arrow.transform.Rotate(0f, 0f, 180f);
+            case 0:
+                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
                 break;
 
             case 1:
-                Arrow.transform.Rotate(0f, 0f, -90f);
+                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
                 break;
 
             case 2:
-                Arrow.transform.Rotate(0f, 0f, 0f);
+                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
                 break;
 
             case 3:
-                Arrow.transform.Rotate(0f, 0f, -90f);
+                Arrow.transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
                 break;
         }
 

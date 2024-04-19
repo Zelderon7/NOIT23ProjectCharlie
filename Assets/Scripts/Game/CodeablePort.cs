@@ -5,6 +5,7 @@ public class CodeablePort : MonoBehaviour
 {
     public ICodeable Parent;
     public static Action OnGameStart = () => { };
+
     public void InvokeOnGameStart() => OnGameStart.Invoke();
 
     private void Awake()
@@ -12,6 +13,8 @@ public class CodeablePort : MonoBehaviour
         OnGameStart += MyOnGameStart;
         if (!transform.parent.TryGetComponent(out Parent))
             throw new Exception("No ICodeable found in parent");
+
+        GameManager.OnGameRestart += () => { gameObject.SetActive(true); };
     }
 
     void MyOnGameStart()

@@ -119,7 +119,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1381922233
   m_SortingLayer: -1
-  m_SortingOrder: 4
+  m_SortingOrder: 3
   m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
   m_Color: {r: 0.8679245, g: 0.6165167, b: 0.551869, a: 1}
   m_FlipX: 0
@@ -145,6 +145,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Connected: {fileID: 0}
   ForConnection: {fileID: 0}
+  LastConnection: {fileID: 0}
 --- !u!1 &800268823819277604
 GameObject:
   m_ObjectHideFlags: 0
@@ -224,7 +225,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2912144359141555198
 Transform:
   m_ObjectHideFlags: 0
@@ -234,7 +235,7 @@ Transform:
   m_GameObject: {fileID: 1401681033051867117}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.02, y: -2.146, z: 0}
+  m_LocalPosition: {x: -2.42, y: -2.175, z: 0}
   m_LocalScale: {x: 0.38, y: 0.35, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -449,7 +450,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Repeat
+  m_text: Repeat *5
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ca721b4c07debc64687a1a58c4157692, type: 2}
   m_sharedMaterial: {fileID: 1930642975593471236, guid: ca721b4c07debc64687a1a58c4157692, type: 2}
@@ -698,6 +699,7 @@ MonoBehaviour:
   outConnectorsHolder: {fileID: 800268823819277604}
   inpConnectorsHolder: {fileID: 6035897973488947763}
   argsholder: {fileID: 4259689960760730939}
+  IterationsCount: 5
 --- !u!1 &2253005013753953309
 GameObject:
   m_ObjectHideFlags: 0
@@ -710,28 +712,32 @@ GameObject:
   - component: {fileID: 6670756787783458031}
   - component: {fileID: 8118605011581135983}
   - component: {fileID: 5338291396345691882}
-  m_Layer: 7
+  m_Layer: 2
   m_Name: BottomSquare
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4177949552146051454
-Transform:
+--- !u!224 &4177949552146051454
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2253005013753953309}
-  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.7508, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 5.66, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4191983518208707624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -1.7508}
+  m_SizeDelta: {x: 1, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!212 &6670756787783458031
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -844,6 +850,7 @@ MonoBehaviour:
   BottomBracketComponents:
   - {fileID: 2253005013753953309}
   - {fileID: 7799591750682007413}
+  - {fileID: 1401681033051867117}
   LeftBracket: {fileID: 3059664466537307122}
   MyBlock: {fileID: 851075468307214124}
 --- !u!1 &3059664466537307122
@@ -1283,6 +1290,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Connected: {fileID: 0}
   ForConnection: {fileID: 0}
+  LastConnection: {fileID: 0}
 --- !u!1 &7987566804181896519
 GameObject:
   m_ObjectHideFlags: 0

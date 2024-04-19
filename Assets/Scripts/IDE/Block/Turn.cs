@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class Turn : Block
@@ -10,9 +11,12 @@ public class Turn : Block
 
         (IDEManager.Instance.GetICodeableById(Owner) as IWalkable).Turn(RightOrLeft, () =>
         {
-            base.RunBlock(connectorInUse);
-            if (outConnectorsScripts?[0] != null)
+            if (outConnectorsScripts[0].Connected != null)
+            {
                 outConnectorsScripts[0].GoNext();
+            }
+            else
+                GameManager.Instance.GameOver();
         });
     }
 }

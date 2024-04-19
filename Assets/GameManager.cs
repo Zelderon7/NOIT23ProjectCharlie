@@ -160,7 +160,26 @@ public class GameManager : MonoBehaviour {
     private List<GridObjectConnections> _gridObjectsConnections = new List<GridObjectConnections>();
     private GameObject _robot;
 
-    public bool IsGameOver { get; private set; } = false;
+    public static Action OnGameOver;
+    public static Action OnGameRestart;
+
+    public bool IsGameOver 
+    {
+        get => _isGameOver;
+        private set
+        {
+            if (value == _isGameOver)
+                return;
+
+            _isGameOver = value;
+
+            if(value)
+                OnGameOver?.Invoke();
+            else
+                OnGameRestart?.Invoke();
+        }
+    }
+    private bool _isGameOver = false;
 
     public Menus CurrentMenu
     {
@@ -602,6 +621,8 @@ public class GameManager : MonoBehaviour {
 
             _targetKey.Door = _targetdoor;
         }
+
+        OnGameRestart.Invoke();
     }
 
     private void InstantiateGridFromData()
@@ -691,9 +712,17 @@ public class GameManager : MonoBehaviour {
             return;
         IsGameOver = true;
         CommunicationManager.SendDataMethod("Game Over");
-        GameOverWindowScreen.gameObject.SetActive(true);
-        Time.timeScale = 0;
-        GameOverWindowScreen.TryAgain.onClick.AddListener(() => OnTryAgain(GameOverWindowScreen.TryAgain));
+        StartCoroutine(Delay(1.5f, () => {
+            GameOverWindowScreen.gameObject.SetActive(true);
+            Time.timeScale = 0;
+            GameOverWindowScreen.TryAgain.onClick.AddListener(() => OnTryAgain(GameOverWindowScreen.TryAgain));
+        }));
+    }
+
+    IEnumerator Delay(float time, Action callback)
+    {
+        yield return new WaitForSeconds(time);
+        callback();
     }
 
     public void Victory()

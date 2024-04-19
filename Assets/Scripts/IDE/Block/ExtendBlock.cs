@@ -14,7 +14,16 @@ public class ExtendBlock : MonoBehaviour
 
     private List<Block> currentlyIn = new List<Block>();
 
-    private const float DEFAULTPOS = -1.7346f;
+    private float[] _defaultBottomBraketrPositions;
+
+    private void Awake()
+    {
+        _defaultBottomBraketrPositions = new float[BottomBracketComponents.Length];
+        for (int i = 0; i < BottomBracketComponents.Length; i++)
+        {
+            _defaultBottomBraketrPositions[i] = BottomBracketComponents[i].transform.localPosition.y;
+        }
+    }
 
     /// <summary>
     /// Retracts the extend block, adjusting its size and position accordingly.
@@ -33,10 +42,10 @@ public class ExtendBlock : MonoBehaviour
         targetSize = Mathf.Max(targetSize, 1);
 
         // Adjust the position of the bottom bracket components
-        BottomBracketComponents.ToList().ForEach((x) => 
-        { 
-            x.transform.localPosition = new Vector2(x.transform.localPosition.x, DEFAULTPOS - targetSize + 1); 
-        });
+        for(int i = 0;i < BottomBracketComponents.Length;i++) 
+        {
+            BottomBracketComponents[i].transform.localPosition = new Vector2(BottomBracketComponents[i].transform.localPosition.x, _defaultBottomBraketrPositions[i] - targetSize + 1); 
+        };
 
         // Adjust the scale and position of the left bracket
         LeftBracket.transform.localScale = new Vector2(0.3f, targetSize > 1 ? targetSize : 1);
@@ -46,6 +55,16 @@ public class ExtendBlock : MonoBehaviour
         BoxCollider2D bc = GetComponent<BoxCollider2D>();
         bc.size = new Vector2(bc.size.x, targetSize * 2);
         bc.offset = new Vector2(bc.offset.x, bc.size.y / 2);
+
+        if (MyBlock.outConnectorsScripts[0].Connected != null)
+        {
+            MyBlock.outConnectorsScripts[0].Connected.Block.StackBottom.outConnectorsScripts[^1].Connect();
+        }
+
+        BottomBracketComponents
+            .Where(x => x.TryGetComponent<OutputConnectionScript>(out _))
+            .ToList()
+            .ForEach(x => x.GetComponent<OutputConnectionScript>().Connected?.FixPositionInStack());
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -72,17 +91,30 @@ public class ExtendBlock : MonoBehaviour
             targetSize += other.GetComponent<Block>().StackHead.StackSize;
 
             if (targetSize <= 1)
-                return;            
+                return;
 
-            BottomBracketComponents.ToList().ForEach((x) => { x.transform.localPosition = new Vector2(x.transform.localPosition.x, DEFAULTPOS - targetSize + 1); });
-            LeftBracket.transform.localScale = new Vector2(0.3f, targetSize > 1 ? targetSize : 1);
-            LeftBracket.transform.localPosition = new Vector2(-2.68f, -1 - ((targetSize-1) / 2));
-            BoxCollider2D bc = GetComponent<BoxCollider2D>();
-            bc.size = new Vector2(bc.size.x, targetSize * 2);
-            bc.offset = new Vector2(bc.offset.x, bc.size.y/2);
-
-            
+            Extend(targetSize);
         }
+    }
+
+    private void Extend(float targetSize)
+    {
+        MyBlock.inputConnectorsScripts[^1].Connected?.Disconnect();
+
+        for (int i = 0; i < BottomBracketComponents.Length; i++)
+        {
+            BottomBracketComponents[i].transform.localPosition = new Vector2(BottomBracketComponents[i].transform.localPosition.x, _defaultBottomBraketrPositions[i] - targetSize + 1);
+        };
+        LeftBracket.transform.localScale = new Vector2(0.3f, targetSize > 1 ? targetSize : 1);
+        LeftBracket.transform.localPosition = new Vector2(-2.68f, -1 - ((targetSize - 1) / 2));
+        BoxCollider2D bc = GetComponent<BoxCollider2D>();
+        bc.size = new Vector2(bc.size.x, targetSize * 2);
+        bc.offset = new Vector2(bc.offset.x, bc.size.y / 2);
+
+        BottomBracketComponents
+            .Where(x => x.TryGetComponent<OutputConnectionScript>(out _))
+            .ToList()
+            .ForEach(x => x.GetComponent<OutputConnectionScript>().Connected?.FixPositionInStack());
     }
 
     private void OnTriggerExit2D(Collider2D other)
