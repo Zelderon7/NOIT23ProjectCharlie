@@ -1,17 +1,22 @@
+using Unity.VisualScripting;
+
 public class StartBlock : Block
 {
-    internal override void Awake()
+    internal void OnEnable()
     {
         base.Awake();
-        if(IDEManager.Instance != null)
+        if (IDEManager.Instance != null)
             IDEManager.Instance.OnCodeStart += RunBlock;
     }
 
-    public override void RunBlock()
+    public void RunBlock() => RunBlock(null);
+
+    public override void RunBlock(InputConnector connectorInUse = null)
     {
-        base.RunBlock();
-        if (_outConnectorsScripts?[0] != null)
-            _outConnectorsScripts[0].GoNext();
+        if (outConnectorsScripts[0] != null)
+            outConnectorsScripts[0].GoNext();
+        else
+            GameManager.Instance.GameOver();
     }
 
     internal override void OnDestroy()

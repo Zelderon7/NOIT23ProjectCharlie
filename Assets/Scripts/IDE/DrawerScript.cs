@@ -89,6 +89,10 @@ public class DrawerScript : MonoBehaviour
             temp.GetComponentsInChildren<InputConnector>().ToList().ForEach(x => Destroy(x));
             GameObject targetParent = temp.GetComponentInChildren<Block>().gameObject;
             Destroy(targetParent.GetComponent<Block>());
+            if(temp.GetComponentInChildren<ExtendBlock>() != null)
+            {
+                Destroy(temp.GetComponentInChildren<ExtendBlock>());
+            }
             DrawerBlock scriptRef = targetParent.AddComponent<DrawerBlock>();
             GameObject TextObject = Instantiate(new GameObject("TextHolder"), parent: temp.transform);
             scriptRef.Text = TextObject.AddComponent<TextMeshPro>();

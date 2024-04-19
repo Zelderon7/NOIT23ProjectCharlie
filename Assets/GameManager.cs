@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool _curMenuChangable = true;
-    private string _seed = "1,2,{3-[1,3]},0,0,1,0/0,2,2,2,1,2,0/{3-[5,2]},2,{3-[0,6]},0,0,1,0/0,1,0,0,{3-[2,5]},2,0/{3-[5,0]},2,0,0,{3-[0,0]},2,{3-[5,6]}/0,2,1,2,2,2,1/1,2,0,0,{3-[6,5]},1,4/;0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,{1-1-0-([0,1],[1,40],[2,8],[3,8])},0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/";
+    private string _seed = "1,2,{3-[1,3]},0,0,1,0/0,2,2,2,1,2,0/{3-[5,2]},2,{3-[0,6]},0,0,1,0/0,1,0,0,{3-[2,5]},2,0/{3-[5,0]},2,0,0,{3-[0,0]},2,{3-[5,6]}/0,2,1,2,2,2,1/1,2,0,0,{3-[6,5]},1,4/;0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,{1-1-0-([0,1],[1,40],[2,8],[3,8],[4,1])},0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/";
     private string _levelName;
     private string _authorName;
     private float _gridXRepos = 2.15f;
@@ -160,7 +160,26 @@ public class GameManager : MonoBehaviour {
     private List<GridObjectConnections> _gridObjectsConnections = new List<GridObjectConnections>();
     private GameObject _robot;
 
-    public bool IsGameOver { get; private set; } = false;
+    public static Action OnGameOver;
+    public static Action OnGameRestart;
+
+    public bool IsGameOver 
+    {
+        get => _isGameOver;
+        private set
+        {
+            if (value == _isGameOver)
+                return;
+
+            _isGameOver = value;
+
+            if(value)
+                OnGameOver?.Invoke();
+            else
+                OnGameRestart?.Invoke();
+        }
+    }
+    private bool _isGameOver = false;
 
     public Menus CurrentMenu
     {
@@ -602,6 +621,8 @@ public class GameManager : MonoBehaviour {
 
             _targetKey.Door = _targetdoor;
         }
+
+        OnGameRestart.Invoke();
     }
 
     private void InstantiateGridFromData()
@@ -691,9 +712,17 @@ public class GameManager : MonoBehaviour {
             return;
         IsGameOver = true;
         CommunicationManager.SendDataMethod("Game Over");
-        GameOverWindowScreen.gameObject.SetActive(true);
-        Time.timeScale = 0;
-        GameOverWindowScreen.TryAgain.onClick.AddListener(() => OnTryAgain(GameOverWindowScreen.TryAgain));
+        StartCoroutine(Delay(1.5f, () => {
+            GameOverWindowScreen.gameObject.SetActive(true);
+            Time.timeScale = 0;
+            GameOverWindowScreen.TryAgain.onClick.AddListener(() => OnTryAgain(GameOverWindowScreen.TryAgain));
+        }));
+    }
+
+    IEnumerator Delay(float time, Action callback)
+    {
+        yield return new WaitForSeconds(time);
+        callback();
     }
 
     public void Victory()

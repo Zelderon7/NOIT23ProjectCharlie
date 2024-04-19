@@ -4,6 +4,9 @@ public class OutputConnectionScript : MonoBehaviour
 {
     public InputConnector Connected { get; private set; } = null;
     InputConnector _forConnection = null;
+    InputConnector _lastConnection = null;
+
+    public Block Block { get => myBlock; }
 
     [SerializeField] Block myBlock;
     public bool GoNext()
@@ -23,9 +26,12 @@ public class OutputConnectionScript : MonoBehaviour
         if (_forConnection.Connected != null)
             return false;
 
-        Vector3 tPos = _forConnection.gameObject.transform.position;
-        Vector3 myPos = gameObject.transform.position;
-        myBlock.transform.parent.position += new Vector3(tPos.x - myPos.x, tPos.y - myPos.y, 0);
+        if (_forConnection.IsPrimary)
+        {
+            Vector3 tPos = gameObject.transform.position;
+            Vector3 myPos = _forConnection.gameObject.transform.position;
+            _forConnection.Block.transform.parent.position += new Vector3(tPos.x - myPos.x, tPos.y - myPos.y, 0);
+        }
 
         Connected = _forConnection;
         _forConnection = null;
@@ -34,39 +40,21 @@ public class OutputConnectionScript : MonoBehaviour
         return true;
     }
 
-    public void FixPositionInStack()
+    public void ReconnectToPrevious()
     {
-        if(Connected == null)
+        if(_lastConnection == null)
             return;
 
-        Vector3 tPos = Connected.gameObject.transform.position;
-        Vector3 myPos = gameObject.transform.position;
-        myBlock.transform.parent.position += new Vector3(tPos.x - myPos.x, tPos.y - myPos.y, 0);
-
-        InputConnector myConnector = myBlock.transform.parent.gameObject.GetComponentInChildren<InputConnector>();
-        if (myConnector == null)
-            return;
-
-        myConnector.Connected?.FixPositionInStack();
-    }
-
-    public void FixPosOnRescale(float newScale)
-    {
-        if (Connected != null) return;
-        if(myBlock.InpConnector != null)
-        {
-            if(myBlock.InpConnector.GetComponent<InputConnector>().Connected != null)
-            {
-                myBlock.InpConnector.GetComponent<InputConnector>().Connected.FixPositionInStack();
-            }
-        }
+        _forConnection = _lastConnection;
+        Connect();
     }
 
     public void Disconnect()
     {
         if (Connected == null) return;
 
-        Connected.Connected = null;
+        _lastConnection = Connected;
+        Connected.Disconnect();
         Connected = null;
     }
 
@@ -95,7 +83,6 @@ public class OutputConnectionScript : MonoBehaviour
 
     void OnDestroy()
     {
-        Block.OnResize -= FixPosOnRescale;
         Disconnect();
     }
 }

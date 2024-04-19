@@ -2891,8 +2891,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 1}
+  m_Offset: {x: 0.43, y: 0.025329787}
+  m_Size: {x: 1.5693978, y: 2.5572546}
   m_Direction: 0
 --- !u!212 &1328604207
 SpriteRenderer:
@@ -3568,6 +3568,9 @@ MonoBehaviour:
   - Id: 0
     Name: Turn Left
     Prefab: {fileID: 164645760845261873, guid: 1d8c0fe30dbdc71418e58789e524b6cb, type: 3}
+  - Id: 0
+    Name: Loop
+    Prefab: {fileID: 7987566804181896519, guid: e2e2a3ab1c5eb4f429f1f4aa5d5f282d, type: 3}
   StartButton: {fileID: 637075991}
   IDEBackground: {fileID: 1489801062}
   Drawer: {fileID: 563753952}
