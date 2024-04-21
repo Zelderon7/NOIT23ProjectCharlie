@@ -142,7 +142,7 @@ public abstract class Block : MonoBehaviour
     void MyOnResize(float x)
     {
         transform.parent.localScale = Vector3.one * x;
-        StackHead.outConnectorsScripts[^1]?.Connected?.FixPositionInStack();
+        StackHead.outConnectorsScripts.ToList().ForEach(x => { x.Connected?.FixPositionInStack(); });
     }
 
     public abstract void RunBlock(InputConnector connectorInUse = null);

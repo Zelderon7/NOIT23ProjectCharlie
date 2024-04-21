@@ -32,7 +32,7 @@ public struct CodeBlocksPrefabs {
 }
 
 public class IDEManager : MonoBehaviour {
-    private readonly float _maxDistanceToBlock = 8f;
+    private readonly float _maxDistanceToBlock = 5.3f;
     private readonly float _step = 1f;
     private bool _canScroll = true;
 
@@ -125,6 +125,9 @@ public class IDEManager : MonoBehaviour {
         }
     }
 
+    [SerializeField]
+    SliderBall _transparencySlider;
+
     private void Awake()
     {
         #region Singleton pattern
@@ -135,6 +138,13 @@ public class IDEManager : MonoBehaviour {
         #endregion Singleton pattern
 
         _sizeSlider.OnChange += OnZoomInOut;
+        _transparencySlider.OnChange += TransparencyOnChange;
+    }
+
+    private void TransparencyOnChange(int value)
+    {
+        SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
+        sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, (float)value / 100);
     }
 
     private void Start()
@@ -229,64 +239,33 @@ public class IDEManager : MonoBehaviour {
 
     private IEnumerator WaitForNextScroll()
     {
-        yield return new WaitForSeconds(.05f);
+        yield return new WaitForSeconds(.02f);
         _canScroll = true;
     }
 
     public void OnScroll(InputAction.CallbackContext ctx)
     {
-        float minY, maxY;
-
-        if (!IsActive)
-            return;
-
-        if (!ctx.performed)
-            return;
-
-        if (ctx.ReadValue<Vector2>().y == 0)
-            return;
-
-        if (!_canScroll)
+        if (!IsActive || !ctx.performed || ctx.ReadValue<Vector2>().y == 0 || !_canScroll || _savedPrograms[CurrentlyProgramedId].Count == 0)
             return;
 
         _canScroll = false;
         StartCoroutine(WaitForNextScroll());
 
-        float scrollDelta = ctx.ReadValue<Vector2>().y < 0 ? -1 : 1;
-        float delta = scrollDelta;
+        float scrollDelta = ctx.ReadValue<Vector2>().y > 0 ? -1 : 1; // Inverse the direction
+        Vector3 delta = Vector3.up * scrollDelta * _step; // Use _step to control the scroll amount
 
-        if (IDEBackground == null)
+        // Check if at least one of the blocks stays within _maxDistanceToBlock away on the Y axis from 0
+        if (!_savedPrograms[CurrentlyProgramedId].Any(x => Math.Abs(x.transform.position.y + delta.y) < _maxDistanceToBlock))
         {
-            IDEBackground = GameManager.Instance.IDEScreen.GetComponentsInChildren<Transform>()
-                .FirstOrDefault(x => x.gameObject.name == "Background")?.gameObject;
-            if (IDEBackground == null)
-                throw new Exception("No IDE Screen background found");
+            // If moving would violate the bounds, do not proceed with the move
+            return;
         }
 
-        if (LowestBlock[CurrentlyProgramedId] != null)
-            minY = LowestBlock[CurrentlyProgramedId].transform.parent.position.y - _maxDistanceToBlock / 2;
-        else
-            minY = -_maxDistanceToBlock / 2;
-
-        if (HighestBlock[CurrentlyProgramedId] != null)
-            maxY = HighestBlock[CurrentlyProgramedId].transform.parent.position.y + _maxDistanceToBlock / 2;
-        else
-            maxY = _maxDistanceToBlock / 2;
-
-        IDEBackground.transform.Translate(Vector3.up * delta, Space.World);
-        Camera.main.transform.Translate(Vector3.up * delta, Space.World);
-
-        Vector3 clampedBackgroundPosition = new Vector3(IDEBackground.transform.position.x, Mathf.Clamp(IDEBackground.transform.position.y, minY, maxY), IDEBackground.transform.position.z);
-        Vector3 clampedCameraPosition = new Vector3(Camera.main.transform.position.x, Mathf.Clamp(Camera.main.transform.position.y, minY, maxY), Camera.main.transform.position.z);
-
-        IDEBackground.transform.position = clampedBackgroundPosition;
-        Camera.main.transform.position = clampedCameraPosition;
-
-        float newBackgroundY = Mathf.Round(IDEBackground.transform.position.y / _step) * _step;
-        float newCameraY = Mathf.Round(Camera.main.transform.position.y / _step) * _step;
-
-        IDEBackground.transform.position = new Vector3(IDEBackground.transform.position.x, newBackgroundY, IDEBackground.transform.position.z);
-        Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, newCameraY, Camera.main.transform.position.z);
+        // Move each block in the currently programmed set
+        foreach (var programElement in _savedPrograms[CurrentlyProgramedId].Distinct())
+        {
+            programElement.transform.position += delta;
+        }
     }
 
     public void OnClose()

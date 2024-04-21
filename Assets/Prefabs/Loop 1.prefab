@@ -450,7 +450,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Repeat * 5
+  m_text: Repeat * 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ca721b4c07debc64687a1a58c4157692, type: 2}
   m_sharedMaterial: {fileID: 1930642975593471236, guid: ca721b4c07debc64687a1a58c4157692, type: 2}
@@ -699,7 +699,7 @@ MonoBehaviour:
   outConnectorsHolder: {fileID: 800268823819277604}
   inpConnectorsHolder: {fileID: 6035897973488947763}
   argsholder: {fileID: 4259689960760730939}
-  IterationsCount: 5
+  IterationsCount: 2
 --- !u!1 &2253005013753953309
 GameObject:
   m_ObjectHideFlags: 0
@@ -1301,7 +1301,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4191983518208707624}
   m_Layer: 7
-  m_Name: Loop
+  m_Name: Loop 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
