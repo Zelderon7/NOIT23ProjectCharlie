@@ -19,6 +19,7 @@ public class SliderBall : MonoBehaviour
     private float _stepSize;
     private float _stepSizeM;
 
+    [SerializeField]
     private int _currentStep;
 
     public int CurrentStep
@@ -34,7 +35,7 @@ public class SliderBall : MonoBehaviour
         }
     }
 
-    void Start()
+    void Awake()
     {
         // Calculate the start and end positions of the slider
         _startPosition = _backRect.localPosition - Vector3.right * (_backRect.localScale.x / 2f);
@@ -47,7 +48,6 @@ public class SliderBall : MonoBehaviour
         _stepSize = (_endPosition.x - _startPosition.x) / _steps;
         _stepSizeM = (_endPositionM.x - _startPositionM.x) / _steps;
 
-        CurrentStep = _steps / 2;
         transform.localPosition = _startPosition + Vector3.right * CurrentStep * _stepSize;
     }
 
@@ -55,7 +55,7 @@ public class SliderBall : MonoBehaviour
     {
         // Move the slider ball along the slider track
         Vector2 mousePosition = GetMouseWorldPosition();
-        Debug.Log("Mouse X: " + mousePosition.x);
+        //Debug.Log("Mouse X: " + mousePosition.x);
         int newPos = (int)Math.Clamp(Mathf.Round((mousePosition.x - _startPositionM.x) / _stepSizeM), 0, _steps);
         transform.localPosition = new Vector2(_startPosition.x + (float)newPos * _stepSize, transform.localPosition.y);
         if (CurrentStep != newPos)

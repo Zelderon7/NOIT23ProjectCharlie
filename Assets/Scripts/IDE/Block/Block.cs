@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class Block : MonoBehaviour
+public abstract class Block : MonoBehaviour, IEnumerable<Block>
 {
     public int Owner = -1;
     public bool ConnectableHere = false;
@@ -44,7 +45,7 @@ public abstract class Block : MonoBehaviour
         {
             if (inputConnectorsScripts.Length > 0)
             {
-                if (inputConnectorsScripts[0].Connected != null)
+                if (inputConnectorsScripts[0].Connected != null && inputConnectorsScripts[0].Connected == inputConnectorsScripts[0].Connected.Block.outConnectorsScripts[^1])
                 {
                     return inputConnectorsScripts[0].Connected.Block.StackHead;
                 }
@@ -59,7 +60,7 @@ public abstract class Block : MonoBehaviour
         {
             if (outConnectorsScripts.Length > 0)
             {
-                if (outConnectorsScripts[^1].Connected != null)
+                if (outConnectorsScripts[^1].Connected != null && outConnectorsScripts[^1].Connected.IsPrimary)
                 {
                     return outConnectorsScripts[^1].Connected.Block.StackBottom;
                 }
@@ -332,5 +333,13 @@ public abstract class Block : MonoBehaviour
         return bounds.min.x + tollerance >= screenBoundsMin.x && bounds.max.x - tollerance <= screenBoundsMax.x;
     }
 
-    
+    IEnumerator<Block> IEnumerable<Block>.GetEnumerator()
+    {
+        return new BlockEnumerator(this);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -39,9 +39,6 @@ public class DrawerScript : MonoBehaviour
         IsOpen = false;
         _inMotion = false;
     }
-
-   
-
     public IEnumerator MoveTransform(Transform targetTransform, Vector3 targetPosition, float duration)
     {
         Vector3 startPosition = targetTransform.localPosition;
@@ -65,6 +62,7 @@ public class DrawerScript : MonoBehaviour
 
     public void InstantiateCodeDrawer(BlockTypes[] blocks, int id)
     {
+        float curPosY = 4.3f;
         for (int i = 0; i < blocks.Length; i++)
         {
             GameObject temp = Instantiate(IDEManager.Instance.BlockTypesPrefs[blocks[i].Id].Prefab, parent: gameObject.transform.parent.Find("DrawerBlocks"));
@@ -82,7 +80,8 @@ public class DrawerScript : MonoBehaviour
 
 
             temp.transform.localScale = new Vector3(.5f, .5f, 1);
-            temp.transform.localPosition = new Vector3(-.4f, 5 - i * (temp.transform.localScale.y * 1.8f) - temp.transform.localScale.y, -2);
+            temp.transform.localPosition = new Vector3(-.4f, curPosY, -2);
+            curPosY -= temp.GetComponentInChildren<Block>().MySize/2 + .5f;
             temp.tag = "DrawerBlock";
             temp.GetComponentsInChildren<Transform>().ToList().ForEach(x => x.gameObject.tag = "DrawerBlock");
             temp.GetComponentsInChildren<OutputConnectionScript>().ToList().ForEach(x => Destroy(x));

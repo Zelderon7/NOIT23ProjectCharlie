@@ -14,7 +14,7 @@ public class MoveBlock : Block
             GameManager.Instance.GameOver();
             return;
         }
-            
+
 
         ((IDEManager.Instance.GetICodeableById(Owner)) as IWalkable).MoveMe(() =>
         {

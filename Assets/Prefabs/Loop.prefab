@@ -553,7 +553,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 5.66, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4191983518208707624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -700,6 +700,7 @@ MonoBehaviour:
   inpConnectorsHolder: {fileID: 6035897973488947763}
   argsholder: {fileID: 4259689960760730939}
   IterationsCount: 5
+  extendBlock: {fileID: 5338291396345691882}
 --- !u!1 &2253005013753953309
 GameObject:
   m_ObjectHideFlags: 0
@@ -926,7 +927,7 @@ SpriteRenderer:
   m_SortingLayerID: 1381922233
   m_SortingLayer: -1
   m_SortingOrder: 3
-  m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
+  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.8301887, g: 0.3700377, b: 0.25375578, a: 1}
   m_FlipX: 0
   m_FlipY: 0

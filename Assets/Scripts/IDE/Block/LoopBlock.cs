@@ -8,6 +8,16 @@ public class LoopBlock : Block
     [SerializeField]
     int IterationsCount;
     int iteration = 0;
+    [SerializeField]
+    ExtendBlock extendBlock;
+    public override float MySize
+    {
+        get
+        {
+            return extendBlock.TotalInnerSize + 1.5f;
+        }
+    }
+
     public override void RunBlock(InputConnector connectorInUse = null)
     {
         if (connectorInUse == null)

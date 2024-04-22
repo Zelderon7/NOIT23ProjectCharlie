@@ -6,7 +6,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public struct BlockTypes {
+public struct BlockTypes
+{
     public int Id;
     public int Count;
 
@@ -18,7 +19,8 @@ public struct BlockTypes {
 }
 
 [Serializable]
-public struct CodeBlocksPrefabs {
+public struct CodeBlocksPrefabs
+{
     public int Id;
     public string Name;
     public GameObject Prefab;
@@ -31,7 +33,8 @@ public struct CodeBlocksPrefabs {
     }
 }
 
-public class IDEManager : MonoBehaviour {
+public class IDEManager : MonoBehaviour
+{
     private readonly float _maxDistanceToBlock = 5.3f;
     private readonly float _step = 1f;
     private bool _canScroll = true;
@@ -132,6 +135,7 @@ public class IDEManager : MonoBehaviour {
     {
         #region Singleton pattern
 
+        //Changes from Cursor
         if (_instance == null)
             _instance = this;
 
@@ -164,14 +168,16 @@ public class IDEManager : MonoBehaviour {
         {
             if (block.transform.parent.position.y < LowestBlock[CurrentlyProgramedId].transform.parent.position.y - _maxDistanceToBlock)
                 return false;
-        } else if (block.transform.parent.position.y < -_maxDistanceToBlock)
+        }
+        else if (block.transform.parent.position.y < -_maxDistanceToBlock)
             return false;
 
         if (HighestBlock[CurrentlyProgramedId] != null)
         {
             if (block.transform.parent.position.y > HighestBlock[CurrentlyProgramedId].transform.parent.position.y + _maxDistanceToBlock)
                 return false;
-        } else if (block.transform.parent.position.y > _maxDistanceToBlock)
+        }
+        else if (block.transform.parent.position.y > _maxDistanceToBlock)
             return false;
 
         return true;
@@ -183,7 +189,8 @@ public class IDEManager : MonoBehaviour {
         {
             HighestBlock[CurrentlyProgramedId] = block;
             HighestBlock[CurrentlyProgramedId].OnPickup += OnHighestpickup;
-        } else if (block.transform.parent.position.y > HighestBlock[CurrentlyProgramedId].transform.parent.position.y)
+        }
+        else if (block.transform.parent.position.y > HighestBlock[CurrentlyProgramedId].transform.parent.position.y)
         {
             HighestBlock[CurrentlyProgramedId].OnPickup -= OnHighestpickup;
             HighestBlock[CurrentlyProgramedId] = block;
@@ -194,7 +201,8 @@ public class IDEManager : MonoBehaviour {
         {
             LowestBlock[CurrentlyProgramedId] = block;
             LowestBlock[CurrentlyProgramedId].OnPickup += OnLowestpickup;
-        } else if (block.transform.parent.position.y < LowestBlock[CurrentlyProgramedId].transform.parent.position.y)
+        }
+        else if (block.transform.parent.position.y < LowestBlock[CurrentlyProgramedId].transform.parent.position.y)
         {
             LowestBlock[CurrentlyProgramedId].OnPickup -= OnLowestpickup;
             LowestBlock[CurrentlyProgramedId] = block;
@@ -289,7 +297,7 @@ public class IDEManager : MonoBehaviour {
 
     private void LoadProgram(int programId)
     {
-        for(int i = 0; i < _savedPrograms[programId].Count; i++)
+        for (int i = 0; i < _savedPrograms[programId].Count; i++)
         {
             _savedPrograms[programId][i].SetActive(true);
         }
@@ -317,7 +325,8 @@ public class IDEManager : MonoBehaviour {
         {
             LowestBlock[CurrentlyProgramedId] = _temp.GetComponentInChildren<Block>();
             LowestBlock[CurrentlyProgramedId].OnPickup += OnLowestpickup;
-        } else
+        }
+        else
             LowestBlock[CurrentlyProgramedId] = null;
     }
 
@@ -331,7 +340,8 @@ public class IDEManager : MonoBehaviour {
         {
             HighestBlock[CurrentlyProgramedId] = _temp.GetComponentInChildren<Block>();
             HighestBlock[CurrentlyProgramedId].OnPickup += OnHighestpickup;
-        } else
+        }
+        else
             HighestBlock[CurrentlyProgramedId] = null;
     }
 }

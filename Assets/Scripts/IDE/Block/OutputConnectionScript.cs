@@ -6,6 +6,10 @@ public class OutputConnectionScript : MonoBehaviour
     InputConnector _forConnection = null;
     InputConnector _lastConnection = null;
 
+    public bool IsPrimary
+    {
+        get { return transform.GetSiblingIndex() == 0; }
+    }
     public Block Block { get => myBlock; }
 
     [SerializeField] Block myBlock;
@@ -23,7 +27,7 @@ public class OutputConnectionScript : MonoBehaviour
         if (_forConnection == null)
             return false;
 
-        if (_forConnection.Connected != null)
+        if (_forConnection.Connected != null || _forConnection.ForConnection != this)
             return false;
 
         if (_forConnection.IsPrimary)
@@ -73,7 +77,7 @@ public class OutputConnectionScript : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag("inputConnector"))
+        if (collision.CompareTag("inputConnector") && collision.GetComponent<InputConnector>().ForConnection == this)
         {
             myBlock.ConnectableHere = false;
             _forConnection = null;
