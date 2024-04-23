@@ -14,7 +14,9 @@ public class ExtendBlock : MonoBehaviour
 
     public ExtendBlock outerExtendable;
 
-    public List<Block> CurrentlyIn = new List<Block>();
+    List<Block> CurrentlyIn = new List<Block>();
+
+    float _lastSize = 1;
 
     public float TotalInnerSize
     {
@@ -64,9 +66,11 @@ public class ExtendBlock : MonoBehaviour
             .Where(x => x.transform.parent.GetComponentInChildren<ExtendBlock>() != null)
             .ToList()
             .ForEach(x => targetSize -= x.transform.parent.GetComponentInChildren<ExtendBlock>().CurrentlyIn
-                .ConvertAll(x => x.StackHead)
+                .Where(y => CurrentlyIn
+                    .Any(z => z.StackHead == y.StackHead))
+                .Select(y => y.StackHead)
                 .Distinct()
-                .Sum(x => x.MySize + x.StackSize));
+                .Sum(y => y.MySize + y.StackSize));
 
         targetSize = Mathf.Max(targetSize, 1);
 
@@ -85,10 +89,14 @@ public class ExtendBlock : MonoBehaviour
         bc.size = new Vector2(bc.size.x, targetSize * 2);
         bc.offset = new Vector2(bc.offset.x, bc.size.y / 2);
 
-        if (MyBlock.outConnectorsScripts[0].Connected != null)
+        if (_lastSize < targetSize)
+            MyBlock.inputConnectorsScripts[^1].Connected?.Disconnect();
+        else if (MyBlock.outConnectorsScripts[0].Connected != null)
         {
             MyBlock.outConnectorsScripts[0].Connected.Block.StackBottom.outConnectorsScripts[^1].Connect();
         }
+
+        _lastSize = targetSize;
 
         BottomBracketComponents
             .Where(x => x.TryGetComponent<OutputConnectionScript>(out _))
@@ -119,49 +127,10 @@ public class ExtendBlock : MonoBehaviour
 
             CurrentlyIn.Add(other.GetComponent<Block>());//Do not move this line above the if!!!
 
-            float targetSize = 0;
-            if(MyBlock.outConnectorsScripts[0].Connected != null)
-            {
-                targetSize += MyBlock.outConnectorsScripts[0].Connected.Block.MySize;
-                targetSize += MyBlock.outConnectorsScripts[0].Connected.Block.StackSize;
-            }
-
-            targetSize += other.GetComponent<Block>().StackHead.MySize;
-            targetSize += other.GetComponent<Block>().StackHead.StackSize;
-
-            if (targetSize <= 1)
-                return;
-
             //Extend(targetSize);
             Retract();
             //if(other.GetComponent<Block>().StackHead)
         }
-    }
-
-    private void Extend(float targetSize)
-    {
-
-        if (MyBlock.inputConnectorsScripts[^1].Connected != null)
-        {                
-            MyBlock.inputConnectorsScripts[^1].Connected.Disconnect();
-        }
-
-        for (int i = 0; i < BottomBracketComponents.Length; i++)
-        {
-            BottomBracketComponents[i].transform.localPosition = new Vector2(BottomBracketComponents[i].transform.localPosition.x, _defaultBottomBraketrPositions[i] - targetSize + 1);
-        };
-        LeftBracket.transform.localScale = new Vector2(0.3f, targetSize > 1 ? targetSize : 1);
-        LeftBracket.transform.localPosition = new Vector2(-2.68f, -1 - ((targetSize - 1) / 2));
-        BoxCollider2D bc = GetComponent<BoxCollider2D>();
-        bc.size = new Vector2(bc.size.x, targetSize * 2);
-        bc.offset = new Vector2(bc.offset.x, bc.size.y / 2);
-
-        BottomBracketComponents
-            .Where(x => x.TryGetComponent<OutputConnectionScript>(out _))
-            .ToList()
-            .ForEach(x => x.GetComponent<OutputConnectionScript>().Connected?.FixPositionInStack());
-
-        RetractOuter();
     }
 
     /// <summary>

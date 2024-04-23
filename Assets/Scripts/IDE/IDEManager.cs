@@ -41,7 +41,6 @@ public class IDEManager : MonoBehaviour
 
     [SerializeField]
     SliderBall _sizeSlider;
-    int curZoomLevel = 5;
     float minBlockSize = .3f;
 
     const float BLOCKSIZESTEP = .1f;
@@ -143,6 +142,7 @@ public class IDEManager : MonoBehaviour
 
         _sizeSlider.OnChange += OnZoomInOut;
         _transparencySlider.OnChange += TransparencyOnChange;
+        OnZoomInOut(5);
     }
 
     private void TransparencyOnChange(int value)

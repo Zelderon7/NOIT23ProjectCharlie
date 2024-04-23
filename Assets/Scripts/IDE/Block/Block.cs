@@ -29,13 +29,9 @@ public abstract class Block : MonoBehaviour, IEnumerable<Block>
     {
         get
         {
-            float ans = 0;
-            foreach(OutputConnectionScript ocs in outConnectorsScripts)
-            {
-                if(ocs.Connected != null)
-                    ans += ocs.Connected.IsPrimary ? ocs.Connected.Block.MySize + ocs.Connected.Block.StackSize : 0;
-            }
-            return ans;
+            if (outConnectorsScripts[^1].Connected != null && outConnectorsScripts[^1].Connected.IsPrimary)
+                return outConnectorsScripts[^1].Connected.Block.MySize + outConnectorsScripts[^1].Connected.Block.StackSize;
+            return 0;
         }
     }
 
