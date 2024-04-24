@@ -18,7 +18,7 @@ public class Key : MonoBehaviour, IInteractableGridObject
         }
     }
 
-    public void Interact(Action callback)
+    public void Interact(Action callback, int callerId)
     {
         StartCoroutine(PickMeUp());
         callback?.Invoke();

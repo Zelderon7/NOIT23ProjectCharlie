@@ -39,7 +39,7 @@ public class LoopBlock : Block
         else
         {
             if (outConnectorsScripts[1].Connected == null)
-                GameManager.Instance.GameOver();
+                (IDEManager.Instance.GetICodeableById(Owner) as ICodeable).OnCodeEnd();
             else
                 outConnectorsScripts[1].GoNext();
         }

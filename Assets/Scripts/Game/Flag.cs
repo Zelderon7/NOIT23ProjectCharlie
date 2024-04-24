@@ -1,20 +1,40 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Flag : MonoBehaviour, IInteractableGridObject
 {
-    public void Interact(Action callback)
+    static int FlagsCount = 0;
+    static HashSet<int> Finishers;
+
+    private void Awake()
     {
-        StartCoroutine(PickMeUp(callback));
+        Finishers = new HashSet<int>();
+        FlagsCount++;
     }
 
-    IEnumerator PickMeUp(Action callback)
+    private void OnDestroy()
+    {
+        FlagsCount = 0;
+        Finishers = new HashSet<int>();
+    }
+
+    public void Interact(Action callback, int callerId)
+    {
+        StartCoroutine(PickMeUp(callback, callerId));
+    }
+
+    IEnumerator PickMeUp(Action callback, int callerId)
     {
         callback?.Invoke();
         yield return new WaitForSeconds(GameManager.Instance.CellSize / 1.5f);
-        GetComponent<AudioSource>().Play(); 
+        GetComponent<AudioSource>().Play();
         //yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
-        GameManager.Instance.Victory();
+        Finishers.Add(callerId);
+        if(Finishers.Count >= FlagsCount)
+            GameManager.Instance.Victory();
+        else
+            callback?.Invoke();
     }
 }

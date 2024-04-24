@@ -2920,6 +2920,9 @@ MonoBehaviour:
   - Id: 1
     ObjectName: Robot
     Prefab: {fileID: 7021549350433633468, guid: b9f478c72d8c04849b4f9cb387ea63fc, type: 3}
+  - Id: 2
+    ObjectName: Robot2
+    Prefab: {fileID: 7021549350433633468, guid: 7bd2a98ffdae19d49a25995e21d07b0c, type: 3}
   StartCodeButton: {fileID: 637075991}
 --- !u!1 &1364518221
 GameObject:
@@ -3366,6 +3369,12 @@ MonoBehaviour:
   - Id: 5
     Name: Loop2
     Prefab: {fileID: 7987566804181896519, guid: 3eb4c37c1902cc3468d4e16ffa3c9033, type: 3}
+  - Id: 6
+    Name: Wait
+    Prefab: {fileID: 7987566804181896519, guid: 84bb609a1e8b4ff448f045bb15a53b7d, type: 3}
+  - Id: 7
+    Name: Call
+    Prefab: {fileID: 7987566804181896519, guid: 1c8858ecf2032c64fa9748d00caf6c3e, type: 3}
   StartButton: {fileID: 637075991}
   IDEBackground: {fileID: 1489801062}
   Drawer: {fileID: 563753952}

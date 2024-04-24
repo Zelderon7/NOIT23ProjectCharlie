@@ -27,6 +27,7 @@ public class DrawerScript : MonoBehaviour
     IEnumerator OnOpenCoroutine()
     {
         _inMotion = true;
+        StartCoroutine(RotateButton(1f, false));
         yield return StartCoroutine(MoveTransform(transform.parent, new Vector3(-.388f, 0, 0), 1f));
         IsOpen = true;
         _inMotion = false;
@@ -35,9 +36,22 @@ public class DrawerScript : MonoBehaviour
     IEnumerator OnCloseCoroutine()
     {
         _inMotion = true;
+        StartCoroutine(RotateButton(1f, true));
         yield return StartCoroutine(MoveTransform(transform.parent, new Vector3(-.615f, 0, 0), 1f));
         IsOpen = false;
         _inMotion = false;
+    }
+    IEnumerator RotateButton(float duration, bool clockwise)
+    {
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            yield return null;
+            elapsedTime += Time.deltaTime;
+            float angle = 180f * Time.deltaTime / duration;
+            transform.Rotate(clockwise ? Vector3.forward : Vector3.back, angle);
+        }
+        transform.Rotate(clockwise ? Vector3.forward : Vector3.back, 180f - elapsedTime);
     }
     public IEnumerator MoveTransform(Transform targetTransform, Vector3 targetPosition, float duration)
     {

@@ -49,13 +49,7 @@ public class ExtendBlock : MonoBehaviour
     /// </summary>
     private void Retract()
     {
-        // Calculate the target size
         float targetSize = 0;
-        /*if (MyBlock.outConnectorsScripts[0].Connected != null)
-        {
-            targetSize += MyBlock.outConnectorsScripts[0].Connected.Block.MySize;
-            targetSize += MyBlock.outConnectorsScripts[0].Connected.Block.StackSize;
-        }*/
 
         targetSize += CurrentlyIn
             .ConvertAll(x => x.StackHead)
@@ -94,6 +88,8 @@ public class ExtendBlock : MonoBehaviour
         else if (MyBlock.outConnectorsScripts[0].Connected != null)
         {
             MyBlock.outConnectorsScripts[0].Connected.Block.StackBottom.outConnectorsScripts[^1].Connect();
+            if (MyBlock.outConnectorsScripts[0].Connected.Block.StackBottom.outConnectorsScripts[^1].Connected == null)
+                MyBlock.outConnectorsScripts[0].Connected.Block.StackBottom.outConnectorsScripts[^1].ReconnectToPrevious();
         }
 
         _lastSize = targetSize;

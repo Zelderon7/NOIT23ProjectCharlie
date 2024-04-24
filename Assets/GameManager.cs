@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool _curMenuChangable = true;
-    private string _seed = "1,2,{3-[1,3]},0,0,1,0/0,2,2,2,1,2,0/{3-[5,2]},2,{3-[0,6]},0,0,1,0/0,1,0,0,{3-[2,5]},2,0/{3-[5,0]},2,0,0,{3-[0,0]},2,{3-[5,6]}/0,2,1,2,2,2,1/1,2,0,0,{3-[6,5]},1,4/;0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,{1-1-0-([0,1],[1,40],[2,8],[3,8],[4,1],[5,2])},0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/";
+    private string _seed = "1,2,{3-[1,3]},0,0,1,0/0,2,2,2,1,2,0/{3-[5,2]},2,{3-[0,6]},0,0,1,0/0,1,0,0,{3-[2,5]},2,0/{3-[5,0]},2,0,0,{3-[0,0]},2,{3-[5,6]}/0,2,1,2,2,2,1/1,2,0,0,{3-[6,5]},1,4/;0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,{2-0-1-([0,1],[1,40],[2,8],[3,8],[4,1],[5,2],[6,1])},{1-1-0-([0,1],[1,40],[2,8],[3,8],[4,1],[5,2],[7,1])},0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/";
     private string _levelName;
     private string _authorName;
     private float _gridXRepos = 2.15f;
@@ -128,6 +128,9 @@ public class GameManager : MonoBehaviour {
     private List<GameObject> grid = new List<GameObject>();
     string[,] _scriptableObjectData;
     int[,] _gridObjectData;
+
+    public Dictionary<GameObject, bool> Robots = new Dictionary<GameObject, bool>();
+
     public int GridWidth
     {
         get
@@ -272,6 +275,8 @@ public class GameManager : MonoBehaviour {
     public void InstantiateGrid()
     {
         grid.ForEach(item => { Destroy(item); });
+
+        Robots = new Dictionary<GameObject, bool>();
 
         Camera mainCamera = Camera.main;
 
@@ -622,7 +627,7 @@ public class GameManager : MonoBehaviour {
             _targetKey.Door = _targetdoor;
         }
 
-        OnGameRestart.Invoke();
+        OnGameRestart?.Invoke();
     }
 
     private void InstantiateGridFromData()
@@ -661,45 +666,20 @@ public class GameManager : MonoBehaviour {
 
                     Debug.Log($"Scriptable type: {scriptableObject.name} (id[{scriptableObjectId}])");
 
-                    if (scriptableObjectId == 1)
+                    temp = Instantiate(scriptableObject, grid[row * GridWidth + col].transform);
+                    grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = temp;
+                    if (_scriptableObjectDataArray[row * GridWidth + col] != null)
                     {
-                        if (_robot == null)
-                        {
-                            temp = Instantiate(scriptableObject, (GridParent.transform.parent));
-                            _robot = temp;
-                        }
-                        if (_scriptableObjectDataArray[row * GridWidth + col] != null)
-                        {
-                            _robot.GetComponent<ICodeable>().Id = _scriptableObjectDataArray[row * GridWidth + col].ReferenceId;
-                            _robot.GetComponent<ICodeable>().GridPosition = new Vector2(col, row);
-                            _robot.GetComponent<ICodeable>().GridRotation = _scriptableObjectDataArray[row * GridWidth + col].FacingDirection;
-                            _robot.GetComponent<ICodeable>().BlockTypes = _scriptableObjectDataArray[row * GridWidth + col].CodeBlocks;
-                        }
-
-                    } else
-                    {
-                        temp = Instantiate(scriptableObject, grid[row * GridWidth + col].transform);
-                        grid[row * GridWidth + col].GetComponent<Tile>().OccupyingObject = temp;
-                        if (_scriptableObjectDataArray[row * GridWidth + col] != null)
-                        {
-                            temp.GetComponent<ICodeable>().Id = _scriptableObjectDataArray[row * GridWidth + col].ReferenceId;
-                            temp.GetComponent<ICodeable>().GridPosition = new Vector2(col, row);
-                            temp.GetComponent<ICodeable>().GridRotation = _scriptableObjectDataArray[row * GridWidth + col].FacingDirection;
-                            temp.GetComponent<ICodeable>().BlockTypes = _scriptableObjectDataArray[row * GridWidth + col].CodeBlocks;
-                        }
+                        temp.GetComponent<ICodeable>().Id = _scriptableObjectDataArray[row * GridWidth + col].ReferenceId;
+                        temp.GetComponent<ICodeable>().GridPosition = new Vector2(col, row);
+                        temp.GetComponent<ICodeable>().GridRotation = _scriptableObjectDataArray[row * GridWidth + col].FacingDirection;
+                        temp.GetComponent<ICodeable>().BlockTypes = _scriptableObjectDataArray[row * GridWidth + col].CodeBlocks;
                     }
-
-                   
                 }
             }
         }
 
         DoorConnect();
-    }
-
-    private Object GetGridObjectById(int objectId)
-    {
-        return gridObjects.Find(obj => obj.Id == objectId);
     }
 
     #endregion SeedFetching
@@ -714,7 +694,7 @@ public class GameManager : MonoBehaviour {
         CommunicationManager.SendDataMethod("Game Over");
         StartCoroutine(Delay(1.5f, () => {
             GameOverWindowScreen.gameObject.SetActive(true);
-            Time.timeScale = 0;
+            //Time.timeScale = 0;
             GameOverWindowScreen.TryAgain.onClick.AddListener(() => OnTryAgain(GameOverWindowScreen.TryAgain));
         }));
     }
@@ -777,7 +757,7 @@ public class GameManager : MonoBehaviour {
         caller.transform.parent.gameObject.SetActive(false);
         InstantiateGridFromData();
         StartCodeButton.GetComponent<Button>().enabled = true;
-        Time.timeScale = 1;
+        //Time.timeScale = 1;
         IsGameOver = false;
     }
 
@@ -832,7 +812,7 @@ public class GameManager : MonoBehaviour {
         return false;
     }
 
-    public void Interact(int x, int y, Action callback)
+    public void Interact(int x, int y, Action callback, int callerId)
     {
 
         if (x < 0 || x >= GridWidth || y < 0 || y >= _gridHeight)
@@ -856,7 +836,7 @@ public class GameManager : MonoBehaviour {
             return;
         }
 
-        _temp.AutoInteract.Interact(callback);
+        _temp.AutoInteract.Interact(callback, callerId);
     }
 
     #endregion Grid Methods

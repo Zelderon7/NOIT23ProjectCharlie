@@ -2,7 +2,7 @@ using Unity.VisualScripting;
 
 public class StartBlock : Block
 {
-    internal void OnEnable()
+    private void Awake()
     {
         base.Awake();
         if (IDEManager.Instance != null)
@@ -16,7 +16,7 @@ public class StartBlock : Block
         if (outConnectorsScripts[0] != null)
             outConnectorsScripts[0].GoNext();
         else
-            GameManager.Instance.GameOver();
+            (IDEManager.Instance.GetICodeableById(Owner) as ICodeable).OnCodeEnd();
     }
 
     internal override void OnDestroy()

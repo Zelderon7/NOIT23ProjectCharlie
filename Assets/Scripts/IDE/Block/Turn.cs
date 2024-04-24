@@ -16,7 +16,7 @@ public class Turn : Block
                 outConnectorsScripts[0].GoNext();
             }
             else
-                GameManager.Instance.GameOver();
+                (IDEManager.Instance.GetICodeableById(Owner) as ICodeable).OnCodeEnd();
         });
     }
 }

@@ -11,7 +11,7 @@ public class MoveBlock : Block
 
         if (!GameManager.Instance.IsCellWalkable((int)targetLocation.x, (int)targetLocation.y))
         {
-            GameManager.Instance.GameOver();
+            (IDEManager.Instance.GetICodeableById(Owner) as ICodeable).OnCodeEnd();
             return;
         }
 
@@ -23,7 +23,7 @@ public class MoveBlock : Block
                 outConnectorsScripts[0].GoNext();
             }
             else
-                GameManager.Instance.GameOver();
+                (IDEManager.Instance.GetICodeableById(Owner) as ICodeable).OnCodeEnd();
         });
     }
 }

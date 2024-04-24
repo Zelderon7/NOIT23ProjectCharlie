@@ -13,10 +13,11 @@ public interface ICodeable
 
     Vector2 GridPosition { get; set; }
     BlockTypes[] BlockTypes { get; set; }
+    void OnCodeEnd();
 }
 public interface IInteractableGridObject
 {
-    void Interact(Action callback);
+    void Interact(Action callback, int callerId);
 }
 
 public interface IWalkable : ICodeable

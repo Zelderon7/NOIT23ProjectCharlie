@@ -39,7 +39,7 @@ public class Door : MonoBehaviour, IInteractableGridObject {
         _openAnimationDuration = OpenDoorClip.length;
     }
 
-    public void Interact(Action callback)
+    public void Interact(Action callback, int callerId)
     {
         if (IsLocked)
             return;

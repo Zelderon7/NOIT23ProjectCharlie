@@ -14,7 +14,7 @@ public class CodeablePort : MonoBehaviour
         if (!transform.parent.TryGetComponent(out Parent))
             throw new Exception("No ICodeable found in parent");
 
-        GameManager.OnGameRestart += () => { gameObject.SetActive(true); };
+        //GameManager.OnGameRestart += () => { gameObject.SetActive(true); };
     }
 
     void MyOnGameStart()

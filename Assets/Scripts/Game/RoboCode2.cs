@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using UnityEngine;
 
-public class RoboCode : MonoBehaviour, ICodeable, IWalkable
+public class RoboCode2 : MonoBehaviour, ICodeable, IWalkable
 {
     float _moveSpeed = 1.5f;
     int _currentDirectionIndex = 1;
@@ -15,7 +15,6 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
     Animator _animator;
     Vector2 _gridPos = Vector2.zero;
-    Block _starterBlock;
 
     [SerializeField] Transform Arrow;
     [SerializeField] AudioClip RotateClip;
@@ -65,10 +64,16 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         }
     }
 
+    void ICodeable.OnCodeEnd()
+    {
+        GameManager.Instance.Robots[this.gameObject] = true;
+        if (GameManager.Instance.Robots.All(x => x.Value))
+            GameManager.Instance.GameOver();
+    }
+
     private void Awake()
     {
         GameManager.Instance.Robots.Add(this.gameObject, false);
-
         _animator = GetComponent<Animator>();
         _audioSource = GetComponent<AudioSource>();
 
@@ -195,12 +200,5 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
         transform.position = startPosition + direction * distance;
         callback?.Invoke();
-    }
-
-    void ICodeable.OnCodeEnd()
-    {
-        GameManager.Instance.Robots[this.gameObject] = true;
-        if (GameManager.Instance.Robots.All(x => x.Value))
-            GameManager.Instance.GameOver();
     }
 }
