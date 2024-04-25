@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class CodeablePort : MonoBehaviour
 {
-    public ICodeable Parent;
+    [SerializeField] Component Parent;
+
     public static Action OnGameStart = () => { };
 
     public void InvokeOnGameStart() => OnGameStart.Invoke();
@@ -22,7 +23,7 @@ public class CodeablePort : MonoBehaviour
 
     private void OnMouseDown()
     {
-        IDEManager.Instance.CurrentlyProgramed = Parent;
+        IDEManager.Instance.CurrentlyProgramed = Parent as ICodeable;
         GameManager.Instance.CurrentMenu = GameManager.Menus.IDE;
     }
 

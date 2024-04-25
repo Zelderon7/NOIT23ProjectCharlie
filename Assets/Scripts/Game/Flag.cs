@@ -8,6 +8,9 @@ public class Flag : MonoBehaviour, IInteractableGridObject
     static int FlagsCount = 0;
     static HashSet<int> Finishers;
 
+    [SerializeField]
+    Color collectedColor;
+
     private void Awake()
     {
         Finishers = new HashSet<int>();
@@ -27,12 +30,11 @@ public class Flag : MonoBehaviour, IInteractableGridObject
     IEnumerator PickMeUp(Action callback, int callerId)
     {
         callback?.Invoke();
-        yield return new WaitForSeconds(GameManager.Instance.CellSize / 1.5f);
+        yield return new WaitForSeconds(.6f);
+        GetComponent<SpriteRenderer>().color = collectedColor;
         GetComponent<AudioSource>().Play();
         Finishers.Add(callerId);
-        if(Finishers.Count >= FlagsCount)
+        if (Finishers.Count >= FlagsCount)
             GameManager.Instance.Victory();
-        else
-            callback?.Invoke();
     }
 }

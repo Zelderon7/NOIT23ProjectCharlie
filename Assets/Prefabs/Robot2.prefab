@@ -206,7 +206,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.01759091, y: 0.040207863}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -217,7 +217,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.4119603, y: 0.67833734}
   m_EdgeRadius: 0
 --- !u!95 &5313803661882475014
 Animator:
@@ -402,6 +402,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CodablePort
       objectReference: {fileID: 0}
+    - target: {fileID: 7072340231113319705, guid: 687e479a01f057e4b8554a5913e9331a, type: 3}
+      propertyPath: Parent
+      value: 
+      objectReference: {fileID: 1943104908642475766}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
