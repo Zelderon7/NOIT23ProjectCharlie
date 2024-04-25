@@ -54,9 +54,6 @@ public class IDEManager : MonoBehaviour
     [SerializeField] private GameObject IDEBackground;
     [SerializeField] private GameObject Drawer;
 
-    public Dictionary<int, Block> HighestBlock { get; private set; } = new Dictionary<int, Block>();
-    public Dictionary<int, Block> LowestBlock { get; private set; } = new Dictionary<int, Block>();
-
     public ICodeable GetICodeableById(int id) => CodeableObjectsDictionary[id];
 
     public int CurrentlyProgramedId
@@ -112,11 +109,6 @@ public class IDEManager : MonoBehaviour
             if (CodeableObjectsDictionary[value.Id] != value)
                 CodeableObjectsDictionary[value.Id] = value;
 
-            if (!LowestBlock.ContainsKey(value.Id))
-                LowestBlock.Add(value.Id, null);
-            if (!HighestBlock.ContainsKey(value.Id))
-                HighestBlock.Add(value.Id, null);
-
             if (!_blockSizes.ContainsKey(value.Id))
                 _blockSizes.Add(value.Id, 1f);
 
@@ -162,68 +154,19 @@ public class IDEManager : MonoBehaviour
         Block.OnResize(BlockSize);
     }
 
-    public bool CheckPlacingPositionY(Block block)
-    {
-        if (LowestBlock[CurrentlyProgramedId] != null)
-        {
-            if (block.transform.parent.position.y < LowestBlock[CurrentlyProgramedId].transform.parent.position.y - _maxDistanceToBlock)
-                return false;
-        }
-        else if (block.transform.parent.position.y < -_maxDistanceToBlock)
-            return false;
-
-        if (HighestBlock[CurrentlyProgramedId] != null)
-        {
-            if (block.transform.parent.position.y > HighestBlock[CurrentlyProgramedId].transform.parent.position.y + _maxDistanceToBlock)
-                return false;
-        }
-        else if (block.transform.parent.position.y > _maxDistanceToBlock)
-            return false;
-
-        return true;
-    }
-
     public void OnBlockRepositioning(Block block)
     {
-        if (HighestBlock[CurrentlyProgramedId] == null)
-        {
-            HighestBlock[CurrentlyProgramedId] = block;
-            HighestBlock[CurrentlyProgramedId].OnPickup += OnHighestpickup;
-        }
-        else if (block.transform.parent.position.y > HighestBlock[CurrentlyProgramedId].transform.parent.position.y)
-        {
-            HighestBlock[CurrentlyProgramedId].OnPickup -= OnHighestpickup;
-            HighestBlock[CurrentlyProgramedId] = block;
-            HighestBlock[CurrentlyProgramedId].OnPickup += OnHighestpickup;
-        }
-
-        if (LowestBlock[CurrentlyProgramedId] == null)
-        {
-            LowestBlock[CurrentlyProgramedId] = block;
-            LowestBlock[CurrentlyProgramedId].OnPickup += OnLowestpickup;
-        }
-        else if (block.transform.parent.position.y < LowestBlock[CurrentlyProgramedId].transform.parent.position.y)
-        {
-            LowestBlock[CurrentlyProgramedId].OnPickup -= OnLowestpickup;
-            LowestBlock[CurrentlyProgramedId] = block;
-            LowestBlock[CurrentlyProgramedId].OnPickup += OnLowestpickup;
-        }
+        
     }
 
     public void OnBlockDestruction(Block block)
     {
         _savedPrograms[CurrentlyProgramedId].Remove(block.transform.parent.gameObject);
-
-        if (LowestBlock[CurrentlyProgramedId] == block)
-            OnLowestpickup();
-        if (HighestBlock[CurrentlyProgramedId] == block)
-            OnHighestpickup();
     }
 
     public void OnBlockCreation(GameObject block)
     {
         _savedPrograms[CurrentlyProgramedId].Add(block);
-        OnBlockRepositioning(block.GetComponentInChildren<Block>());
     }
 
     public void StartCode()
@@ -289,17 +232,18 @@ public class IDEManager : MonoBehaviour
 
     private void SaveProgram(int programId)
     {
-        for (int i = 0; i < _savedPrograms[programId].Count; i++)
+        foreach (var item in _savedPrograms[programId])
         {
-            _savedPrograms[programId][i].SetActive(false);
+            item.SetActive(false);
         }
     }
 
     private void LoadProgram(int programId)
     {
-        for (int i = 0; i < _savedPrograms[programId].Count; i++)
+        OnZoomInOut(_sizeSlider.CurrentStep);
+        foreach (var item in _savedPrograms[programId])
         {
-            _savedPrograms[programId][i].SetActive(true);
+            item.SetActive(true);
         }
     }
 
@@ -313,35 +257,5 @@ public class IDEManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1.5f);
         IsActive = true;
-    }
-
-    private void OnLowestpickup()
-    {
-        LowestBlock[CurrentlyProgramedId].OnPickup -= OnLowestpickup;
-        GameObject _temp = _savedPrograms[CurrentlyProgramedId]
-            .OrderBy(x => x.transform.position.y)
-            .FirstOrDefault(x => x != LowestBlock[CurrentlyProgramedId].transform.parent.gameObject);
-        if (_temp != null)
-        {
-            LowestBlock[CurrentlyProgramedId] = _temp.GetComponentInChildren<Block>();
-            LowestBlock[CurrentlyProgramedId].OnPickup += OnLowestpickup;
-        }
-        else
-            LowestBlock[CurrentlyProgramedId] = null;
-    }
-
-    private void OnHighestpickup()
-    {
-        HighestBlock[CurrentlyProgramedId].OnPickup -= OnHighestpickup;
-        GameObject _temp = _savedPrograms[CurrentlyProgramedId]
-            .OrderByDescending(x => x.transform.position.y)
-            .FirstOrDefault(x => x != HighestBlock[CurrentlyProgramedId].transform.parent.gameObject);
-        if (_temp != null)
-        {
-            HighestBlock[CurrentlyProgramedId] = _temp.GetComponentInChildren<Block>();
-            HighestBlock[CurrentlyProgramedId].OnPickup += OnHighestpickup;
-        }
-        else
-            HighestBlock[CurrentlyProgramedId] = null;
     }
 }

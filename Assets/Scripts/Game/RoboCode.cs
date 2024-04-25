@@ -67,7 +67,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
 
     private void Awake()
     {
-        GameManager.Instance.Robots.Add(this.gameObject, false);
+        GameManager.Instance.Robots.Add(this.gameObject, true);
 
         _animator = GetComponent<Animator>();
         _audioSource = GetComponent<AudioSource>();
@@ -77,7 +77,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
             IDEManager.Instance.CurrentlyProgramed = this;
             transform.position = GameManager.Instance.GetCellPos((int)_gridPos.x, (int)_gridPos.y);
             if (FacingDirection.x != 0)
-                transform.localScale = new Vector2(GameManager.Instance.CellSize * FacingDirection.x * -1, GameManager.Instance.CellSize);
+                transform.localScale = new Vector2(FacingDirection.x * -1, 1);
         }
     }
 
@@ -86,7 +86,7 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         IDEManager.Instance.CurrentlyProgramed = this;
         transform.position = GameManager.Instance.GetCellPos((int)_gridPos.x, (int)_gridPos.y);
         if (FacingDirection.x != 0)
-            transform.localScale = new Vector2(GameManager.Instance.CellSize * FacingDirection.x * -1, GameManager.Instance.CellSize);
+            transform.localScale = new Vector2(FacingDirection.x * -1, 1);
     }
 
     void UpdateArrow()
@@ -197,10 +197,24 @@ public class RoboCode : MonoBehaviour, ICodeable, IWalkable
         callback?.Invoke();
     }
 
+    void ICodeable.OnCodeStart() 
+    {
+        GameManager.Instance.Robots[this.gameObject] = false;
+    }
+
     void ICodeable.OnCodeEnd()
     {
         GameManager.Instance.Robots[this.gameObject] = true;
         if (GameManager.Instance.Robots.All(x => x.Value))
-            GameManager.Instance.GameOver();
+        {
+            StartCoroutine(EndGame());
+        }
+            
+    }
+
+    IEnumerator EndGame()
+    {
+        yield return new WaitForSeconds(1.5f);
+        GameManager.Instance.GameOver();
     }
 }

@@ -2,8 +2,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class Door : MonoBehaviour, IInteractableGridObject {
-
+public class Door : MonoBehaviour, IInteractableGridObject 
+{
     float _openAnimationDuration;
     bool _isLocked;
 
@@ -15,8 +15,6 @@ public class Door : MonoBehaviour, IInteractableGridObject {
     SpriteRenderer _mySpriteRenderer;
     AudioSource _myAudioSource;
     AudioClip OpenDoorClip;
-
-    
 
     public bool IsLocked
     {

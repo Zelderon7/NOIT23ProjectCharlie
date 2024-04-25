@@ -16,8 +16,7 @@ public class Flag : MonoBehaviour, IInteractableGridObject
 
     private void OnDestroy()
     {
-        FlagsCount = 0;
-        Finishers = new HashSet<int>();
+        FlagsCount--;
     }
 
     public void Interact(Action callback, int callerId)
@@ -30,7 +29,6 @@ public class Flag : MonoBehaviour, IInteractableGridObject
         callback?.Invoke();
         yield return new WaitForSeconds(GameManager.Instance.CellSize / 1.5f);
         GetComponent<AudioSource>().Play();
-        //yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
         Finishers.Add(callerId);
         if(Finishers.Count >= FlagsCount)
             GameManager.Instance.Victory();

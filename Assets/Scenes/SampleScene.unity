@@ -2545,7 +2545,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8377814793626799067, guid: 3d3236b6330ac7f478a3e68356b828af, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.00699997
+      value: 0.007
       objectReference: {fileID: 0}
     - target: {fileID: 8377814793626799067, guid: 3d3236b6330ac7f478a3e68356b828af, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2822,6 +2822,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1349353771}
   - component: {fileID: 1349353772}
+  - component: {fileID: 1349353773}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2924,6 +2925,112 @@ MonoBehaviour:
     ObjectName: Robot2
     Prefab: {fileID: 7021549350433633468, guid: 7bd2a98ffdae19d49a25995e21d07b0c, type: 3}
   StartCodeButton: {fileID: 637075991}
+  audioClips:
+  - {fileID: 8300000, guid: 3344b40ba9b3fa346af2dc19dfec7dfb, type: 3}
+  - {fileID: 8300000, guid: 862d4c0fb99c19d40bb4672dd1affc64, type: 3}
+  backgrounds:
+  - {fileID: 21300000, guid: 93ea720f0035d814e88e43343dc5f1e2, type: 3}
+  - {fileID: 21300000, guid: 5bd0ab427ac083548841a7504489700e, type: 3}
+  - {fileID: 21300000, guid: 5b10278a18c905f46bc4551ffb9c664f, type: 3}
+  - {fileID: 21300000, guid: 5404c65105fa3a24e9085b2b057e1d1c, type: 3}
+  - {fileID: 21300000, guid: 7f38bb0075d27ac45b05a84785835e0d, type: 3}
+  backgroundSR: {fileID: 322268777}
+--- !u!82 &1349353773
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349353770}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 0.61
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 211
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1364518221
 GameObject:
   m_ObjectHideFlags: 0
@@ -3364,11 +3471,11 @@ MonoBehaviour:
     Name: Turn Left
     Prefab: {fileID: 164645760845261873, guid: 1d8c0fe30dbdc71418e58789e524b6cb, type: 3}
   - Id: 4
-    Name: Loop
+    Name: Loop5
     Prefab: {fileID: 7987566804181896519, guid: e2e2a3ab1c5eb4f429f1f4aa5d5f282d, type: 3}
   - Id: 5
     Name: Loop2
-    Prefab: {fileID: 7987566804181896519, guid: 3eb4c37c1902cc3468d4e16ffa3c9033, type: 3}
+    Prefab: {fileID: 7987566804181896519, guid: ed3018457d974d74bb973f9bf8820c21, type: 3}
   - Id: 6
     Name: Wait
     Prefab: {fileID: 7987566804181896519, guid: 84bb609a1e8b4ff448f045bb15a53b7d, type: 3}

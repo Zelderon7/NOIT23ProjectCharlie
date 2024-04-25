@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool _curMenuChangable = true;
-    private string _seed = "1,2,{3-[1,3]},0,0,1,0/0,2,2,2,1,2,0/{3-[5,2]},2,{3-[0,6]},0,0,1,0/0,1,0,0,{3-[2,5]},2,0/{3-[5,0]},2,0,0,{3-[0,0]},2,{3-[5,6]}/0,2,1,2,2,2,1/1,2,0,0,{3-[6,5]},1,4/;0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,{2-0-1-([0,1],[1,40],[2,8],[3,8],[4,1],[5,2],[6,1])},{1-1-0-([0,1],[1,40],[2,8],[3,8],[4,1],[5,2],[7,1])},0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/0,0,0,0,0,0,0/";
+    private string _seed = "1-1|4,2,2,2,2,0/0,0,0,0,0,0/0,2,2,2,2,4/;0,0,0,0,0,{2-1-1-([0,5],[2,1],[5,1],[1,1])}/0,0,0,0,0,0/{1-1-0-([0,5],[1,2],[3,1])},0,0,0,0,0/";
     private string _levelName;
     private string _authorName;
     private float _gridXRepos = 2.15f;
@@ -161,7 +161,6 @@ public class GameManager : MonoBehaviour {
     }
 
     private List<GridObjectConnections> _gridObjectsConnections = new List<GridObjectConnections>();
-    private GameObject _robot;
 
     public static Action OnGameOver;
     public static Action OnGameRestart;
@@ -227,6 +226,19 @@ public class GameManager : MonoBehaviour {
     }
 
     #endregion Singleton pattern
+
+    [SerializeField]
+    List<AudioClip> audioClips = new List<AudioClip>();
+
+    int _currentSong;
+
+    [SerializeField]
+    List<Sprite> backgrounds = new List<Sprite>();
+
+    [SerializeField]
+    SpriteRenderer backgroundSR;
+
+    int _currentBackground;
 
     private void Awake()
     {
@@ -469,6 +481,15 @@ public class GameManager : MonoBehaviour {
         seed ??= _seed;
 
         Debug.Log($"Processing seed: {seed}");
+
+        _currentSong = int.Parse(seed[0] + "");
+        _currentBackground = int.Parse(seed[2] + "");
+        seed = seed[4..];
+
+        GetComponent<AudioSource>().clip = audioClips[_currentSong];
+        GetComponent<AudioSource>().Play();
+
+        backgroundSR.sprite = backgrounds[_currentBackground];
 
         string[] subseeds = seed.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
@@ -757,7 +778,6 @@ public class GameManager : MonoBehaviour {
         caller.transform.parent.gameObject.SetActive(false);
         InstantiateGridFromData();
         StartCodeButton.GetComponent<Button>().enabled = true;
-        //Time.timeScale = 1;
         IsGameOver = false;
     }
 

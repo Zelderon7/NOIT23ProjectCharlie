@@ -6,14 +6,11 @@ using System;
 public interface ICodeable
 {
     int Id { get; set; }
-    int GridRotation
-    {
-        get; set;
-    }
-
+    int GridRotation { get; set; }
     Vector2 GridPosition { get; set; }
     BlockTypes[] BlockTypes { get; set; }
     void OnCodeEnd();
+    void OnCodeStart();
 }
 public interface IInteractableGridObject
 {

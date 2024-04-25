@@ -20,7 +20,6 @@ public abstract class Block : MonoBehaviour, IEnumerable<Block>
     { 
         get
         {
-            //return IDEManager.Instance.BlockSize;
             return 1;
         } 
     }
@@ -73,7 +72,6 @@ public abstract class Block : MonoBehaviour, IEnumerable<Block>
     public InputConnector[] inputConnectorsScripts { get; private set; } = null;
 
     Vector2 dragOffset = Vector2.zero;
-    Vector2 lastPos = Vector2.zero;
 
     Action ForDestroy = null;
     
@@ -85,7 +83,6 @@ public abstract class Block : MonoBehaviour, IEnumerable<Block>
         outConnectorsScripts = outConnectorsHolder != null ? outConnectorsHolder.GetComponentsInChildren<OutputConnectionScript>(true) : new OutputConnectionScript[0];
         inputConnectorsScripts = inpConnectorsHolder != null ? inpConnectorsHolder.GetComponentsInChildren<InputConnector>(true) : new InputConnector[0];
 
-        lastPos = transform.parent.position;
         if(IDEManager.Instance != null)
         {
             Owner = IDEManager.Instance.CurrentlyProgramedId;
@@ -164,8 +161,6 @@ public abstract class Block : MonoBehaviour, IEnumerable<Block>
                 outputConnection.Disconnect();
             }
         }
-
-        
     }
 
     public void PrepDragAlong()
@@ -269,7 +264,7 @@ public abstract class Block : MonoBehaviour, IEnumerable<Block>
 
     public void PutDownBlock()
     {
-        if (CheckColliderOutOfScreenSpace(1.3f) || !IDEManager.Instance.CheckPlacingPositionY(this))
+        if (CheckColliderOutOfScreenSpace(1.3f))
         {
             Debug.LogError("TODO: Move in bounds");
             return;
@@ -286,7 +281,6 @@ public abstract class Block : MonoBehaviour, IEnumerable<Block>
             }
         }
 
-        lastPos = transform.parent.position;
         IDEManager.Instance.OnBlockRepositioning(this);
         IsPickedUp = false;
     }
@@ -336,6 +330,6 @@ public abstract class Block : MonoBehaviour, IEnumerable<Block>
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        throw new NotImplementedException();
+        return new BlockEnumerator(this);
     }
 }

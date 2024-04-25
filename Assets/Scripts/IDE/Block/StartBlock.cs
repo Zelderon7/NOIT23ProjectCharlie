@@ -13,6 +13,7 @@ public class StartBlock : Block
 
     public override void RunBlock(InputConnector connectorInUse = null)
     {
+        IDEManager.Instance.GetICodeableById(Owner).OnCodeStart();
         if (outConnectorsScripts[0] != null)
             outConnectorsScripts[0].GoNext();
         else

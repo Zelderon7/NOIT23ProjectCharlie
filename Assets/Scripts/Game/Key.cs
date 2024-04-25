@@ -26,7 +26,7 @@ public class Key : MonoBehaviour, IInteractableGridObject
 
     IEnumerator PickMeUp()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(.5f);
         GetComponent<AudioSource>().Play();
         Door.Unlock();
         yield return new WaitForSeconds(GetComponent<AudioSource>().clip.length);
